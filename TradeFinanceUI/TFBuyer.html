@@ -1,0 +1,208 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+ <style type="text/css">
+
+    body {
+     background-color:#F0F0F0;
+     padding-top: 1em;
+     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+    }
+
+ </style>
+
+ <script src="./../../EthereumInstallations/node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="LoC-Status" onclick='processNavigationBar_ToLoCStatus(event);' href="./TFLoCStatus.html">LoC-Status</a>
+            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+            <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 95%">
+
+        <div class="LeftBrowserBox" style="width: 10%">
+        </div>
+
+        <div class="ContentBrowser" style="width: 85%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+
+            <h1 class="Place-Shipment-Order">Shipment Order Placement</h1>
+
+
+            <div class="LetterOfCredit-Details" style="width: 80%">
+
+                <p id="buffer2" style="padding-bottom : 10px"> </p>
+
+                <div class="Shipment-Label-Container" style="width: 25%">
+
+                    <label id="Label_Seller_Name" class="Label-Seller-Name" style="padding-right: 40px; color: #7d4438">Seller</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Seller_Id" class="Label-Seller-Id" style="padding-right: 40px; color: #7d4438">Seller Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Bank_Name" class="Label-Bank-Name" style="padding-right: 40px; color: #7d4438">Bank Name</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Shipment" class="Label-Shipment" style="padding-right: 40px; color: #7d4438">Shipment</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Shipment_Count" class="Label-Shipment-Count" style="padding-right: 40px; color: #7d4438">Shipment Count</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Credit_Amount" class="Label-Credit-Amount" style="padding-right: 40px; color: #7d4438">Credit Amount</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Expiry_Date" class="Label-LoC-Expiry-Date" style="padding-right: 40px; color: #7d4438">Expiry Date</label>
+
+                </div>
+
+                <div class="Shipment-Input-Container" style="width: 25%">
+
+                    <select id="Seller-Input">
+                        <option value="BMW">BMW ( Germany )</option>
+                        <option value="Adidas">Adidas ( Germany )</option>
+                        <option value="Firestar">Firestar ( India )</option>
+                        <option value="Reliance">Reliance ( India )</option>
+                        <option value="Kohinoor">Kohinoor Foods Ltd ( India )</option>
+                        <option value="Eni">Eni ( Italy )</option>
+                        <option value="Finmeccanica">Finmeccanica ( Italy )</option>
+                        <option value="Intel">Intel ( USA )</option>
+                        <option value="PepsiCo">PepsiCo ( USA )</option>
+                        <option value="P & G">Procter & Gamble ( USA )</option>
+                    </select>
+                    <br />
+                    <br />
+                    
+                    <select id="Seller-Id-Input">
+                        <option value="BMW-Id">ABCD-2345</option>
+                        <option value="Adidas-Id">ABCD-2346</option>
+                        <option value="Firestar-Id">ABCD-2347</option>
+                        <option value="Reliance-Id">ABCD-2348</option>
+                        <option value="Kohinoor-Id">ABCD-2349</option>
+                        <option value="Eni-Id">ABCD-2350</option>
+                        <option value="Finmeccanica-Id">ABCD-2351</option>
+                        <option value="Intel-Id">ABCD-2352</option>
+                        <option value="PepsiCo-Id">ABCD-2353</option>
+                        <option value="P & G-Id">ABCD-2354</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Seller-Id-Input">
+                        <option value="Deutsche">Deutsche Bank</option>
+                        <option value="VarenGold">VarenGold Bank</option>
+                        <option value="HDFC">HDFC Bank</option>
+                        <option value="ICICI">ICICI Bank</option>
+                        <option value="Yes">Yes Bank</option>
+                        <option value="Banca Credito Italiano">Banca Credito Italiano</option>
+                        <option value="Banca Monte Dei Paschi Di Siena">Banca Monte Dei Paschi Di Siena</option>
+                        <option value="American Express">American Express</option>
+                        <option value="ANZ">ANZ</option>
+                        <option value="Bank Of America">Bank Of America</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Shipment-Input">
+                        <option value="Cars">Cars</option>
+                        <option value="Apparel">Apparel</option>
+                        <option value="Diamonds">Diamonds</option>
+                        <option value="Processed Oil">Processed Petroleum Oil</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Oil And Gas">Oil & Gas</option>
+                        <option value="Aerospace">Aerospace</option>
+                        <option value="Semiconductors">Semiconductors</option>
+                        <option value="Soda">Soda</option>
+                        <option value="Personal Care">Household & Personal Care</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <input id="ShipmentCount" type="text">
+                    <br />
+                    <br />
+
+                    <input id="CreditAmountInput" type="text">
+                    <br />
+                    <br />
+
+                    <input id="ExpiryDateInput" type="text">
+
+                </div>
+
+                <div class="Shipment-Input-Details-Label-Container" style="width: 10%">
+
+                    <label id="Label_Currency_Unit" class="Label-Currency-Unit" style="color: #7d4438">Unit Of Currency</label>
+                    <br />
+                    <br />
+
+                </div>
+
+                <div class="Shipment-Input-Details-Input-Container" style="width: 15%">
+
+                    <select id="Currency-Unit">
+                        <option value="Dollars">USD</option>
+                        <option value="Rupees">INR</option>
+                        <option value="Euro">EURO</option>
+                    </select>
+                    <br />
+                    <br />
+
+                </div>
+
+            </div>
+
+            <div class="Shipment-Submit-Input">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="Shipment-Order-Submit" class="Shipment-Order-Submit-button">Request LC</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+
+
