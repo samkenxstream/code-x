@@ -26,10 +26,10 @@ package main
 
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"bytes"
 	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -40,16 +40,22 @@ import (
 type SmartContract struct {
 }
 
-
+// Define the trade agreement
+type TradeAgreement struct {
+	TAId 			string    	`json:"tradeAgreementId"`
+	Amount			int		`json:"amount"`
+	Goods			string		`json:"Goods"`
+	Status			string		`json:"status"` //REQUESTED,ACCEPTED,SHIPPED,GOODS RECEIVED,PAYMENT REQUESTED,PAYMENT DONE
+}
 // Define the letter of credit
 type LetterOfCredit struct {
-	LCId			string		`json:"lcId"`
+	LCId			string		`json:"id"`
 	ExpiryDate		string		`json:"expiryDate"`
-	Buyer    string   `json:"buyer"`
-	Bank		string		`json:"bank"`
-	Seller		string		`json:"seller"`
+	Buyer    		string   	`json:"buyer"`
+	Bank			string		`json:"bank"`
+	Seller			string		`json:"seller"`
 	Amount			int		`json:"amount"`
-	Status			string		`json:"status"`
+	Status			string		`json:"status"` //REQUESTED,ISSUED,ACCEPTED
 }
 
 
@@ -62,12 +68,22 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
 	// Route to the appropriate handler function to interact with the ledger appropriately
-	if function == "requestLC" {
+	if function == "acceptTrade" {
+		return s.acceptTrade(APIstub, args)
+	} else if function == "requestTrade" {
+		return s.requestTrade(APIstub,args)
+	} else if function == "requestLC" {
 		return s.requestLC(APIstub, args)
 	} else if function == "issueLC" {
-		return s.issueLC(APIstub, args)
+		return s.issueLC(APIstub,args)
 	} else if function == "acceptLC" {
-		return s.acceptLC(APIstub, args)
+		return s.acceptLC(APIstub,args)
+	} else if function == "sendShipment" {
+		return s.sendShipment(APIstub,args)
+	} else if function == "requestPayment" {
+		return s.requestPayment(APIstub, args)
+	}else if function == "makePayment" {
+		return s.makePayment(APIstub, args)
 	}else if function == "getLC" {
 		return s.getLC(APIstub, args)
 	}else if function == "getLCHistory" {
@@ -77,109 +93,311 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
+func (s *SmartContract) requestTrade(APIstub shim.ChaincodeStubInterface,args []string) sc.Response {
 
-
-
-
-// This function is initiate by Buyer 
-func (s *SmartContract) requestLC(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	lcId := args[0];
-	expiryDate := args[1];
-	buyer := args[2];
-	bank := args[3];
-	seller := args[4];
-	amount, err := strconv.Atoi(args[5]);
+	tradeAgreementId := args[0]
+	Amount, err := strconv.Atoi(args[1])
 	if err != nil {
-		return shim.Error("Not able to parse Amount")
+		return shim.Error("No Amount")
 	}
+	goods := args[2]
 
+	TradeAgreement := TradeAgreement{TAId: tradeAgreementId, Amount: Amount, Goods: goods, Status: "REQUESTED"}
+	tradeAgreementBytes, err := json.Marshal(TradeAgreement)
 
-	LC := LetterOfCredit{LCId: lcId, ExpiryDate: expiryDate, Buyer: buyer, Bank: bank, Seller: seller, Amount: amount, Status: "Requested"}
-	LCBytes, err := json.Marshal(LC)
-
-    APIstub.PutState(lcId,LCBytes)
-	fmt.Println("LC Requested -> ", LC)
-
-	
+  APIstub.PutState(tradeAgreementId,tradeAgreementBytes)
+	fmt.Printf("Trade %s REQUESTED\n", args[0])
 
 	return shim.Success(nil)
 }
 
-// This function is initiate by Seller
+func (s *SmartContract) acceptTrade(APIstub shim.ChaincodeStubInterface,args []string) sc.Response {
+
+	var tradeAgreement *TradeAgreement
+	var tradeAgreementBytes []byte
+	var err error
+
+	tradeAgreementId := args[0]
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+  if err != nil {
+	 return shim.Error(err.Error())
+  }
+
+	if tradeAgreement.Status == "ACCEPTED" {
+		fmt.Printf("Trade %s already accepted", args[0])
+	} else {
+		tradeAgreement.Status = "ACCEPTED"
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+			return shim.Error("Error marshaling trade agreement structure")
+		}
+
+		err = APIstub.PutState(tradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+	}
+}
+fmt.Printf("Trade %s ACCEPTED\n", args[0])
+
+return shim.Success(nil)
+}
+
+func (s *SmartContract) requestLC(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var tradeAgreementBytes, letterOfCreditBytes []byte
+	var tradeAgreement TradeAgreement
+	var letterOfCredit LetterOfCredit
+	var err error
+
+	tradeAgreementId := args[0]
+	LCId := args[1]
+	expirationDate := args[2]
+	buyer := args[3]
+	bank := args[4]
+	seller := args[5]
+
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if tradeAgreement.Status != "ACCEPTED" {
+		return shim.Error("Trade has not been ACCEPTED")
+	}
+
+	letterOfCredit = LetterOfCredit{LCId: LCId, ExpiryDate: expirationDate, Buyer: buyer, Bank: bank, Seller: seller , Amount: tradeAgreement.Amount, Status: "REQUESTED"}
+	letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+	if err != nil {
+		return shim.Error("Error marshaling letter of credit structure")
+	}
+	err = APIstub.PutState(LCId, letterOfCreditBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Letter of Credit %s REQUESTED\n", LCId)
+
+	return shim.Success(nil)
+}
+
 func (s *SmartContract) issueLC(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	lcId := args[0];
-	
-	// if err != nil {
-	// 	return shim.Error("No Amount")
-	// }
+	var letterOfCreditBytes []byte
+	var letterOfCredit LetterOfCredit
+	var err error
 
-	LCAsBytes, _ := APIstub.GetState(lcId)
+	LCId := args[0]
 
-	var lc LetterOfCredit
-
-	err := json.Unmarshal(LCAsBytes, &lc)
-
+	letterOfCreditBytes, err = APIstub.GetState(LCId)
 	if err != nil {
-		return shim.Error("Issue with LC json unmarshaling")
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
-
-	LC := LetterOfCredit{LCId: lc.LCId, ExpiryDate: lc.ExpiryDate, Buyer: lc.Buyer, Bank: lc.Bank, Seller: lc.Seller, Amount: lc.Amount, Status: "Issued"}
-	LCBytes, err := json.Marshal(LC)
-
-	if err != nil {
-		return shim.Error("Issue with LC json marshaling")
+	if letterOfCredit.Status != "REQUESTED" {
+		return shim.Error("Letter of Credit Not Requested")
+	}else if letterOfCredit.Status == "ACCEPTED" {
+		return shim.Error("Letter of Credit Already Accepted")
+	}else{
+		letterOfCredit.Status = "ISSUED"
+		letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+		if err != nil {
+			return shim.Error("Error marshaling letter of credit structure")
+		}
 	}
-
-    APIstub.PutState(lc.LCId,LCBytes)
-	fmt.Println("LC Issued -> ", LC)
-
+	err = APIstub.PutState(LCId, letterOfCreditBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Letter of Credit %s ISSUED\n", LCId)
 
 	return shim.Success(nil)
 }
 
 func (s *SmartContract) acceptLC(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	lcId := args[0];
-	
-	
+	var letterOfCreditBytes []byte
+	var letterOfCredit LetterOfCredit
+        var err error
 
-	LCAsBytes, _ := APIstub.GetState(lcId)
+	LCId := args[0]
 
-	var lc LetterOfCredit
-
-	err := json.Unmarshal(LCAsBytes, &lc)
-
+	letterOfCreditBytes, err = APIstub.GetState(LCId)
 	if err != nil {
-		return shim.Error("Issue with LC json unmarshaling")
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
-
-	LC := LetterOfCredit{LCId: lc.LCId, ExpiryDate: lc.ExpiryDate, Buyer: lc.Buyer, Bank: lc.Bank, Seller: lc.Seller, Amount: lc.Amount, Status: "Accepted"}
-	LCBytes, err := json.Marshal(LC)
-
-	if err != nil {
-		return shim.Error("Issue with LC json marshaling")
+	if letterOfCredit.Status != "ISSUED" {
+		return shim.Error("Letter of Credit Not Issued")
+	}else if letterOfCredit.Status == "ACCEPTED" {
+		return shim.Error("Letter of Credit Already Accepted")
+	}else{
+		letterOfCredit.Status = "ACCEPTED"
+		letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+		if err != nil {
+		return shim.Error("Error marshaling letter of credit structure")
 	}
 
-    APIstub.PutState(lc.LCId,LCBytes)
-	fmt.Println("LC Accepted -> ", LC)
+	err = APIstub.PutState(LCId, letterOfCreditBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
-
-	
-
+	fmt.Printf("Letter of Credit %s ACCEPTED\n", LCId)
+}
 	return shim.Success(nil)
+
+}
+
+func (s *SmartContract) sendShipment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var tradeAgreementBytes, letterOfCreditBytes []byte
+	var tradeAgreement TradeAgreement
+	var letterOfCredit LetterOfCredit
+  var err error
+
+	tradeAgreementId := args[0]
+	LCId := args[1]
+	shipmentStatus := "SHIPPED"
+
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	letterOfCreditBytes, err = APIstub.GetState(LCId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if letterOfCredit.Status != "ACCEPTED"{
+		return shim.Error("Cannot Start Shipping as Letter of Credit is not Accepted")
+	}else{
+		tradeAgreement.Status = shipmentStatus
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+		return shim.Error("Error marshaling trade agreement structure")
+	}
+
+	fmt.Printf("Shipment Status for TradeAgreement %s set to %s\n",tradeAgreementId,shipmentStatus)
+}
+	return shim.Success(nil)
+
+}
+
+func (s *SmartContract) requestPayment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var tradeAgreementBytes, letterOfCreditBytes []byte
+	var tradeAgreement TradeAgreement
+	var letterOfCredit LetterOfCredit
+        var err error
+
+	tradeAgreementId := args[0]
+	LCId := args[1]
+
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	letterOfCreditBytes, err = APIstub.GetState(LCId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if letterOfCredit.Status != "ACCEPTED" && tradeAgreement.Status != "GOODS RECEIVED"{
+		return shim.Error("Cannot Start Shipping as Letter of Credit is not Accepted")
+	}else{
+		tradeAgreement.Status = "PAYMENT REQUESTED"
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+		return shim.Error("Error marshaling trade agreement structure")
+	}
+
+	fmt.Printf("Payment Requested for TradeAgreement %s \n",tradeAgreementId)
+}
+	return shim.Success(nil)
+
+}
+
+func (s *SmartContract) makePayment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var tradeAgreementBytes, letterOfCreditBytes []byte
+	var tradeAgreement TradeAgreement
+	var letterOfCredit LetterOfCredit
+	var err error
+
+	tradeAgreementId := args[0]
+	LCId := args[1]
+
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	letterOfCreditBytes, err = APIstub.GetState(LCId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if letterOfCredit.Status != "ACCEPTED" && tradeAgreement.Status != "PAYMENT REQUESTED"{
+		return shim.Error("Cannot Start Shipping as Letter of Credit is not Accepted")
+	}else{
+		tradeAgreement.Status = "PAYMENT DONE"
+		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+		if err != nil {
+		return shim.Error("Error marshaling trade agreement structure")
+	}
+
+	fmt.Printf("Payment Done for TradeAgreement %s \n",tradeAgreementId)
+}
+	return shim.Success(nil)
+
 }
 
 func (s *SmartContract) getLC(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	lcId := args[0];
-	
-	// if err != nil {
-	// 	return shim.Error("No Amount")
-	// }
 
 	LCAsBytes, _ := APIstub.GetState(lcId)
 
@@ -189,8 +407,8 @@ func (s *SmartContract) getLC(APIstub shim.ChaincodeStubInterface, args []string
 func (s *SmartContract) getLCHistory(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	lcId := args[0];
-	
-	
+
+
 
 	resultsIterator, err := APIstub.GetHistoryForKey(lcId)
 	if err != nil {
@@ -244,7 +462,73 @@ func (s *SmartContract) getLCHistory(APIstub shim.ChaincodeStubInterface, args [
 
 	fmt.Printf("- getLCHistory returning:\n%s\n", buffer.String())
 
-	
+	return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) getTA(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	taId := args[0];
+
+	TAAsBytes, _ := APIstub.GetState(taId)
+
+	return shim.Success(TAAsBytes)
+}
+
+func (s *SmartContract) getTAHistory(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	taId := args[0];
+
+	resultsIterator, err := APIstub.GetHistoryForKey(taId)
+	if err != nil {
+		return shim.Error("Error retrieving TA history.")
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing historic values for the marble
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error("Error retrieving TA history.")
+		}
+		// Add a comma before array members, suppress it for the first array member
+		if bArrayMemberAlreadyWritten == true {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString("{\"TxId\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(response.TxId)
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"Value\":")
+		// if it was a delete operation on given key, then we need to set the
+		//corresponding value null. Else, we will write the response.Value
+		//as-is (as the Value itself a JSON marble)
+		if response.IsDelete {
+			buffer.WriteString("null")
+		} else {
+			buffer.WriteString(string(response.Value))
+		}
+
+		buffer.WriteString(", \"Timestamp\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"IsDelete\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(strconv.FormatBool(response.IsDelete))
+		buffer.WriteString("\"")
+
+		buffer.WriteString("}")
+		bArrayMemberAlreadyWritten = true
+	}
+	buffer.WriteString("]")
+
+	fmt.Printf("- getTAHistory returning:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }

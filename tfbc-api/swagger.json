@@ -4,7 +4,7 @@
         "description": "Swagger HLF Trade Finance.",
         "version": "1.0.0",
         "title": "Swagger HLF Trade Finance",
-        
+
         "contact": {
             "email": ""
         },
@@ -15,14 +15,14 @@
     },
     "host": "localhost:3000",
     "basePath": "/tfbc",
-    
+
     "schemes": [
         "http"
     ],
     "paths": {
         "/requestLC": {
             "post": {
-                
+
                 "summary": "Request LC",
                 "description": "Request LC",
                 "operationId": "requestLC",
@@ -52,7 +52,7 @@
         },
         "/issueLC": {
             "post": {
-                
+
                 "summary": "Issue LC",
                 "description": "Issue LC",
                 "operationId": "issueLC",
@@ -82,7 +82,7 @@
         },
         "/acceptLC": {
             "post": {
-                
+
                 "summary": "Accept LC",
                 "description": "Accept LC",
                 "operationId": "acceptLC",
@@ -110,9 +110,159 @@
                 }
             }
         },
+        "/requestTrade": {
+            "post": {
+
+                "summary": "Request TA",
+                "description": "Request TA",
+                "operationId": "requestTrade",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TA"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/acceptTrade": {
+            "post": {
+
+                "summary": "Request TA",
+                "description": "Request TA",
+                "operationId": "acceptTrade",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA ID object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TAID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/sendShipment": {
+            "post": {
+
+                "summary": "Send Shipment",
+                "description": "Send Shipment",
+                "operationId": "Send Shipment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA LC ID object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TALCID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/requestPayment": {
+            "post": {
+
+                "summary": "Request Payment",
+                "description": "Request Payment",
+                "operationId": "requestPayment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA LC ID object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TALCID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/makePayment": {
+            "post": {
+
+                "summary": "Make Payment",
+                "description": "Make Payment",
+                "operationId": "makePayment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA LC ID object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TALCID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/getLC": {
             "post": {
-                
+
                 "summary": "Get LC",
                 "description": "Get LC",
                 "operationId": "getLC",
@@ -148,7 +298,7 @@
         },
         "/getLCHistory": {
             "post": {
-                
+
                 "summary": "Get LC History",
                 "description": "Get LC History",
                 "operationId": "getLCHistory",
@@ -187,9 +337,17 @@
         "LC": {
             "type": "object",
             "properties": {
+              "taId": {
+                  "type": "string",
+                  "description": "TA ID"
+                },
                 "lcId": {
                     "type": "string",
                     "description": "LC ID"
+                },
+                "expiryDate": {
+                    "type": "string",
+                    "description": "LC Expiry date"
                 },
                 "buyer": {
                     "type": "string",
@@ -202,14 +360,23 @@
                 "seller": {
                     "type": "string",
                     "description": "Seller ID"
-                },
-                "expiryDate": {
+                }
+            }
+        },
+        "TA": {
+            "type": "object",
+            "properties": {
+                "taId": {
                     "type": "string",
-                    "description": "LC Expiry date"
+                    "description": "TA ID"
                 },
                 "amount": {
                     "type": "string",
-                    "description": "LC Amount"
+                    "description": "TA Amount"
+                },
+                "goods": {
+                    "type": "string",
+                    "description": "TA Goods"
                 }
             }
         },
@@ -217,6 +384,28 @@
             "type": "object",
             "properties": {
                 "lcId": {
+                    "type": "string",
+                    "description": "LC ID"
+                }
+            }
+        },
+        "TAID": {
+            "type": "object",
+            "properties": {
+                "lcId": {
+                    "type": "string",
+                    "description": "TA ID"
+                }
+            }
+        },
+        "TALCID": {
+            "type": "object",
+            "properties": {
+                 "taId": {
+                    "type": "string",
+                    "description": "TA ID"
+                },
+                 "lcId": {
                     "type": "string",
                     "description": "LC ID"
                 }
