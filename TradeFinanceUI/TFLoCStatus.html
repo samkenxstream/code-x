@@ -36,106 +36,135 @@
 
 
 <body>
-
     <div class="header" style="color: #302827; width: 95%">
-
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
-
         <div class="NavigationBar">
-
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
             <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
             <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
-
         </div>
-
     </div>
-
     <div class="container" style="width: 95%">
-
         <div class="LeftBrowserBox" style="width: 12%">
-         <div class="NavigationBar1">
+            <div class="NavigationBar1">
 
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">TFBuyer</a>
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
- </div>
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">TFBuyer</a>
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
+            </div>
         </div>
-
         <div class="ContentBrowser" style="width: 85%">
-
             <p id="buffer1" style="padding-bottom : 10px"> </p>
-
             <h1 class="LetterOfCredit-Status">LetterOfCredit-Status</h1>
-
             <div class="LetterOfCredit-Details" style="width: 80%">
-
                 <p id="buffer2" style="padding-bottom : 10px"> </p>
-
                 <!-- Retrieve the Latest LoC details of the logged in Buyer -->
-
                 <div class="Loc-Details-Label-Container" style="width: 35%">
-
-                    <label id="Loc_Details_Loc_Id" class="LoC-Details-Loc-Id" style="padding-right: 40px; color: #7d4438">LoC-Id</label>
+                    <label id="Loc_Details_Loc_Id" class="LoC-Details-Loc-Id" style="padding-right: 40px; color: #7d4438">LC-Id</label>
                     <br />
-
                     <label id="Loc_Details_Buyer_Name" class="LoC-Details-Buyer-Name" style="padding-right: 40px; color: #7d4438">Buyer</label>
                     <br />
-
                     <label id="Loc_Details_Seller_Name" class="LoC-Details-Seller-Name" style="padding-right: 40px; color: #7d4438">Seller</label>
                     <br />
-
                     <label id="Loc_Details_Buyer_Bank_Name" class="LoC-Details-Buyer-Bank-Name" style="padding-right: 40px; color: #7d4438">Buyer Bank</label>
                     <br />
-
                     <label id="Loc_Details_Seller_Bank_Name" class="LoC-Details-Seller-Bank-Name" style="padding-right: 40px; color: #7d4438">Seller Bank</label>
                     <br />
-
                     <label id="Loc_Details_Shipment" class="LoC-Details-Shipment" style="padding-right: 40px; color: #7d4438">Shipment</label>
                     <br />
-
                     <label id="Loc_Details_Shipment_Count" class="LoC-Details-Shipment-Count" style="padding-right: 40px; color: #7d4438">Shipment Count</label>
                     <br />
-
                     <label id="Loc_Details_Loc_Amount" class="LoC-Details-LoC-Amount" style="padding-right: 40px; color: #7d4438">LoC Amount</label>
                     <br />
-
                     <label id="Loc_Details_Expiry_Date" class="LoC-Details-Expiry-Date" style="padding-right: 40px; color: #7d4438">Expiry Date</label>
                     <br />
-
+                    <label id="Loc_Details_Status" class="LoC-Details-Status" style="padding-right: 40px; color: #7d4438">LC Status</label>
+                    <br />
                 </div>
-
                 <div class="Loc-Details-Status-Container" style="width: 35%">
-
                     <!-- Generate Status Details Dynamically and add the details to the form -->
-
-                    <select id="Seller-Input">
-                        <option value="BMW">BMW ( Germany )</option>
-                        <option value="Adidas">Adidas ( Germany )</option>
-                        <option value="Firestar">Firestar ( India )</option>
-                        <option value="Reliance">Reliance ( India )</option>
-                        <option value="Kohinoor">Kohinoor Foods Ltd ( India )</option>
-                        <option value="Eni">Eni ( Italy )</option>
-                        <option value="Finmeccanica">Finmeccanica ( Italy )</option>
-                        <option value="Intel">Intel ( USA )</option>
-                        <option value="PepsiCo">PepsiCo ( USA )</option>
-                        <option value="P & G">Procter & Gamble ( USA )</option>
-                    </select>
+                    <label id="Loc_Details_Loc_Id_Value" class="LoC-Details-Loc-Id" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Buyer_Name_Value" class="LoC-Details-Buyer-Name" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Seller_Name_Value" class="LoC-Details-Seller-Name" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Buyer_Bank_Name_Value" class="LoC-Details-Buyer-Bank-Name" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Seller_Bank_Name_Value" class="LoC-Details-Seller-Bank-Name" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Shipment_Value" class="LoC-Details-Shipment" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Shipment_Count_Value" class="LoC-Details-Shipment-Count" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Loc_Amount_Value" class="LoC-Details-LoC-Amount" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
+                    <label id="Loc_Details_Expiry_Date_Value" class="LoC-Details-Expiry-Date" style="padding-right: 40px; color: #7d4438"></label>
                     <br />
                     <br />
-
+                    <label id="Loc_Details_Status_Value" class="LoC-Details-Status-Value" style="padding-right: 40px; color: #7d4438"></label>
+                    <br />
                 </div>
+            </div>
+
+            <div class="Retrieve-LC-Details">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 12%">LC-Id</label>
+                <input id="LC-Id-Input" type="text">
+                <br />
+                <br />
+
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="Retrieve-LC-Details-Button" class="Retrieve-LC-Details-Class">Retrieve LC Details</button>
 
             </div>
-            
-            <!-- Implement dynamic status bar with corresponding state transition -->
 
-        </div>
-    </div>
+            </div>
+
+            </div>
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+            <script>
+
+            $("#Retrieve-LC-Details-Button").click(function () {
+
+                    var xmlhttp, txt = "";
+                    xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
+                    xmlhttp.setRequestHeader("Content-type", "application/json");
+                    xmlhttp.setRequestHeader("accept", "application/json");
+                    xmlhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+
+                            //response will be in the 
+                            resp = JSON.parse(this.response);
+                            document.getElementById("Loc_Details_Status_Value").innerHTML += "<b>" + resp['data'].status + "</b>";
+
+                            document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML += resp['data'].amount;
+                            document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML += resp['data'].bank;
+                            document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML += resp['data'].buyer;
+                            document.getElementById("Loc_Details_Seller_Name_Value").innerHTML += resp['data'].seller;
+                            document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML += resp['data'].expiryDate;
+                            document.getElementById("Loc_Details_Loc_Id_Value").innerHTML += resp['data'].lcId;
+                        }
+                    };
+
+                    var lcid_value = document.getElementById("lcId").value;
+                    obj = { 'lcId': lcid_value };
+                    params = JSON.stringify(obj);
+                    xmlhttp.send(params);
+
+                });
+
+            </script>
 
 </body>
+
 
 </html>
 
