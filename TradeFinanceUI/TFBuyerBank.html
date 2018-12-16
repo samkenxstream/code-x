@@ -129,6 +129,8 @@
             var pdfDoc = new jsPDF();
 
             // Retrieve the details of the Shipment Order
+            // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
+            // Map & Functions ( dynamic content retrievals & Generation of LC )
 
             var shipmentId = document.getElementById('Shipment-1-Id').textContent;
             var shipmentBuyer = document.getElementById('Shipment-1-Buyer').textContent;
@@ -136,33 +138,77 @@
             var shipmentBuyerBank = document.getElementById('Shipment-1-BuyerBank').textContent;
             var shipmentSellerBank = document.getElementById('Shipment-1-SellerBank').textContent;
             var shipmentShipment = document.getElementById('Shipment-1-Shipment').textContent;
-            var shipmentShipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
+            var shipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
             var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
             var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
             var shipmentLocSelectBox = document.getElementById('Shipment-1-LoC-Select').nodeValue;
 
             // Generate Pdf Doc
+            // To Do: Completely Dynamic Content based on Form factor dimensions and fit to the exact width of the window
 
-            pdfDoc.text(135, 30, "Simple Date");
-            pdfDoc.text(135, 40, "Simple Place");
+            // Date
 
-            pdfDoc.text(15, 60, "To Line : ");
-            pdfDoc.text(15, 70, "Seller Name");
+            var todaysDate = new Date();
+            var todaysMonth = parseInt(todaysDate.getMonth().toString());
+            todaysMonth += 1;
+            var todaysYear = parseInt(todaysDate.getYear().toString());
+            todaysYear += 1900;
 
-            pdfDoc.text(25, 95, "Simple Subject Line");
+            var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
+            pdfDoc.text(135, 30, dateString);
 
-            pdfDoc.text(30, 120, "First Paragraph Line 1");
-            pdfDoc.text(15, 130, "First Paragraph Line 2");
-            pdfDoc.text(15, 140, "First Paragraph Line 3");
+            // Place
 
-            pdfDoc.text(30, 155, "Second Paragraph Line 1");
-            pdfDoc.text(15, 165, "Second Paragraph Line 2");
+            var placeString = "Place : " + "Hyderabad, India";
+            pdfDoc.text(135, 40, placeString);
 
-            pdfDoc.text(135, 190, "Addressing - Closure");
-            pdfDoc.text(120, 200, "Closure Details - Buyer Bank");
+            // To Section Details
+
+            pdfDoc.text(15, 60, "To : ");
+            pdfDoc.text(15, 70, shipmentSeller + ",");
+
+            // Subject Section Details
+
+            var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentShipment + "), Id : (" + shipmentId + ")";
+            pdfDoc.text(25, 95, LCSubjectLine);
+
+            // Letter content Paragraph 1
+
+            var LCContentLine1 = shipmentBuyerBank + " here by certifies that, payment for the amount of " + shipmentCreditAmount;
+            var LCContentLine2 = "will be processed by " + shipmentBuyerBank + " on behalf of " + shipmentBuyer + ", as soon as";
+            var LCContentLine3 = shipmentShipment + "(" + shipmentCount + ")" + " are delivered on or before " + shipmentExpiryDate + ".";
+
+            pdfDoc.text(30, 120, LCContentLine1);
+            pdfDoc.text(15, 130, LCContentLine2);
+            pdfDoc.text(15, 140, LCContentLine3);
+
+            // Subject Section Details
+
+            var LCContentLine4 = "LC would expire with immediate effect on " + shipmentExpiryDate + " , if promised";
+            var LCContentLine5 = "items : " + shipmentShipment + "(" + shipmentCount + ")" + " are not delivered by then.";
+
+            pdfDoc.text(30, 155, LCContentLine4);
+            pdfDoc.text(15, 165, LCContentLine5);
+
+            // Closure : Addressing by Author
+
+            var LCAddressingSignOffByAuthor = "Thanks & Regards,";
+            pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
+            pdfDoc.text(135, 200, shipmentBuyer);
+
+            var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+
+            var tradeIdString = "Trade Id : " + generateUniqueTradeId;
+            var lcIdString = "LC Id : " + generateUniqueLCId;
+
+            pdfDoc.text(25, 220, tradeIdString);
+            pdfDoc.text(25, 230, lcIdString);
+
+            // Generate LC
 
             var fileName = "LoC-Shipment-" + shipmentId + ".pdf"
-            pdfDoc.save( fileName );
+            pdfDoc.save(fileName);
 
         });
 

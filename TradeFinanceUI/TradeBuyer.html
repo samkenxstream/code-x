@@ -65,15 +65,14 @@
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">RequestLOC</a>
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
- </div>
-        </div>
+     </div>
+    </div>
 
         <div class="ContentBrowser" style="width: 85%">
 
             <p id="buffer1" style="padding-bottom : 10px"> </p>
 
             <h1 class="Place-Shipment-Order">Trade Request Placement</h1>
-
 
             <div class="LetterOfCredit-Details" style="width: 80%">
 
@@ -107,7 +106,8 @@
 
                 <div class="Shipment-Input-Container" style="width: 35%">
 
-                <input id="TradeId" type="text">
+                    <!--input id="TradeId" type="text">-->
+                    <label id="TradeId" style="padding-right: 15%">Id To Be Updated</label>
                     <br />
                     <br />
 
@@ -125,7 +125,7 @@
                     </select>
                     <br />
                     <br />
-                    
+
                     <select id="Shipment-Input">
                         <option value="Cars">Cars</option>
                         <option value="Apparel">Apparel</option>
@@ -146,40 +146,38 @@
                     <br />
 
                     <input id="CreditAmountInput" type="text">
-                   <!-- <br />
-                    <br />
+                 </div>
 
-                    <input id="ExpiryDateInput" type="text">-->
+                </div>
+
+                <div class="Shipment-Submit-Input">
+
+                    <br />
+                    <br />
+                    <label id="Label_buffer" style="padding-right: 15%"></label>
+                    <button id="Shipment-Order-Submit" class="Shipment-Order-Submit-button">Request Trade Order</button>
 
                 </div>
 
             </div>
 
-            <div class="Shipment-Submit-Input">
-
-                <br />
-                <br />
-                <label id="Label_buffer" style="padding-right: 15%"></label>
-                <button id="Shipment-Order-Submit" class="Shipment-Order-Submit-button">Request Trade</button>
-
-            </div>
-
         </div>
 
-    </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
-    <script>
+        <script>
 
-        function getTradeId() {
-            document.getElementById("TradeId");
-            var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-            var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            $("#Shipment-Order-Submit").click(function () {
 
-            var tradeIdString = "Trade Id : " + generateUniqueTradeId;
-            var lcIdString = "LC Id : " + generateUniqueLCId;
-        }
-    
-    </script>
+                var todaysDate = new Date();
+                var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+                document.getElementById("TradeId").textContent = generateUniqueTradeId;
+
+
+
+            });
+
+       </script>
 
 </body>
 

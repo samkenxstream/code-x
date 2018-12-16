@@ -80,6 +80,10 @@
 
                 <div class="Shipment-Label-Container" style="width: 25%">
 
+                    <label id="Label_LC_Id" class="Label-LC-Id" style="padding-right: 40px; color: #7d4438">LC_Id</label>
+                    <br />
+                    <br />
+
                     <label id="Label_Seller_Name" class="Label-Seller-Name" style="padding-right: 40px; color: #7d4438">Seller</label>
                     <br />
                     <br />
@@ -109,6 +113,10 @@
                 </div>
 
                 <div class="Shipment-Input-Container" style="width: 25%">
+
+                    <label id="Label_LC_Id_Output" style="padding-right: 40px; color: #7d4438">LC Id To Be Updated</label>
+                    <br />
+                    <br />
 
                     <select id="Seller-Input">
                         <option value="BMW">BMW ( Germany )</option>
@@ -216,6 +224,20 @@
         </div>
 
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        $("#Shipment-Order-Submit").click(function () {
+
+            var todaysDate = new Date();
+            var generateUniqueLcId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            document.getElementById("Label_LC_Id_Output").textContent = generateUniqueLcId;
+
+        });
+
+    </script>
 
 </body>
 
