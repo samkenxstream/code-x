@@ -1,9 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Swagger HLF Trade Finance.",
+        "description": "Trade Finance - Group 8",
         "version": "1.0.0",
-        "title": "Swagger HLF Trade Finance",
+        "title": "Trade Finance - Group 8",
 
         "contact": {
             "email": ""
