@@ -42,20 +42,27 @@ type SmartContract struct {
 
 // Define the trade agreement
 type TradeAgreement struct {
-	TAId 			string    	`json:"tradeAgreementId"`
-	Amount			int		`json:"amount"`
-	Goods			string		`json:"Goods"`
-	Status			string		`json:"status"` //REQUESTED,ACCEPTED,SHIPPED,GOODS RECEIVED,PAYMENT REQUESTED,PAYMENT DONE
+	TAId 				string    	`json:"tradeAgreementId"`
+	Buyer    		string   		`json:"buyer"`
+	Seller			string			`json:"seller"`
+	Amount			int					`json:"amount"`
+	Goods				string			`json:"Goods"`
+	GoodsCount 	string 			`json:"GoodsCount"`
+	Status			string			`json:"status"` //REQUESTED,ACCEPTED,SHIPPED,GOODS RECEIVED,PAYMENT REQUESTED,PAYMENT DONE
 }
 // Define the letter of credit
 type LetterOfCredit struct {
-	LCId			string		`json:"id"`
+	LCId					string		`json:"id"`
 	ExpiryDate		string		`json:"expiryDate"`
-	Buyer    		string   	`json:"buyer"`
-	Bank			string		`json:"bank"`
-	Seller			string		`json:"seller"`
-	Amount			int		`json:"amount"`
-	Status			string		`json:"status"` //REQUESTED,ISSUED,ACCEPTED
+	TAId 					string 		`json:"id"`
+	Buyer    			string   	`json:"buyer"`
+	Bank					string		`json:"bank"`
+	Seller				string		`json:"seller"`
+	Amount				int				`json:"amount"`
+	Goods					string		`json:"Goods"`
+	GoodsCount 		string 		`json:"GoodsCount"`
+	Currency 			string 		`json:"Currency"`
+	Status				string		`json:"status"` //REQUESTED,ISSUED,ACCEPTED
 }
 
 
@@ -80,6 +87,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.acceptLC(APIstub,args)
 	} else if function == "sendShipment" {
 		return s.sendShipment(APIstub,args)
+	} else if function == "receiveShipment" {
+		return s.receiveShipment(APIstub,args)
 	} else if function == "requestPayment" {
 		return s.requestPayment(APIstub, args)
 	}else if function == "makePayment" {
@@ -88,6 +97,10 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.getLC(APIstub, args)
 	}else if function == "getLCHistory" {
 		return s.getLCHistory(APIstub, args)
+	}else if function == "getTA" {
+		return s.getTA(APIstub, args)
+	}else if function == "getTAHistory" {
+		return s.getTAHistory(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -96,13 +109,23 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 func (s *SmartContract) requestTrade(APIstub shim.ChaincodeStubInterface,args []string) sc.Response {
 
 	tradeAgreementId := args[0]
-	Amount, err := strconv.Atoi(args[1])
+	buyer := args[1]
+	seller := args[2]
+	Amount, err := strconv.Atoi(args[3])
 	if err != nil {
 		return shim.Error("No Amount")
 	}
-	goods := args[2]
+	goods := args[4]
+	goodsCount := args[5]
 
-	TradeAgreement := TradeAgreement{TAId: tradeAgreementId, Amount: Amount, Goods: goods, Status: "REQUESTED"}
+	TradeAgreement := TradeAgreement{ TAId: tradeAgreementId,
+																		Buyer: buyer,
+																		Seller: seller,
+																		Amount: Amount,
+																		Goods: goods,
+																		GoodsCount: goodsCount,
+																		Status: "REQUESTED" }
+
 	tradeAgreementBytes, err := json.Marshal(TradeAgreement)
 
   APIstub.PutState(tradeAgreementId,tradeAgreementBytes)
@@ -156,10 +179,17 @@ func (s *SmartContract) requestLC(APIstub shim.ChaincodeStubInterface, args []st
 
 	tradeAgreementId := args[0]
 	LCId := args[1]
-	expirationDate := args[2]
+	expiryDate := args[2]
 	buyer := args[3]
 	bank := args[4]
 	seller := args[5]
+	amount, err := strconv.Atoi(args[6])
+	if err != nil {
+		return shim.Error("No Amount")
+	}
+	goods := args[7]
+	goodsCount := args[8]
+	currency := args[9]
 
 	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
 	if err != nil {
@@ -175,7 +205,18 @@ func (s *SmartContract) requestLC(APIstub shim.ChaincodeStubInterface, args []st
 		return shim.Error("Trade has not been ACCEPTED")
 	}
 
-	letterOfCredit = LetterOfCredit{LCId: LCId, ExpiryDate: expirationDate, Buyer: buyer, Bank: bank, Seller: seller , Amount: tradeAgreement.Amount, Status: "REQUESTED"}
+	letterOfCredit = LetterOfCredit{ LCId: LCId,
+																	 ExpiryDate: expiryDate,
+		 															 TAId: tradeAgreementId,
+																	 Buyer: buyer,
+																	 Bank: bank,
+																	 Seller: seller ,
+																	 Amount: amount,
+																	 Goods: goods,
+																	 GoodsCount: goodsCount,
+																	 Currency: currency,
+																	 Status: "REQUESTED" }
+
 	letterOfCreditBytes, err = json.Marshal(letterOfCredit)
 	if err != nil {
 		return shim.Error("Error marshaling letter of credit structure")
@@ -301,10 +342,55 @@ func (s *SmartContract) sendShipment(APIstub shim.ChaincodeStubInterface, args [
 		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
 		if err != nil {
 		return shim.Error("Error marshaling trade agreement structure")
+		}
+
+		err = APIstub.PutState(tradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		fmt.Printf("Shipment Status for TradeAgreement %s set to %s\n",tradeAgreementId,shipmentStatus)
+}
+	return shim.Success(nil)
+
+}
+
+func (s *SmartContract) receiveShipment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var tradeAgreementBytes []byte
+	var tradeAgreement TradeAgreement
+  var err error
+
+	tradeAgreementId := args[0]
+	shipmentStatus := "GOODS RECEIVED"
+
+	tradeAgreementBytes, err = APIstub.GetState(tradeAgreementId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
-	fmt.Printf("Shipment Status for TradeAgreement %s set to %s\n",tradeAgreementId,shipmentStatus)
-}
+	if tradeAgreement.Status == "SHIPPED"{
+			tradeAgreement.Status = shipmentStatus
+			tradeAgreementBytes, err = json.Marshal(tradeAgreement)
+			if err != nil {
+				return shim.Error("Error marshaling trade agreement structure")
+			}
+
+			err = APIstub.PutState(tradeAgreementId, tradeAgreementBytes)
+			if err != nil {
+				return shim.Error(err.Error())
+			}
+
+			fmt.Printf("Shipment Status for TradeAgreement %s set to %s\n",tradeAgreementId,shipmentStatus)
+
+	}else{
+			return shim.Error("Goods not yet shipped")
+	}
+
 	return shim.Success(nil)
 
 }
@@ -337,17 +423,25 @@ func (s *SmartContract) requestPayment(APIstub shim.ChaincodeStubInterface, args
 		return shim.Error(err.Error())
 	}
 
-	if letterOfCredit.Status != "ACCEPTED" && tradeAgreement.Status != "GOODS RECEIVED"{
-		return shim.Error("Cannot Start Shipping as Letter of Credit is not Accepted")
-	}else{
+	if letterOfCredit.Status != "ACCEPTED" {
+		return shim.Error("Cannot Request Payment as Letter of Credit is not Accepted")
+	}else if tradeAgreement.Status != "GOODS RECEIVED" {
+		return shim.Error("Cannot Request Payment as Goods not yet Received")
+	}else {
 		tradeAgreement.Status = "PAYMENT REQUESTED"
 		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
 		if err != nil {
 		return shim.Error("Error marshaling trade agreement structure")
+		}
+
+		err = APIstub.PutState(tradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		fmt.Printf("Payment Requested for TradeAgreement %s \n",tradeAgreementId)
 	}
 
-	fmt.Printf("Payment Requested for TradeAgreement %s \n",tradeAgreementId)
-}
 	return shim.Success(nil)
 
 }
@@ -380,17 +474,25 @@ func (s *SmartContract) makePayment(APIstub shim.ChaincodeStubInterface, args []
 		return shim.Error(err.Error())
 	}
 
-	if letterOfCredit.Status != "ACCEPTED" && tradeAgreement.Status != "PAYMENT REQUESTED"{
-		return shim.Error("Cannot Start Shipping as Letter of Credit is not Accepted")
-	}else{
+	if letterOfCredit.Status != "ACCEPTED" {
+		return shim.Error("Cannot Make Payment as Letter of Credit is not Accepted")
+	}else if tradeAgreement.Status != "PAYMENT REQUESTED" {
+		return shim.Error("Cannot Make Payment as Payment Request not received")
+	}else {
 		tradeAgreement.Status = "PAYMENT DONE"
 		tradeAgreementBytes, err = json.Marshal(tradeAgreement)
 		if err != nil {
 		return shim.Error("Error marshaling trade agreement structure")
+		}
+
+		err = APIstub.PutState(tradeAgreementId, tradeAgreementBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		fmt.Printf("Payment Done for TradeAgreement %s \n",tradeAgreementId)
 	}
 
-	fmt.Printf("Payment Done for TradeAgreement %s \n",tradeAgreementId)
-}
 	return shim.Success(nil)
 
 }
@@ -407,8 +509,6 @@ func (s *SmartContract) getLC(APIstub shim.ChaincodeStubInterface, args []string
 func (s *SmartContract) getLCHistory(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	lcId := args[0];
-
-
 
 	resultsIterator, err := APIstub.GetHistoryForKey(lcId)
 	if err != nil {
