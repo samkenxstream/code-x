@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<h2>Get the current status of an LC</h2>
+   <div>
+    <label for="name">LC #:</label>
+    <input type="text" id="lcId" name="lcId" />
+  <div>
+  <div class="button">
+    <button onclick="getLc()">getLC</button>
+  </div>
+
+
+
+
+<p id="amount">Amount:</p>
+<p id="bank">Bank:</p>
+<p id="buyer">Buyer:</p>
+<p id="seller">Seller:</p>
+<p id="expiryDate">ExpiryDate:</p>
+<p id="status">Status:</p>
+
+<script>
+
+
+
+function getLc() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function() 
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+
+			//response will be in the 
+			resp = JSON.parse(this.response);
+			document.getElementById("status").innerHTML += "<b>"+resp['data'].status+"</b>";
+
+			document.getElementById("amount").innerHTML += resp['data'].amount;
+			document.getElementById("bank").innerHTML += resp['data'].bank;
+			document.getElementById("buyer").innerHTML += resp['data'].buyer;
+			document.getElementById("seller").innerHTML += resp['data'].seller;
+			document.getElementById("expiryDate").innerHTML += resp['data'].expiryDate;
+			document.getElementById("lcId").innerHTML += resp['data'].lcId;
+		}
+	};
+  	
+	var lcid_value=document.getElementById("lcId").value;
+	obj = { 'lcId': lcid_value  };
+  	params = JSON.stringify(obj);
+	xmlhttp.send(params);
+	
+	  	
+}
+</script>
+
+</body>
+</html>
