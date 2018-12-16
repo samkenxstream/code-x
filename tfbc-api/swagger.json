@@ -175,7 +175,7 @@
 
                 "summary": "Send Shipment",
                 "description": "Send Shipment",
-                "operationId": "Send Shipment",
+                "operationId": "sendShipment",
                 "consumes": [
                     "application/json"
                 ],
@@ -190,6 +190,36 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/TALCID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/receiveShipment": {
+            "post": {
+
+                "summary": "Receive Shipment",
+                "description": "Receive Shipment",
+                "operationId": "receiveShipment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "TA ID object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TAID"
                         }
                     }
                 ],
@@ -331,8 +361,80 @@
                     }
                 }
             }
+        },
+    "/getTA": {
+        "post": {
+
+            "summary": "Get TA",
+            "description": "Get TA",
+            "operationId": "getTA",
+            "produces": [
+                "application/json"
+            ],
+            "parameters": [
+                {
+                    "in": "body",
+                    "name": "body",
+                    "description": "TA object",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/TAID"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "successful operation",
+                    "schema": {
+                        "type": "object",
+                        "items": {
+                            "$ref": "#/definitions/TA"
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid status value"
+                }
+            }
         }
     },
+    "/getTAHistory": {
+        "post": {
+
+            "summary": "Get TA History",
+            "description": "Get TA History",
+            "operationId": "getTAHistory",
+            "produces": [
+                "application/json"
+            ],
+            "parameters": [
+                {
+                    "in": "body",
+                    "name": "body",
+                    "description": "TA object",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/TAID"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "successful operation",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/TA"
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid status value"
+                }
+            }
+        }
+    }
+},
     "definitions": {
         "LC": {
             "type": "object",
@@ -360,6 +462,22 @@
                 "seller": {
                     "type": "string",
                     "description": "Seller ID"
+                },
+                "amount": {
+                    "type": "string",
+                    "description": "Amount"
+                },
+                "goods": {
+                    "type": "string",
+                    "description": "Goods"
+                },
+                "goodsCount": {
+                    "type": "string",
+                    "description": "Goods Count"
+                },
+                "currency": {
+                    "type": "string",
+                    "description": "Currency"
                 }
             }
         },
@@ -370,6 +488,14 @@
                     "type": "string",
                     "description": "TA ID"
                 },
+                "buyer": {
+                    "type": "string",
+                    "description": "Buyer ID"
+                },
+                "seller": {
+                    "type": "string",
+                    "description": "Seller ID"
+                },
                 "amount": {
                     "type": "string",
                     "description": "TA Amount"
@@ -377,6 +503,10 @@
                 "goods": {
                     "type": "string",
                     "description": "TA Goods"
+                },
+                "goodsCount": {
+                    "type": "string",
+                    "description": "Goods Count"
                 }
             }
         },
@@ -392,7 +522,7 @@
         "TAID": {
             "type": "object",
             "properties": {
-                "lcId": {
+                "taId": {
                     "type": "string",
                     "description": "TA ID"
                 }

@@ -50,6 +50,13 @@ router.post('/sendShipment', function (req, res) {
 
 });
 
+// Receive Shipment
+router.post('/receiveShipment', function (req, res) {
+
+    TFBC.receiveShipment(req, res);
+
+});
+
 // Request Payment
 router.post('/requestPayment', function (req, res) {
 
@@ -75,6 +82,20 @@ router.post('/getLC', function (req, res) {
 router.post('/getLCHistory', function (req, res) {
 
     TFBC.getLCHistory(req, res);
+
+});
+
+// Get TA
+router.post('/getTA', function (req, res) {
+
+    TFBC.getTA(req, res);
+
+});
+
+// Get TA history
+router.post('/getTAHistory', function (req, res) {
+
+    TFBC.getTAHistory(req, res);
 
 });
 
