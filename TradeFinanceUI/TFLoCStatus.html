@@ -20,6 +20,15 @@
      padding-top: 1em;
      font-family: �Raleway�,�Source Sans Pro�, �Arial�;
     }
+    .NavigationBar1 {
+
+    float : left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
 
  </style>
 
@@ -46,7 +55,13 @@
 
     <div class="container" style="width: 95%">
 
-        <div class="LeftBrowserBox" style="width: 10%">
+        <div class="LeftBrowserBox" style="width: 12%">
+         <div class="NavigationBar1">
+
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">TFBuyer</a>
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
+ </div>
         </div>
 
         <div class="ContentBrowser" style="width: 85%">

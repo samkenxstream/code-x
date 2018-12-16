@@ -71,6 +71,16 @@
             border-left: none;
             height: 300px;
         }
+        .NavigationBar1 {
+
+    float : left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
     </style>
 
 </head>
@@ -86,7 +96,8 @@
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
             <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+           <!-- <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>-->
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
         </div>
@@ -95,7 +106,14 @@
 
     <div class="container" style="width: 100%">
 
-        <div class="LeftBrowserBox" style="width: 10%">
+        <div class="LeftBrowserBox" style="width: 12%">
+        <div class="NavigationBar1">
+          
+           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">ShowTrade</a>
+           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">ShowLOC</a>
+         
+           
+ </div>
         </div>
 
 
