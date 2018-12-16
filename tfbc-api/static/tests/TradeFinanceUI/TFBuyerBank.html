@@ -1,0 +1,229 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="http://localhost:3000/static/tests/TradeFinanceUI/TradeFinanceHome.CSS">
+
+ <style type="text/css">
+
+    body {
+     background-color:#F0F0F0;
+     padding-top: 1em;
+     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+    }
+
+ </style>
+
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+
+</head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+            <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 100%">
+
+        <div class="LeftBrowserBox" style="width: 10%">
+        </div>
+
+        <div class="ContentBrowser" style="width: 85%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+
+            <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
+
+            <div class="Current-Shipment-Order-Details" style="width: 80%">
+
+                <table class="Buyer-Bank-Shipment-Order-Details">
+
+                    <tr class="Shipment-Details-TableRow-Header">
+
+                        <th class="Shipment-Details-TableHeader">ShipmentOrderId</th>
+                        <th class="Shipment-Details-TableHeader">Buyer</th>
+                        <th class="Shipment-Details-TableHeader">Seller</th>
+                        <th class="Shipment-Details-TableHeader">BuyerBank</th>
+                        <th class="Shipment-Details-TableHeader">SellerBank</th>
+                        <th class="Shipment-Details-TableHeader">Shipment</th>
+                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                        <th class="Shipment-Details-TableHeader">LocAmount(In tokens)</th>
+                        <th class="Shipment-Details-TableHeader">Select</th>
+
+                    </tr>
+
+                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                    <tr class="Shipment-Details-TableRow-Content">
+
+                        <td id="Shipment-1-Id" class="Shipment-Details-Content">Abcd</td>
+                        <td id="Shipment-1-Buyer" class="Shipment-Details-Content">Dealer</td>
+                        <td id="Shipment-1-Seller" class="Shipment-Details-Content">BMW</td>
+                        <td id="Shipment-1-BuyerBank" class="Shipment-Details-Content">HDFC</td>
+                        <td id="Shipment-1-SellerBank" class="Shipment-Details-Content">Deutsche Bank</td>
+                        <td id="Shipment-1-Shipment" class="Shipment-Details-Content">BMW X5</td>
+                        <td id="Shipment-1-Shipment-Count" class="Shipment-Details-Content">10</td>
+                        <td id="Shipment-1-Expiry-Date" class="Shipment-Details-Content">2/28/2019</td>
+                        <td id="Shipment-1-Credit-Amount" class="Shipment-Details-Content">100000</td>
+                        <td id="Shipment-1-LoC-Select" class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>
+
+                    </tr>
+
+                </table>
+            
+            </div>
+
+            <div class="BuyerBank-Generate-LoC">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="BuyerBank-Generate-LoC-Button" class="Generate-LoC-Button">Generate Letter Of Credit</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+
+        // future js code goes here
+
+        /****************************************************************************************
+            Generate "Letter of Credit PDF files" for selected Shipment orders
+        *****************************************************************************************/
+
+        $("#BuyerBank-Generate-LoC-Button").click(function () {
+
+            alert("Generate LoC Button Event : Generating LoC PDF Files");
+
+            // Create LoC : PDF File
+
+            var pdfDoc = new jsPDF();
+
+            // Retrieve the details of the Shipment Order
+            // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
+            // Map & Functions ( dynamic content retrievals & Generation of LC )
+
+            var shipmentId = document.getElementById('Shipment-1-Id').textContent;
+            var shipmentBuyer = document.getElementById('Shipment-1-Buyer').textContent;
+            var shipmentSeller = document.getElementById('Shipment-1-Seller').textContent;
+            var shipmentBuyerBank = document.getElementById('Shipment-1-BuyerBank').textContent;
+            var shipmentSellerBank = document.getElementById('Shipment-1-SellerBank').textContent;
+            var shipmentShipment = document.getElementById('Shipment-1-Shipment').textContent;
+            var shipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
+            var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
+            var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
+            var shipmentLocSelectBox = document.getElementById('Shipment-1-LoC-Select').nodeValue;
+
+            // Generate Pdf Doc
+            // To Do: Completely Dynamic Content based on Form factor dimensions and fit to the exact width of the window
+
+            // Date
+
+            var todaysDate = new Date();
+            var todaysMonth = parseInt(todaysDate.getMonth().toString());
+            todaysMonth += 1;
+            var todaysYear = parseInt(todaysDate.getYear().toString());
+            todaysYear += 1900;
+
+            var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
+            pdfDoc.text(135, 30, dateString);
+
+            // Place
+
+            var placeString = "Place : " + "Hyderabad, India";
+            pdfDoc.text(135, 40, placeString);
+
+            // To Section Details
+
+            pdfDoc.text(15, 60, "To : ");
+            pdfDoc.text(15, 70, shipmentSeller + ",");
+
+            // Subject Section Details
+
+            var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentShipment + "), Id : (" + shipmentId + ")";
+            pdfDoc.text(25, 95, LCSubjectLine);
+
+            // Letter content Paragraph 1
+
+            var LCContentLine1 = shipmentBuyerBank + " here by certifies that, payment for the amount of " + shipmentCreditAmount;
+            var LCContentLine2 = "will be processed by " + shipmentBuyerBank + " on behalf of " + shipmentBuyer + ", as soon as";
+            var LCContentLine3 = shipmentShipment + "(" + shipmentCount + ")" + " are delivered on or before " + shipmentExpiryDate + ".";
+
+            pdfDoc.text(30, 120, LCContentLine1);
+            pdfDoc.text(15, 130, LCContentLine2);
+            pdfDoc.text(15, 140, LCContentLine3);
+
+            // Subject Section Details
+
+            var LCContentLine4 = "LC would expire with immediate effect on " + shipmentExpiryDate + " , if promised";
+            var LCContentLine5 = "items : " + shipmentShipment + "(" + shipmentCount + ")" + " are not delivered by then.";
+
+            pdfDoc.text(30, 155, LCContentLine4);
+            pdfDoc.text(15, 165, LCContentLine5);
+
+            // Closure : Addressing by Author
+
+            var LCAddressingSignOffByAuthor = "Thanks & Regards,";
+            pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
+            pdfDoc.text(135, 200, shipmentBuyer);
+
+            var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+
+            var tradeIdString = "Trade Id : " + generateUniqueTradeId;
+            var lcIdString = "LC Id : " + generateUniqueLCId;
+
+            pdfDoc.text(25, 220, tradeIdString);
+            pdfDoc.text(25, 230, lcIdString);
+
+            // Generate LC
+
+            var fileName = "LoC-Shipment-" + shipmentId + ".pdf"
+            pdfDoc.save(fileName);
+
+        });
+
+        /****************************************************************************************
+            Navigation Bar Page Browsing
+        *****************************************************************************************/
+
+        function processNavigationBar_HomeToCustomers(event) {
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+
