@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<h2>Get the current status of an LC</h2>
+
+
+<form  onsubmit="change_myselect(this.lcId)"> 
+  <div>
+    <label for="name">LC #:</label>
+    <input type="text" id="lcId" name="lcId" />
+  <div>
+  <div class="button">
+    <button type="submit">getLC</button>
+  </div>
+</form>
+
+
+
+<p id="demo">Demo test</p>
+
+<script>
+function change_myselect(f) {
+  var obj, dbParam, xmlhttp, myObj, x, txt = "";
+  obj = { lcid: f.value  };
+  dbParam = obj;//JSON.stringify(obj);
+  xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+//if (this.readyState == 4 && this.status == 200)
+//{
+      //myObj = JSON.parse(this.responseText);
+      //txt += myObj;    
+alert(this.responseText);
+      document.getElementById("demo").innerHTML = "<b>test</b>";
+//}
+    };
+  xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
+  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.send(dbParam);
+}
+</script>
+
+</body>
+</html>
+
