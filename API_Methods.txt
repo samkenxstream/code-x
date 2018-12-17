@@ -1,0 +1,344 @@
+API Methods
+---------------
+The API methods are listed as per the Trade Finance workflow.
+
+Common Header for all methods:
+Content-Type : application/json
+
+1. Request Trade
+  User: BuyerUser
+  URL - http://localhost:3000/tfbc/requestTrade
+  Request:
+  {
+  "taId": "TA001",
+  "buyer": "Adani",
+  "seller": "Amazon",
+  "amount": "20000",
+  "goods": "Spare Parts",
+  "goodsCount": "200"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "New Trade requested successsfully."
+  }
+
+2. Accept Trade
+  User: SellerUser
+  URL - http://localhost:3000/tfbc/acceptTrade
+  Request:
+  {
+  "taId": "TA001"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "Trade Agreement accepted successsfully."
+  }
+
+3. Request LC
+  User - BuyerUser
+  URL - http://localhost:3000/tfbc/requestLC
+  Request:
+  {
+  "taId": "TA001",
+  "lcId": "LC001",
+  "expiryDate": "2018-12-2019",
+  "buyer": "Ambani",
+  "bank": "Citi Bank",
+  "seller": "Amazon",
+  "amount": "20000",
+  "goods": "Spare Parts",
+  "goodsCount": "200",
+  "currency": "USD"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "LC requested successsfully."
+  }
+
+4. Issue LC
+  User - BankUser
+  URL - http://localhost:3000/tfbc/issueLC
+  Request:
+  {
+  "lcId": "LC001"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "LC issued successsfully."
+  }
+
+5. Accept LC
+  User - SellerUser
+  URL - http://localhost:3000/tfbc/acceptLC
+  Request:
+  {
+  "lcId": "LC001"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "LC accepted successsfully."
+  }
+
+6. Send Shipment
+  User - SellerUser
+  URL - http://localhost:3000/tfbc/sendShipment
+  Request:
+  {
+  "taId": "TA001",
+  "lcId": "LC001"
+  }
+  Response:
+  {
+    "code": "200",
+    "message": "Shipment Sent successsfully."
+  }
+
+7. Receive Shipment
+   User - BuyerUser
+   URL - http://localhost:3000/tfbc/receiveShipment
+   Request:
+   {
+  "taId": "TA001"
+   }
+   Response:
+   {
+    "code": "200",
+    "message": "Shipment received and status changed successsfully."
+   }
+
+  8. Request Payment
+    User - SellerUser
+    URL - http://localhost:3000/tfbc/requestPayment
+    Request:
+    {
+    "taId": "TA001",
+    "lcId": "LC001"
+    }
+    Response:
+    {
+    "code": "200",
+    "message": "Payment Request Sent successsfully."
+    }
+
+  9. Make Payment
+     User - BankUser
+     URL - http://localhost:3000/tfbc/makePayment
+     Request:
+     {
+     "taId": "TA001",
+     "lcId": "LC001"
+      }
+     Response:
+     {
+    "code": "200",
+    "message": "Payment to Seller sent successsfully."
+     }
+
+  10. Get TA History
+    User - BuyerUser
+    URL - http://localhost:3000/tfbc/getTAHistory
+    Request:
+    {
+    "taId": "TA001"
+    }
+    Response:
+    {
+    "code": "200",
+    "data": [
+        {
+            "TxId": "c2552a4e828d8815a49b10dfc0a977c94cec009de26510ea3a98d302f70af0ab",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "REQUESTED"
+            },
+            "Timestamp": "2018-12-17 17:32:16.906 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "35f18d20cedc74a51ce06f5e9bc1b3c75de0a94d28d51750c30b29d0292f7fd0",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "ACCEPTED"
+            },
+            "Timestamp": "2018-12-17 17:32:40.466 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "900e648923b7d157943eccff9f7bebe355e4b613f6ea6541bb9fcab53b942023",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "SHIPPED"
+            },
+            "Timestamp": "2018-12-17 17:37:45.224 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "e53e68b51e8cfe01d4becc3c5fb762db136e3a429237a6afd1d79c55752b165a",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "GOODS RECEIVED"
+            },
+            "Timestamp": "2018-12-17 17:38:42.444 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "7ae1d46c29eac5d27ec6e7462182f9038be2077bd56e11c9050b13606d6e224c",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "PAYMENT REQUESTED"
+            },
+            "Timestamp": "2018-12-17 17:39:08.728 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "e32b638a5acf09626185e0ef5f2bcb2e0ef42e8d8dec0bb2b6c4eff5272ef334",
+            "Value": {
+                "tradeAgreementId": "TA001",
+                "buyer": "Adani",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "status": "PAYMENT DONE"
+            },
+            "Timestamp": "2018-12-17 17:39:45.632 +0000 UTC",
+            "IsDelete": "false"
+        }
+      ]
+    }
+
+    10. Get TA Status
+      User - BuyerUser
+      URL - http://localhost:3000/tfbc/getTA
+      Request:
+      {
+      "taId": "TA001"
+      }
+      Response:
+      {
+      "code": "200",
+      "data": {
+          "Goods": "Spare Parts",
+          "GoodsCount": "200",
+          "amount": 20000,
+          "buyer": "Adani",
+          "seller": "Amazon",
+          "status": "PAYMENT DONE",
+          "tradeAgreementId": "TA001"
+          }
+      }
+
+      11. Get LC History
+      User - BankUser
+      URl - http://localhost:3000/tfbc/getLCHistory
+      Request:
+      {
+	     "lcId":"LC001"
+       }
+      Response:
+    {
+    "code": "200",
+    "data": [
+        {
+            "TxId": "c65595a99596d251579eb31516765f94ea6d0c9ec83195bedaad468d1e8ec8cd",
+            "Value": {
+                "expiryDate": "2018-12-2019",
+                "buyer": "Ambani",
+                "bank": "Citi Bank",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "Currency": "USD",
+                "status": "REQUESTED"
+            },
+            "Timestamp": "2018-12-17 17:34:03.113 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "ac3da370747f883578aad8b43325d8df443b3d50491c0db6a4c0c3365ca11e9f",
+            "Value": {
+                "expiryDate": "2018-12-2019",
+                "buyer": "Ambani",
+                "bank": "Citi Bank",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "Currency": "USD",
+                "status": "ISSUED"
+            },
+            "Timestamp": "2018-12-17 17:34:58.383 +0000 UTC",
+            "IsDelete": "false"
+        },
+        {
+            "TxId": "356acc23759bf35d6b5a49675e75288c92ce18bb7c9545611ab7df30950f1c86",
+            "Value": {
+                "expiryDate": "2018-12-2019",
+                "buyer": "Ambani",
+                "bank": "Citi Bank",
+                "seller": "Amazon",
+                "amount": 20000,
+                "Goods": "Spare Parts",
+                "GoodsCount": "200",
+                "Currency": "USD",
+                "status": "ACCEPTED"
+            },
+            "Timestamp": "2018-12-17 17:35:16.701 +0000 UTC",
+            "IsDelete": "false"
+        }
+      ]
+    }
+
+    11. Get LC Status
+    User - BankUser
+    URl - http://localhost:3000/tfbc/getLC
+    Request:
+    {
+     "lcId":"LC001"
+     }
+    Response:
+    {
+    "code": "200",
+    "data": {
+        "Currency": "USD",
+        "Goods": "Spare Parts",
+        "GoodsCount": "200",
+        "amount": 20000,
+        "bank": "Citi Bank",
+        "buyer": "Ambani",
+        "expiryDate": "2018-12-2019",
+        "seller": "Amazon",
+        "status": "ACCEPTED"
+        }
+    }
