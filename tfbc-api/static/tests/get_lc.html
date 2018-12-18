@@ -61,22 +61,17 @@ function getLc() {
 			document.getElementById("seller").innerHTML += resp['data'].seller;
 			document.getElementById("expiryDate").innerHTML += resp['data'].expiryDate;
 			document.getElementById("lcId").innerHTML += resp['data'].lcId;
-      var i=0;
+
       console.log(resp['data'])
-      console.log(resp['data'].length)
+      console.log(resp.length)
       txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
-      for(i=0;i<=resp.data.length;i++){
-        console.log(resp.data[i])
-        console.log(resp.data[i])
-        console.log(resp.data.status)
-        txt += "<tr><td>Status: </td><td>"+x['data'].status+"</td></tr>"
-        txt += "<tr><td>Amount: </td><td>"+x['data'].amount+"</td></tr>"
-        txt += "<tr><td>Bank: </td><td>"+x['data'].bank+"</td></tr>"
-        txt += "<tr><td>Buyer: </td><td>"+x['data'].buyer+"</td></tr>"
-        txt += "<tr><td>Seller: </td><td>"+x['data'].seller+"</td></tr>"
-        txt += "<tr><td>ExpiryDate: </td><td>"+x['data'].expiryDate+"</td></tr>"
-        txt += "<tr><td>LCId: </td><td>"+x['data'].lcId+"</td></tr>"
-      }
+        txt += "<tr><td>Status: </td><td>"+resp['data'].status+"</td></tr>"
+        txt += "<tr><td>Amount: </td><td>"+resp['data'].amount+"</td></tr>"
+        txt += "<tr><td>Bank: </td><td>"+resp['data'].bank+"</td></tr>"
+        txt += "<tr><td>Buyer: </td><td>"+resp['data'].buyer+"</td></tr>"
+        txt += "<tr><td>Seller: </td><td>"+resp['data'].seller+"</td></tr>"
+        txt += "<tr><td>ExpiryDate: </td><td>"+resp['data'].expiryDate+"</td></tr>"
+        txt += "<tr><td>LCId: </td><td>"+resp['data'].lcId+"</td></tr>"
       txt += "</tbody></table>"
       document.getElementById("demo").innerHTML = txt;
 		}
