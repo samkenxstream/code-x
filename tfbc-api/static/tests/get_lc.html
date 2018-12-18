@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+  <title>Hello, world!</title>
+</head>
 <body>
 
 
@@ -15,12 +25,17 @@
 
 
 
-<p id="amount">Amount:</p>
-<p id="bank">Bank:</p>
-<p id="buyer">Buyer:</p>
-<p id="seller">Seller:</p>
-<p id="expiryDate">ExpiryDate:</p>
-<p id="status">Status:</p>
+<p id="amount">Amount: </p>
+<p id="bank">Bank: </p>
+<p id="buyer">Buyer: </p>
+<p id="seller">Seller: </p>
+<p id="expiryDate">ExpiryDate: </p>
+<p id="status">Status: </p>
+
+<p></p>
+<p></p>
+
+<p id="demo"></p>
 
 <script>
 
@@ -32,32 +47,49 @@ function getLc() {
  	xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
 	xmlhttp.setRequestHeader("accept", "application/json");
-	xmlhttp.onreadystatechange = function() 
+	xmlhttp.onreadystatechange = function()
 	{
 		if (this.readyState == 4 && this.status == 200)
 		{
 
-			//response will be in the 
+			//response will be in the
 			resp = JSON.parse(this.response);
 			document.getElementById("status").innerHTML += "<b>"+resp['data'].status+"</b>";
-
 			document.getElementById("amount").innerHTML += resp['data'].amount;
 			document.getElementById("bank").innerHTML += resp['data'].bank;
 			document.getElementById("buyer").innerHTML += resp['data'].buyer;
 			document.getElementById("seller").innerHTML += resp['data'].seller;
 			document.getElementById("expiryDate").innerHTML += resp['data'].expiryDate;
 			document.getElementById("lcId").innerHTML += resp['data'].lcId;
+
+      txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
+      for(x in resp){
+        txt += "<tr><td>Status: </td><td>"+x['data'].status+"</td></tr>"
+        txt += "<tr><td>Amount: </td><td>"+x['data'].amount+"</td></tr>"
+        txt += "<tr><td>Bank: </td><td>"+x['data'].bank+"</td></tr>"
+        txt += "<tr><td>Buyer: </td><td>"+x['data'].buyer+"</td></tr>"
+        txt += "<tr><td>Seller: </td><td>"+x['data'].seller+"</td></tr>"
+        txt += "<tr><td>ExpiryDate: </td><td>"+x['data'].expiryDate+"</td></tr>"
+        txt += "<tr><td>LCId: </td><td>"+x['data'].lcId+"</td></tr>"
+      }
+      txt += "</tbody></table>"
+      document.getElementById("demo").innerHTML = txt;
 		}
 	};
-  	
+
 	var lcid_value=document.getElementById("lcId").value;
 	obj = { 'lcId': lcid_value  };
   	params = JSON.stringify(obj);
 	xmlhttp.send(params);
-	
-	  	
+
+
 }
 </script>
 
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
 </html>
