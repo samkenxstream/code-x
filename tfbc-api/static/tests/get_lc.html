@@ -139,24 +139,19 @@ function issueLC() {
 	{
 		if (this.readyState == 4 && this.status == 200)
 		{
-
-			//response will be in the
-			resp = JSON.parse(this.response);
-
-      console.log(resp['message'])
-        txt += "<span class='badge badge-pill badge-success'>Success</span>"
-        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
-
-      document.getElementById("demo").innerHTML = txt;
-		}else {
-        //response will be in the
+			  //response will be in the
 			  resp = JSON.parse(this.response);
+        if(resp['code']=='200'){
+          console.log(resp['message'])
+          txt += "<span class='badge badge-pill badge-success'>Success</span>"
+          txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+		    } else {
+          console.log(resp)
+          txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+          txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+        }
 
-        console.log(resp)
-        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
-        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
-
-      document.getElementById("demo").innerHTML = txt;
+        document.getElementById("demo").innerHTML = txt;
     }
 	};
 
