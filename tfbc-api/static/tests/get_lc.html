@@ -144,7 +144,8 @@ function issueLC() {
 			resp = JSON.parse(this.response);
 
       console.log(resp['message'])
-        txt += resp['message']
+        txt += "<span class="badge badge-pill badge-success">Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
 
       document.getElementById("demo").innerHTML = txt;
 		}
