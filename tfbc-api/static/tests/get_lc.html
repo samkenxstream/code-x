@@ -109,13 +109,12 @@ function getLcHistory() {
       for(i=0;i<=resp.data.length;i++){
         console.log(resp.data[i].Value.status)
         console.log(resp.data[i].Value)
-        txt += "<tr><td>Status: </td><td><b>"+resp.data[i].status+"</b></td></tr>"
-        txt += "<tr><td>Amount: </td><td>"+resp.data[i].amount+"</td></tr>"
-        txt += "<tr><td>Bank: </td><td>"+resp.data[i].bank+"</td></tr>"
-        txt += "<tr><td>Buyer: </td><td>"+resp.data[i].buyer+"</td></tr>"
-        txt += "<tr><td>Seller: </td><td>"+resp.data[i].seller+"</td></tr>"
-        txt += "<tr><td>ExpiryDate: </td><td>"+resp.data[i].expiryDate+"</td></tr>"
-        txt += "<tr><td>LCId: </td><td>"+resp.data[i].lcId+"</td></tr>"
+        txt += "<tr><td>Status: </td><td><b>"+resp.data[i].Value.status+"</b></td></tr>"
+        txt += "<tr><td>Amount: </td><td>"+resp.data[i].Value.amount+"</td></tr>"
+        txt += "<tr><td>Bank: </td><td>"+resp.data[i].Value.bank+"</td></tr>"
+        txt += "<tr><td>Buyer: </td><td>"+resp.data[i].Value.buyer+"</td></tr>"
+        txt += "<tr><td>Seller: </td><td>"+resp.data[i].Value.seller+"</td></tr>"
+        txt += "<tr><td>ExpiryDate: </td><td>"+resp.data[i].Value.expiryDate+"</td></tr>"
       }
       txt += "</tbody></table>"
       document.getElementById("demo").innerHTML = txt;
