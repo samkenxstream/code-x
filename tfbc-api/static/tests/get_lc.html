@@ -64,6 +64,7 @@ function getLc() {
 
       txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
       for(x in resp){
+        console.log(x['data'])
         txt += "<tr><td>Status: </td><td>"+x['data'].status+"</td></tr>"
         txt += "<tr><td>Amount: </td><td>"+x['data'].amount+"</td></tr>"
         txt += "<tr><td>Bank: </td><td>"+x['data'].bank+"</td></tr>"
