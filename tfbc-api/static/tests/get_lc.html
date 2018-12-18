@@ -19,8 +19,9 @@
     <input type="text" id="lcId" name="lcId" />
   <div>
   <div class="button">
-    <button onclick="getLc()">Get Current Status of LC</button>
-    <button onclick="getLcHistory()">Get LC History</button>
+    <button class="btn btn-primary" onclick="getLc()">Get Current Status of LC</button>
+    <button class="btn btn-primary" onclick="getLcHistory()">Get LC History</button>
+    <button class="btn btn-success" onclick="issueLC()">Issue LC</button>
   </div>
 
 
@@ -117,6 +118,34 @@ function getLcHistory() {
         txt += "<tr><td>ExpiryDate: </td><td>"+resp.data[i].Value.expiryDate+"</td></tr>"
       }
       txt += "</tbody></table>"
+      document.getElementById("demo").innerHTML = txt;
+		}
+	};
+
+	var lcid_value=document.getElementById("lcId").value;
+	obj = { 'lcId': lcid_value  };
+  	params = JSON.stringify(obj);
+	xmlhttp.send(params);
+
+
+}
+function issueLC() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/issueLC", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+
+			//response will be in the
+			resp = JSON.parse(this.response);
+
+      console.log(resp['message'])
+        txt += resp['message']
+
       document.getElementById("demo").innerHTML = txt;
 		}
 	};
