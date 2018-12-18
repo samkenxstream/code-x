@@ -149,6 +149,8 @@ function issueLC() {
 
       document.getElementById("demo").innerHTML = txt;
 		}else {
+        //response will be in the
+			  resp = JSON.parse(this.response);
 
         console.log(resp['message'])
         txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
