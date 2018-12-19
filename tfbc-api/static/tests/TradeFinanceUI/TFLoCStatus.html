@@ -150,12 +150,12 @@
                             document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML += resp['data'].buyer;
                             document.getElementById("Loc_Details_Seller_Name_Value").innerHTML += resp['data'].seller;
                             document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML += resp['data'].expiryDate;
-                            document.getElementById("Loc_Details_Loc_Id_Value").innerHTML += resp['data']._id;
+                            document.getElementById("Loc_Details_Loc_Id_Value").innerHTML += resp['data'].lcid;
                         }
                    
 
                     var lcid_value = document.getElementById("LC-Id-Input").value;
-                    obj = { '_id': lcid_value };
+                    obj = { 'lcid': lcid_value };
                     params = JSON.stringify(obj);
                     xmlhttp.send(params);
 
