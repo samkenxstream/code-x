@@ -54,7 +54,7 @@
 function getLc() {
   	var xmlhttp, txt = "";
   	xmlhttp = new XMLHttpRequest();
- 	xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
+ 	xmlhttp.open("POST", "/tfbc/getLC", true);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
 	xmlhttp.setRequestHeader("accept", "application/json");
 	xmlhttp.onreadystatechange = function()
@@ -87,7 +87,7 @@ function getLc() {
 function getLcHistory() {
   	var xmlhttp, txt = "";
   	xmlhttp = new XMLHttpRequest();
- 	xmlhttp.open("POST", "http://localhost:3000/tfbc/getLCHistory", true);
+ 	xmlhttp.open("POST", "/tfbc/getLCHistory", true);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
 	xmlhttp.setRequestHeader("accept", "application/json");
 	xmlhttp.onreadystatechange = function()
@@ -124,7 +124,7 @@ function getLcHistory() {
 function issueLC() {
   	var xmlhttp, txt = "";
   	xmlhttp = new XMLHttpRequest();
- 	xmlhttp.open("POST", "http://localhost:3000/tfbc/issueLC", true);
+ 	xmlhttp.open("POST", "/tfbc/issueLC", true);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
 	xmlhttp.setRequestHeader("accept", "application/json");
 	xmlhttp.onreadystatechange = function()
