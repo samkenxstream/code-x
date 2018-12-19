@@ -9,40 +9,48 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
   <title>Hello, world!</title>
+        <style type="text/css">
+        body{
+        margin: 20px;
+        }
+        </style>
 </head>
 <body>
 
 
-<h2>Get the current status of an LC</h2>
-   <div>
-    <label for="name">LC #:</label>
-    <input type="text" id="lcId" name="lcId" />
-  <div>
-  <div class="button">
-    <button class="btn btn-primary" onclick="getLc()">Get Current Status of LC</button>
-    <button class="btn btn-primary" onclick="getLcHistory()">Get LC History</button>
-    <button class="btn btn-success" onclick="issueLC()">Issue LC</button>
-  </div>
+  <form action="/action_page.php">
+      <div class="form-group">
+        <h4>Get Letter of Credit Details</h4>
+        <label for="name">Enter LC Id:</label>
+        <input type="text" id="lcId" name="lcId" />
+      </div>
+    <div class="button">
+       <button class="btn btn-primary" onclick="getLc()">Get Current Status of LC</button>
+       <button class="btn btn-primary" onclick="getLcHistory()">Get LC History</button>
+       <button class="btn btn-success" onclick="issueLC()">Issue LC</button>
+     </div>
+     <p></p>
+     <p id="lcdemo"></p>
+  </form>
 
 
+  <form action="/action_page.php">
+      <div class="form-group">
+        <h4>Get Trade Agreement Details</h4>
+        <label for="name">Enter TA Id:</label>
+        <input type="text" id="taId" name="taId" />
+      </div>
+    <div class="button">
+       <button class="btn btn-primary" onclick="getTA()">Get Current Status of TA</button>
+       <button class="btn btn-primary" onclick="getTAHistory()">Get TA History</button>
+     </div>
+     <p></p>
+     <p id="tademo"></p>
+  </form>
 
 
-<!-- <p id="amount">Amount: </p>
-<p id="bank">Bank: </p>
-<p id="buyer">Buyer: </p>
-<p id="seller">Seller: </p>
-<p id="expiryDate">ExpiryDate: </p>
-<p id="status">Status: </p>
-
-<p></p> -->
-<p></p>
-
-<p id="demo"></p>
 
 <script>
-
-
-
 function getLc() {
   	var xmlhttp, txt = "";
   	xmlhttp = new XMLHttpRequest();
@@ -56,14 +64,6 @@ function getLc() {
 
 			//response will be in the
 			resp = JSON.parse(this.response);
-			// document.getElementById("status").innerHTML += "<b>"+resp['data'].status+"</b>";
-			// document.getElementById("amount").innerHTML += resp['data'].amount;
-			// document.getElementById("bank").innerHTML += resp['data'].bank;
-			// document.getElementById("buyer").innerHTML += resp['data'].buyer;
-			// document.getElementById("seller").innerHTML += resp['data'].seller;
-			// document.getElementById("expiryDate").innerHTML += resp['data'].expiryDate;
-			// document.getElementById("lcId").innerHTML += resp['data'].lcId;
-
       console.log(resp['data'])
       txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
         txt += "<tr><td>Status: </td><td><b>"+resp['data'].status+"</b></td></tr>"
@@ -73,7 +73,7 @@ function getLc() {
         txt += "<tr><td>Seller: </td><td>"+resp['data'].seller+"</td></tr>"
         txt += "<tr><td>ExpiryDate: </td><td>"+resp['data'].expiryDate+"</td></tr>"
       txt += "</tbody></table>"
-      document.getElementById("demo").innerHTML = txt;
+      document.getElementById("lcdemo").innerHTML = txt;
 		}
 	};
 
@@ -97,14 +97,6 @@ function getLcHistory() {
 
 			//response will be in the
 			resp = JSON.parse(this.response);
-			// document.getElementById("status").innerHTML += "<b>"+resp['data'].status+"</b>";
-			// document.getElementById("amount").innerHTML += resp['data'].amount;
-			// document.getElementById("bank").innerHTML += resp['data'].bank;
-			// document.getElementById("buyer").innerHTML += resp['data'].buyer;
-			// document.getElementById("seller").innerHTML += resp['data'].seller;
-			// document.getElementById("expiryDate").innerHTML += resp['data'].expiryDate;
-			// document.getElementById("lcId").innerHTML += resp['data'].lcId;
-
       console.log(resp['data'])
       txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
       for(i=0;i<resp.data.length;i++){
@@ -118,7 +110,7 @@ function getLcHistory() {
         txt += "<tr><td>ExpiryDate: </td><td>"+resp.data[i].Value.expiryDate+"</td></tr>"
       }
       txt += "</tbody></table>"
-      document.getElementById("demo").innerHTML = txt;
+      document.getElementById("lcdemo").innerHTML = txt;
 		}
 	};
 
@@ -151,7 +143,7 @@ function issueLC() {
           txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
         }
 
-        document.getElementById("demo").innerHTML = txt;
+        document.getElementById("lcdemo").innerHTML = txt;
     }
 	};
 
@@ -162,6 +154,78 @@ function issueLC() {
 
 
 }
+
+function getTA() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/getTA", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+
+			//response will be in the
+			resp = JSON.parse(this.response);
+      console.log(resp['data'])
+      txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
+        txt += "<tr><td>Status: </td><td><b>"+resp['data'].status+"</b></td></tr>"
+        txt += "<tr><td>Goods: </td><td><b>"+resp['data'].Goods+"</b></td></tr>"
+        txt += "<tr><td>GoodsCount: </td><td>"+resp['data'].GoodsCount+"</td></tr>"
+        txt += "<tr><td>Amount: </td><td>"+resp['data'].amount+"</td></tr>"
+        txt += "<tr><td>Buyer: </td><td>"+resp['data'].buyer+"</td></tr>"
+        txt += "<tr><td>Seller: </td><td>"+resp['data'].seller+"</td></tr>"
+        txt += "<tr><td>TAId: </td><td>"+resp['data'].tradeAgreementId+"</td></tr>"
+      txt += "</tbody></table>"
+      document.getElementById("tademo").innerHTML = txt;
+		}
+	};
+
+	var taid_value=document.getElementById("taId").value;
+	obj = { 'taId': taid_value  };
+  	params = JSON.stringify(obj);
+	xmlhttp.send(params);
+
+}
+
+function getTAHistory() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	  xmlhttp.open("POST", "http://localhost:3000/tfbc/getTAHistory", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	  xmlhttp.setRequestHeader("accept", "application/json");
+	  xmlhttp.onreadystatechange = function(){
+		if (this.readyState == 4 && this.status == 200){
+			//response will be in the
+			resp = JSON.parse(this.response);
+      console.log(resp['data'])
+      txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
+      for(i=0;i<resp.data.length;i++){
+        console.log(resp.data[i].Value.status)
+        console.log(resp.data[i].Value)
+        txt += "<tr><td>Timestamp: </td><td><b>"+resp.data[i].Timestamp+"</b></td></tr>"
+        txt += "<tr><td>TxId: </td><td><b>"+resp.data[i].TxId+"</b></td></tr>"
+        txt += "<tr><td>Status: </td><td><b>"+resp.data[i].Value.status+"</b></td></tr>"
+        txt += "<tr><td>Amount: </td><td>"+resp.data[i].Value.amount+"</td></tr>"
+        txt += "<tr><td>Buyer: </td><td>"+resp.data[i].Value.buyer+"</td></tr>"
+        txt += "<tr><td>Seller: </td><td>"+resp.data[i].Value.seller+"</td></tr>"
+        txt += "<tr><td>Goods: </td><td>"+resp.data[i].Value.Goods+"</td></tr>"
+        txt += "<tr><td>GoodsCount: </td><td>"+resp.data[i].Value.GoodsCount+"</td></tr>"
+      }
+      txt += "</tbody></table>"
+      document.getElementById("lcdemo").innerHTML = txt;
+		}
+	};
+
+	var lcid_value=document.getElementById("lcId").value;
+	obj = { 'lcId': lcid_value  };
+  	params = JSON.stringify(obj);
+	xmlhttp.send(params);
+
+
+}
+
 </script>
 
 <!-- Optional JavaScript -->

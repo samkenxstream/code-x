@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+  <title>Hello, world!</title>
+        <style type="text/css">
+        body{
+        margin: 20px;
+        }
+        </style>
+</head>
+<body>
+
+  <form>
+    <h4>Request Trade Agreement</h4>
+      <div class="form-group">
+        <label for="name" >Enter TA Id:</label>
+        <input type="text" id="taId" name="taId" />
+      </div>
+      <div class="form-group">
+        <label for="name">Enter Buyer Name:</label>
+        <input type="text" id="buyer" name="buyer" />
+      </div>
+      <div class="form-group">
+        <label for="name">Enter Seller Name:</label>
+        <input type="text" id="seller" name="seller" />
+      </div>
+      <div class="form-group">
+        <label for="name">Enter Trade Amount:</label>
+        <input type="text" id="amount" name="amount" />
+      </div>
+      <div class="form-group">
+        <label for="name">Enter Goods Description:</label>
+        <input type="text" id="goods" name="goods" />
+      </div>
+      <div class="form-group">
+        <label for="name">Enter Goods Count:</label>
+        <input type="text" id="count" name="count" />
+      </div>
+    <div class="button">
+       <button class="btn btn-primary" onclick="requestTA()">Request Trade</button>
+     </div>
+     <p></p>
+     <p id="taRequestDemo"></p>
+  </form>
+  <br>
+
+  <form>
+  <h4>Request Letter of Credit</h4>
+    <div class="form-group">
+      <label for="name" >Enter TA Id:</label>
+      <input type="text" id="lc_taId" name="lc_taId" />
+    </div>
+    <div class="form-group">
+      <label for="name" >Enter LC Id:</label>
+      <input type="text" id="lc_lcId" name="lc_lcId" />
+    </div>
+    <div class="form-group">
+      <label for="name" >Enter Expiry Date:</label>
+      <input type="text" id="lc_expiryDate" name="lc_expiryDate" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Buyer Name:</label>
+      <input type="text" id="lc_buyer" name="lc_buyer" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Bank Name:</label>
+      <input type="text" id="lc_bank" name="lc_bank" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Seller Name:</label>
+      <input type="text" id="lc_seller" name="lc_seller" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter LC Amount:</label>
+      <input type="text" id="lc_amount" name="lc_amount" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Goods Description:</label>
+      <input type="text" id="lc_goods" name="lc_goods" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Goods Count:</label>
+      <input type="text" id="lc_count" name="lc_count" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter Currency Type:</label>
+      <input type="text" id="lc_currency" name="lc_currency" />
+    </div>
+  <div class="button">
+     <button class="btn btn-primary" onclick="requestLC()">Request LC</button>
+   </div>
+   <p></p>
+   <p id="lcRequestDemo"></p>
+</form>
+<br>
+
+  <form>
+      <div class="form-group">
+        <h4>Enter Shipment Received Status</h4>
+        <label for="name">Enter TA Id:</label>
+        <input type="text" id="rc_taId" name="rc_taId" />
+      </div>
+      <div class="button">
+         <button class="btn btn-primary" onclick="receiveShipment()">Receive Shipment</button>
+       </div>
+       <p></p>
+       <p id="recShipDemo"></p>
+  </form>
+
+
+
+<script>
+function requestTA() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/requestTrade", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+      //response will be in the
+      resp = JSON.parse(this.response);
+      if(resp['code']=='200'){
+        console.log(resp['message'])
+        txt += "<span class='badge badge-pill badge-success'>Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      } else {
+        console.log(resp)
+        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      }
+      document.getElementById("taRequestDemo").innerHTML = txt;
+		}
+	};
+
+  var taId_value=document.getElementById("taId").value;
+  var buyer_value=document.getElementById("buyer").value;
+  var seller_value=document.getElementById("seller").value;
+  var amount_value=document.getElementById("amount").value;
+  var goods_value=document.getElementById("goods").value;
+  var count_value=document.getElementById("count").value;
+
+	obj =   {
+            "taId": taId_value,
+            "buyer": buyer_value,
+            "seller": seller_value,
+            "amount": amount_value,
+            "goods": goods_value,
+            "goodsCount": count_value
+          };
+  	 params = JSON.stringify(obj);
+	   xmlhttp.send(params);
+}
+
+function requestLC() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/requestLC", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+      //response will be in the
+      resp = JSON.parse(this.response);
+      if(resp['code']=='200'){
+        console.log(resp['message'])
+        txt += "<span class='badge badge-pill badge-success'>Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      } else {
+        console.log(resp)
+        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      }
+      document.getElementById("lcRequestDemo").innerHTML = txt;
+		}
+	};
+
+  var lc_taId_value=document.getElementById("lc_taId").value;
+  var lc_lcId_value=document.getElementById("lc_lcId").value;
+  var lc_expiryDate_value=document.getElementById("lc_expiryDate").value;
+	var lc_buyer_value=document.getElementById("lc_buyer").value;
+  var lc_bank_value=document.getElementById("lc_bank").value;
+  var lc_seller_value=document.getElementById("lc_seller").value;
+  var lc_amount_value=document.getElementById("lc_amount").value;
+  var lc_goods_value=document.getElementById("lc_goods").value;
+  var lc_count_value=document.getElementById("lc_count").value;
+  var lc_currency_value=document.getElementById("lc_currency").value;
+
+	obj =     {
+              "taId": lc_taId_value,
+              "lcId": lc_lcId_value,
+              "expiryDate": lc_expiryDate_value,
+              "buyer": lc_buyer_value,
+              "bank": lc_bank_value,
+              "seller": lc_seller_value,
+              "amount": lc_amount_value,
+              "goods": lc_goods_value,
+              "goodsCount": lc_count_value,
+              "currency": lc_currency_value
+            };
+  	 params = JSON.stringify(obj);
+	   xmlhttp.send(params);
+}
+
+function receiveShipment() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	xmlhttp.open("POST", "http://localhost:3000/tfbc/receiveShipment", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	xmlhttp.setRequestHeader("accept", "application/json");
+	xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+      //response will be in the
+      resp = JSON.parse(this.response);
+      if(resp['code']=='200'){
+        console.log(resp['message'])
+        txt += "<span class='badge badge-pill badge-success'>Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      } else {
+        console.log(resp)
+        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      }
+      document.getElementById("recShipDemo").innerHTML = txt;
+		}
+	};
+
+  var rc_taId_value=document.getElementById("rc_taId").value;
+
+	obj =   { "taId": rc_taId_value };
+
+  params = JSON.stringify(obj);
+	xmlhttp.send(params);
+}
+
+</script>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
