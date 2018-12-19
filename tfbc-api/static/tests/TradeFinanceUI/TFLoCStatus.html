@@ -11,7 +11,7 @@
 
  <title>TradeFinance Smart Contract</title>
 
- <link rel="stylesheet" type="text/css" href="http://localhost:3000/static/tests/TradeFinanceUI/TradeFinanceHome.CSS">
+ <link rel="stylesheet" type="text/css" href="/static/tests/TradeFinanceUI/TradeFinanceHome.CSS">
 
  <style type="text/css">
 
@@ -135,7 +135,7 @@
 
                     var xmlhttp, txt = "";
                     xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", true);
+                    xmlhttp.open("POST", "/tfbc/getLC", true);
                     xmlhttp.setRequestHeader("Content-type", "application/json");
                     xmlhttp.setRequestHeader("accept", "application/json");
                     xmlhttp.onreadystatechange = function () {

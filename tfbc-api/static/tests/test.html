@@ -24,7 +24,7 @@ function change_myselect() {
   dbParam = JSON.stringify(obj);
   
 	xmlhttp = new XMLHttpRequest();
- 	xmlhttp.open("POST", "http://localhost:3000/tfbc/getLC", false);
+ 	xmlhttp.open("POST", "/tfbc/getLC", false);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
 	xmlhttp.setRequestHeader("accept", "application/json");
 	xmlhttp.onreadystatechange = function() 
