@@ -1,6 +1,13 @@
 
 'use strict';
 
+
+/*************************************************************************
+ * 
+ * Globals : Module Imports & Mongo DB Connection Variables
+ * 
+ *************************************************************************/
+
 // Generic Variables Global
 
 var http = require('http');
@@ -17,27 +24,81 @@ var tradeAndLcTable_Name = "tradeAndLcCollection";
 
 var mongoDbUrl = 'mongodb://127.0.0.1:27017/' + shipmentDatabase_Name;
 
-// Start Trade Finance Web Server and serve requests from web client ( Single Web Client )
-// To do : Parallel Requests ( Validate and Fix any issues )
+
+// Trade & LC Maps and Record Objects
+
+var tradeDetailsRequiredFields = ["Trade_Id", "Buyer", "Seller", "Shipment", "ShipmentCount", "Amount"];
+var lcDetailsRequiredFields = ["Trade_Id", "Lc_Id", "Buyer", "Seller", "Seller_Id", "Bank", "Shipment",
+    "ShipmentCount", "Amount", "Expiry_Date", "Request_Location"];
+
+var trade_Object = {
+    Trade_Id: "",
+    Buyer: "",
+    Seller: "",
+    Shipment: "",
+    ShipmentCount: "",
+    Amount: "",
+    Current_Status: ""
+};
+
+var lc_Object = {
+    Trade_Id: "",
+    Lc_Id: "",
+    Buyer: "",
+    Seller: "",
+    Seller_Id: "",
+    Bank: "",
+    Shipment: "",
+    ShipmentCount: "",
+    Amount: "",
+    Expiry_Date: "",
+    Request_Location: "",
+    Current_Status: ""
+};
+
+
+/*************************************************************************
+ * 
+ *  Start Trade Finance Web Server and serve requests from web client ( Single Web Client )
+ *  ToDo : Parallel Requests ( Validate and Fix any issues )
+ *
+ *************************************************************************/
 
 http.createServer(function (req, res) {
 
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end('Hello World! First Web Server completely from Scratch \n');
+    console.log("req.url : " + req.url);
 
-    console.log("req.url : ");
-    console.log(req.url);
+    // Return unexpected urls
 
-    console.log("req.url.query : ");
-    console.log((url.parse(req.url)).query);
+    if (req.url == "/favicon.ico") {
+
+        console.log("unexpected req.url : " + req.url);
+        return;
+    }
+    
+    // Parse the params from Web requests
+
+    console.log("req.url : " + req.url );
+    console.log("req.url.query : " + (url.parse(req.url)).query );
 
     var requestParams = (url.parse(req.url)).query;
-    var requestParamsMap = requestParams.split("&");
+    var requestParamsCollection = requestParams.split("&");
 
     console.log("requestParamsMap after parsing URL : " );
-    console.log(requestParamsMap);
+    console.log(requestParamsCollection);
 
-    // Connect to Mongo DB
+    var clientRequestWithParamsMap = ParseWebClientRequest(requestParamsCollection);
+    console.log("Parsed the Web Client Request : " + clientRequestWithParamsMap.get("Client_Request") + " Shipment Count : " + clientRequestWithParamsMap.get("ShipmentCount") );
+    var webClientRequest = clientRequestWithParamsMap.get("Client_Request");
+
+    // Build Response
+
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('Hello World! First Web Server completely from Scratch \n');
+    
+    // Connect to Mongo DB, Create Database & Collections
+
+    var dbConnection_TradeAndLcDatabase;
 
     mongoClient.connect(mongoDbUrl, function (err, db) {
 
@@ -54,12 +115,12 @@ http.createServer(function (req, res) {
         // Database Creation
 
         console.log("Creating Trade and LC Information Database : ");
-        var dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
+        dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
 
         // Table( Collection ) Creation
         // ToDo: Check if the Table already exists and bail-out if it does 
 
-        dbConnection_TradeAndLcDatabase.createCollection( tradeAndLcTable_Name, function (err, result) {
+        dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
 
             if (err) {
                 console.log("Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb");
@@ -70,76 +131,287 @@ http.createServer(function (req, res) {
             console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
         });
 
-        // Spin off a Server instance to Serve Client Requests
-        // Listens to Client Requests through "http AJAX & Rest calls"
-        // To Do: Also implement Listening to events that control the behavior & operations of Server
 
-        var todaysDate = new Date();
-        var uniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-        var uniqueLcId = "LcId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+        // Redirect the web Requests based on Query Key => Client_Request
 
-        var tradeAndLc_Object = {
-            Trade_Id: uniqueTradeId,
-            Lc_Id: uniqueLcId,
-            Buyer: "BMW Hyd Dealer",
-            Seller: "BMW Pvt Ltd",
-            Bank: "Deutsche Bank",
-            Shipment: "BMW X5",
-            Shipment_Count: "25",
-            Expiry_Date: "1/31/2019",
-            LC_Amount: "625000",
-            LC_Location: "Hyderabad",
-            Current_Status: "LC_Requested"
-        };
+        switch (webClientRequest) {
 
-        // Add Records
+            case "RequestTrade":
 
-        addRecordToTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-            tradeAndLcTable_Name,
-            tradeAndLc_Object);
+                if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                    tradeAndLcTable_Name,
+                    clientRequestWithParamsMap,
+                    tradeDetailsRequiredFields,
+                    false)) {
 
-        /*removeRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-            tradeAndLcTable_Name,
-            "TradeId_200",
-            null);*/
+                    console.log("Web Service: Switch Statement : Successfully added Record for Trade");
+                    res.end("Trade Finance Web Service: Successfully added Record for Trade");
+                }
+                else {
 
-        // Retrieve the Records from shipment Trade & LC Database
+                    console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
+                    res.end("Trade Finance Web Service: Failure while adding Record for Trade");
+                }
 
-        // Query All Records
+                break;
 
-        retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-            tradeAndLcTable_Name,
-            null,
-            null,
-            handleQueryResults);
+            case "RequestLC":
 
-        // Trade Id query
+                if( addTradeAndLcRecordToDatabase( dbConnection_TradeAndLcDatabase,
+                    tradeAndLcTable_Name,
+                    clientRequestWithParamsMap,
+                    lcDetailsRequiredFields,
+                    true )) {
 
-        var tradeIdBasedQuery = "TradeId_1181119193728";
-        retrieveRecordFromTradeAndLcDatabase( dbConnection_TradeAndLcDatabase,
-            tradeAndLcTable_Name,
-            tradeIdBasedQuery,
-            null,
-            handleQueryResults);
+                    console.log("Web Service: Switch Statement : Successfully added Record for LC");
+                    res.end("Trade Finance Web Service: Successfully added Record for LC");
+                }
+                else {
 
-        // Lc Id query
+                    console.error("Web Service: Switch Statement : Failure while adding Record for LC");
+                    res.end("Trade Finance Web Service: Failure while adding Record for LC");
+                }
 
-        var lcIdBasedQuery = "LcId_1181119193728";
-        retrieveRecordFromTradeAndLcDatabase( dbConnection_TradeAndLcDatabase,
-            tradeAndLcTable_Name,
-            null,
-            lcIdBasedQuery,
-            handleQueryResults);
+                break;
 
-        //  close the db connection
+            case "RetrieveAllRecords":
 
-        //db.close();
-        //console.log("Closed the Db connection successfully");
+                retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    tradeAndLcTable_Name,
+                    null,
+                    null,
+                    handleQueryResults);
+
+                console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
+
+                break;
+
+            case "GetCurrentStatus":
+
+                break;
+
+            case "RetrieveTradeDetails":
+
+                break;
+
+            case "RetrieveLCDetails":
+
+                break;
+
+            case "ApproveTrade":
+
+                break;
+
+            case "ApproveLCRequest":
+
+                break;
+
+            /*
+            case "StartShipment":
+
+                break;
+
+            case "AcceptShipment":
+
+                break;
+
+            case "RequestPayment":
+
+                break;
+
+            case "MakePayment":
+
+                break;
+            */
+
+            default:
+
+                console.error("Inappropriate Web Client Request received...exiting");
+                break;
+
+        }
 
     });
 
+    // Spin off a Server instance to Serve Client Requests
+    // Listens to Client Requests through "http AJAX & Rest calls"
+    // To Do: Also implement Listening to events that control the behavior & operations of Server
+
+    /*
+    var todaysDate = new Date();
+    var uniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+    var uniqueLcId = "LcId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+
+    var tradeAndLc_Object = {
+        Trade_Id: uniqueTradeId,
+        Lc_Id: uniqueLcId,
+        Buyer: "BMW Hyd Dealer",
+        Seller: "BMW Pvt Ltd",
+        Bank: "Deutsche Bank",
+        Shipment: "BMW X5",
+        ShipmentCount: "25",
+        Expiry_Date: "1/31/2019",
+        LC_Amount: "625000",
+        LC_Location: "Hyderabad",
+        Current_Status: "LC_Requested"
+    };
+
+    // Add Records
+
+    addRecordToTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+        tradeAndLcTable_Name,
+        tradeAndLc_Object);
+
+    /*removeRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+        tradeAndLcTable_Name,
+        "TradeId_200",
+        null);*/
+
+    // Retrieve the Records from shipment Trade & LC Database
+/*
+    // Query All Records
+
+    retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+        tradeAndLcTable_Name,
+        null,
+        null,
+        handleQueryResults);
+
+    // Trade Id query
+
+    var tradeIdBasedQuery = "TradeId_1181119193728";
+    retrieveRecordFromTradeAndLcDatabase( dbConnection_TradeAndLcDatabase,
+        tradeAndLcTable_Name,
+        tradeIdBasedQuery,
+        null,
+        handleQueryResults);
+
+    // Lc Id query
+
+    var lcIdBasedQuery = "LcId_1181119193728";
+    retrieveRecordFromTradeAndLcDatabase( dbConnection_TradeAndLcDatabase,
+        tradeAndLcTable_Name,
+        null,
+        lcIdBasedQuery,
+        handleQueryResults);
+*/
+
+    //  close the db connection
+
+    //db.close();
+    //console.log("Closed the Db connection successfully");
+
 }).listen(port);
 
+
+/**
+ * 
+ * @param {any} clientRequestCollection  : List of <K,V> pairs from input http request
+ * 
+ */
+
+function ParseWebClientRequest(clientRequestCollection) {
+
+    var webClientRequestParamsMap = new Map();
+    console.log("ParseWebClientRequest : ClientRequest Collection =>")
+    console.log(clientRequestCollection);
+
+    for (var index = 0; index < clientRequestCollection.length; index++) {
+
+        var currentKeyValuePair = clientRequestCollection[index].split("=");
+        webClientRequestParamsMap = webClientRequestParamsMap.set(currentKeyValuePair[0], currentKeyValuePair[1]);
+    }
+
+    return webClientRequestParamsMap;
+}
+
+
+/**
+ * 
+ * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
+ * 
+ */
+
+function prepareTradeDocumentObject(recordObjectMap) {
+
+    trade_Object.Trade_Id = recordObjectMap.get("Trade_Id");
+    trade_Object.Buyer = recordObjectMap.get("Buyer");
+    trade_Object.Seller = recordObjectMap.get("Seller");
+    trade_Object.Shipment = recordObjectMap.get("Shipment");
+    trade_Object.ShipmentCount = recordObjectMap.get("ShipmentCount");
+    trade_Object.Amount = recordObjectMap.get("Amount");
+    trade_Object.Current_Status = "Trade_Requested";
+}
+
+/**
+ * 
+ * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
+ * 
+ */
+
+function prepareLcDocumentObject(recordObjectMap) {
+
+    lc_Object.Trade_Id = recordObjectMap.get("Trade_Id");
+    lc_Object.Lc_Id = recordObjectMap.get("Lc_Id");
+    lc_Object.Buyer = recordObjectMap.get("Buyer");
+    lc_Object.Seller = recordObjectMap.get("Seller");
+    lc_Object.Seller_Id = recordObjectMap.get("Seller_Id");
+    lc_Object.Bank = recordObjectMap.get("Bank");
+    lc_Object.Shipment = recordObjectMap.get("Shipment");
+    lc_Object.ShipmentCount = recordObjectMap.get("ShipmentCount");
+    lc_Object.Amount = recordObjectMap.get("Amount");
+    lc_Object.Expiry_Date = recordObjectMap.get("Expiry_Date");
+    lc_Object.Request_Location = recordObjectMap.get("Request_Location");
+    lc_Object.Current_Status = "LC_Requested";
+}
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
+ * 
+ */
+
+function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest) {
+
+    // Check if all the required fields are present before adding the record
+
+    for (var i = 0; i < requiredDetailsCollection.length; i++) {
+
+        var currentKey = requiredDetailsCollection[i];
+
+        if (recordObjectMap.get(currentKey) == null) {
+
+            console.error("addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
+            return false;
+        }
+    }
+
+    // Prepare Trade | LC Document Objects and add them to Shipment Database
+
+    if (!bLcRequest) {
+
+        prepareTradeDocumentObject(recordObjectMap);
+
+        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
+
+        addRecordToTradeAndLcDatabase(dbConnection,
+            collectionName,
+            trade_Object);
+
+    } else {
+        prepareLcDocumentObject(recordObjectMap);
+
+        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
+
+        addRecordToTradeAndLcDatabase(dbConnection,
+            collectionName,
+            lc_Object);
+    }
+
+    return true;
+}
 
 /**
  * 
@@ -189,7 +461,7 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
                 // Record Updation
 
                 console.log("Record Found, Updating the existing Record => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-                directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object)
+                directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query);
             }
 
         });
@@ -237,11 +509,15 @@ function directAdditionOfRecordToDatabase(dbConnection, collectionName, document
  * 
  */
 
-function directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object) {
+function directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query) {
 
     // Record Updation
 
-    dbConnection.collection(collectionName).updateOne(document_Object, function (err, result) {
+    console.log("Added Query to Update operation : ");
+
+    var newUpdateObject = { $set: document_Object };
+    var udpateSert = {upsert: true};
+    dbConnection.collection(collectionName).updateOne(query, newUpdateObject, udpateSert, function (err, result) {
 
         if (err) {
             console.log("Error while updating the Record to tradeAndLc Database collection");
