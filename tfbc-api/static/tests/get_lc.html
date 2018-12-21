@@ -120,39 +120,6 @@ function getLcHistory() {
 
 
 }
-function issueLC() {
-  	var xmlhttp, txt = "";
-  	xmlhttp = new XMLHttpRequest();
- 	xmlhttp.open("POST", "/tfbc/issueLC", true);
-  	xmlhttp.setRequestHeader("Content-type", "application/json");
-	xmlhttp.setRequestHeader("accept", "application/json");
-	xmlhttp.onreadystatechange = function()
-	{
-		if (this.readyState == 4 && this.status == 200)
-		{
-			  //response will be in the
-			  resp = JSON.parse(this.response);
-        if(resp['code']=='200'){
-          console.log(resp['message'])
-          txt += "<span class='badge badge-pill badge-success'>Success</span>"
-          txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
-		    } else {
-          console.log(resp)
-          txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
-          txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
-        }
-
-        document.getElementById("lcdemo").innerHTML = txt;
-    }
-	};
-
-	var lcid_value=document.getElementById("lcId").value;
-	obj = { 'lcId': lcid_value  };
-  	params = JSON.stringify(obj);
-	xmlhttp.send(params);
-
-
-}
 
 function getTA() {
   	var xmlhttp, txt = "";
