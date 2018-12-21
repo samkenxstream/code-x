@@ -16,6 +16,37 @@
       font-style: italic;
       color: #383838;
     }
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
+blockquote{
+  font-size: 1.4em;
+  width:60%;
+  margin:50px auto;
+  font-family:Open Sans;
+  font-style:italic;
+  color: #555555;
+  padding:1.2em 30px 1.2em 75px;
+  line-height:1.6;
+  position: relative;
+}
+
+blockquote::before{
+  font-family:Arial;
+  content: "\201C";
+  color:#78C0A8;
+  font-size:4em;
+  position: absolute;
+  left: 10px;
+  top:-10px;
+}
+
+blockquote span{
+  display:block;
+  color:#333333;
+  font-style: normal;
+  font-weight: bold;
+  margin-top:1em;
+}
+
   </style>
 </head>
 
@@ -25,8 +56,12 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1>Hello, world!</h1>
+        <h1>Gems Trade Finance</h1>
         <p>Group 8 - Capstone Project</p>
+        <blockquote>
+        I know what I have given you...I do not know what you have received.
+        <span>Antonio Porchia</span>
+      </blockquote>
         <p><a class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p>
       </div>
     </div>
@@ -39,24 +74,24 @@
             <div class="col-md-3">
               <h2>Buyer</h2>
               <p>Buyer Org can initiate a trade request and also initiate request for letter of credit to bank</p>
-              <p><a class="btn btn-primary" href="http://localhost:3000/static/tests/homePage.html" role="button">View Page &raquo;</a></p>
+              <p><a class="btn btn-primary" href="http://localhost:3000/static/tests/buyer.html" role="button">View Page &raquo;</a></p>
             </div>
             <div class="col-md-3">
               <h2>Bank</h2>
               <p>Bank Org can issue Letter of Credit for Buyer and complete payment to Seller</p>
               </p>
-              <p><a class="btn btn-primary" href="#" role="button">View Page &raquo;</a></p>
+              <p><a class="btn btn-primary" href="http://localhost:3000/static/tests/bank.html" role="button">View Page &raquo;</a></p>
            </div>
             <div class="col-md-3">
               <h2>Seller</h2>
               <p>Seller Org can accept the Trade Agreement, accept Letter of Credit, send Shipment Status</p>
-              <p><a class="btn btn-primary" href="#" role="button">View Page &raquo;</a></p>
+              <p><a class="btn btn-primary" href="http://localhost:3000/static/tests/seller.html" role="button">View Page &raquo;</a></p>
             </div>
             <div class="col-md-3">
               <h2>Get Details</h2>
               <p>Get Details regarding Current Status and complete History for Trade and Letter of Credit</p>
               </p>
-              <p><a class="btn btn-primary" href="#" role="button">View Page &raquo;</a></p>
+              <p><a class="btn btn-primary" href="http://localhost:3000/static/tests/get_lc.html" role="button">View Page &raquo;</a></p>
             </div>
           </div>
         </div> <!-- /container -->
