@@ -40,8 +40,8 @@
         <input type="text" id="taId" name="taId" />
       </div>
     <div class="button">
-       <button type="submit" class="btn btn-primary" onclick="getTA()">Get Current Status of TA</button>
-       <button type="submit" class="btn btn-primary" onclick="getTAHistory()">Get TA History</button>
+       <button type="submit" class="btn btn-primary" onsubmit="getTA()">Get Current Status of TA</button>
+       <button type="submit" class="btn btn-primary" onsubmit="getTAHistory()">Get TA History</button>
      </div>
      <p></p>
      <p id="tademo"></p>
@@ -180,12 +180,12 @@ function getTAHistory() {
         txt += "<tr><td>GoodsCount: </td><td>"+resp.data[i].Value.GoodsCount+"</td></tr>"
       }
       txt += "</tbody></table>"
-      document.getElementById("lcdemo").innerHTML = txt;
+      document.getElementById("tademo").innerHTML = txt;
 		}
 	};
 
-	var lcid_value=document.getElementById("lcId").value;
-	obj = { 'lcId': lcid_value  };
+	var taid_value=document.getElementById("taId").value;
+	obj = { 'taId': taid_value  };
   	params = JSON.stringify(obj);
 	xmlhttp.send(params);
 
