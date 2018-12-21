@@ -67,7 +67,7 @@
   <div class="header">
     <a href="#default" class="logo">Buyer Organization</a>
       <div class="header-right">
-      <a class="active" href="#home">Home</a>
+      <a class="active" href="http://localhost:3000/static/tests/homePage.html">Home</a>
     </div>
   </div>
 </p>
@@ -100,7 +100,7 @@
         <input type="text" id="count" name="count" />
       </div>
     <div class="button">
-       <button class="btn btn-primary" onclick="requestTA()">Request Trade</button>
+       <input type="button" class="btn btn-primary" onclick="requestTA()" value="Request Trade" >
      </div>
      <p></p>
      <p id="taRequestDemo"></p>
@@ -152,7 +152,7 @@
       <input type="text" id="lc_currency" name="lc_currency" />
     </div>
   <div class="button">
-     <button class="btn btn-primary" onclick="requestLC()">Request LC</button>
+     <input type="button" class="btn btn-primary" onclick="requestLC()" value="Request LC" >
    </div>
    <p></p>
    <p id="lcRequestDemo"></p>
@@ -168,7 +168,7 @@
         <input type="text" id="rc_taId" name="rc_taId" />
       </div>
       <div class="button">
-         <button class="btn btn-primary" onclick="receiveShipment()">Receive Shipment</button>
+         <input type="button" class="btn btn-primary" onclick="receiveShipment()" value="Receive Shipment" >
        </div>
        <p></p>
        <p id="recShipDemo"></p>
