@@ -90,6 +90,22 @@
 
 <form>
   <div class="form-group">
+    <h4>Accept Letter of Credit</h4>
+  </div>
+    <div class="form-group">
+      <label for="name">Enter LC Id:</label>
+      <input class="form-control col-sm-4" type="text" id="lcId" name="lcId" />
+    </div>
+    <div class="button">
+       <input type="button" class="btn btn-primary" onclick="acceptLC()" value="Accept LC" >
+     </div>
+     <p></p>
+     <p id="acceptLCMsg"></p>
+</form>
+<br>
+
+<form>
+  <div class="form-group">
     <h4>Send Shipment</h4>
   </div>
     <div class="form-group">
@@ -159,6 +175,39 @@ function acceptTrade() {
   var taId_value=document.getElementById("taId").value;
 
 	obj =   { "taId": taId_value };
+
+  params = JSON.stringify(obj);
+	xmlhttp.send(params);
+}
+
+function acceptLC() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	  xmlhttp.open("POST", "http://localhost:3000/tfbc/acceptLC", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	  xmlhttp.setRequestHeader("accept", "application/json");
+	  xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+      //response will be in the
+      resp = JSON.parse(this.response);
+      if(resp['code']=='200'){
+        console.log(resp['message'])
+        txt += "<span class='badge badge-pill badge-success'>Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      } else {
+        console.log(resp)
+        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      }
+      document.getElementById("acceptLCMsg").innerHTML = txt;
+		}
+	};
+
+  var lcId_value=document.getElementById("lcId").value;
+
+	obj =   { "lcId": lcId_value };
 
   params = JSON.stringify(obj);
 	xmlhttp.send(params);
