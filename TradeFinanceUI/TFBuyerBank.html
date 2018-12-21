@@ -37,7 +37,6 @@
         <div class="NavigationBar">
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
@@ -56,75 +55,154 @@
 
             <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
 
-            <div class="Current-Shipment-Order-Details" style="width: 80%">
+            <div class="Retrieve-Shipment-Order-Details-Container" style="width: 80%">
 
-                <table class="Buyer-Bank-Shipment-Order-Details">
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 6%; padding-left: 6%">LC-Id</label>
+                <input id="LC-Id-Input" type="text">
+                <br /><br /><br />
 
-                    <tr class="Shipment-Details-TableRow-Header">
+                <label id="Label_buffer" style="padding-right: 10%"></label>
+                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipment Details</button>
+                <br />
+                <br />
 
-                        <th class="Shipment-Details-TableHeader">ShipmentOrderId</th>
-                        <th class="Shipment-Details-TableHeader">Buyer</th>
-                        <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">BuyerBank</th>
-                        <th class="Shipment-Details-TableHeader">SellerBank</th>
-                        <th class="Shipment-Details-TableHeader">Shipment</th>
-                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                        <th class="Shipment-Details-TableHeader">LocAmount(In tokens)</th>
-                        <th class="Shipment-Details-TableHeader">Select</th>
-
-                    </tr>
-
-                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
-
-                    <tr class="Shipment-Details-TableRow-Content">
-
-                        <td id="Shipment-1-Id" class="Shipment-Details-Content">Abcd</td>
-                        <td id="Shipment-1-Buyer" class="Shipment-Details-Content">Dealer</td>
-                        <td id="Shipment-1-Seller" class="Shipment-Details-Content">BMW</td>
-                        <td id="Shipment-1-BuyerBank" class="Shipment-Details-Content">HDFC</td>
-                        <td id="Shipment-1-SellerBank" class="Shipment-Details-Content">Deutsche Bank</td>
-                        <td id="Shipment-1-Shipment" class="Shipment-Details-Content">BMW X5</td>
-                        <td id="Shipment-1-Shipment-Count" class="Shipment-Details-Content">10</td>
-                        <td id="Shipment-1-Expiry-Date" class="Shipment-Details-Content">2/28/2019</td>
-                        <td id="Shipment-1-Credit-Amount" class="Shipment-Details-Content">100000</td>
-                        <td id="Shipment-1-LoC-Select" class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>
-
-                    </tr>
-
-                </table>
-            
             </div>
 
-            <div class="BuyerBank-Generate-LoC">
+            <div class="Current-Shipment-Order-Details" style="width: 80%">
 
-                <br />
-                <br />
-                <label id="Label_buffer" style="padding-right: 15%"></label>
-                <button id="BuyerBank-Generate-LoC-Button" class="Generate-LoC-Button">Generate Letter Of Credit</button>
+                        <table class="Buyer-Bank-Shipment-Order-Details">
+
+                            <tr class="Shipment-Details-TableRow-Header">
+
+                                <th class="Shipment-Details-TableHeader">taId</th>
+                                <th class="Shipment-Details-TableHeader">lcId</th>
+                                <th class="Shipment-Details-TableHeader">Buyer</th>
+                                <th class="Shipment-Details-TableHeader">Bank</th>
+                                <th class="Shipment-Details-TableHeader">Seller</th>
+                                <th class="Shipment-Details-TableHeader">Shipment</th>
+                                <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                                <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                                <th class="Shipment-Details-TableHeader">Amount</th>
+                                <th class="Shipment-Details-TableHeader">Select</th>
+
+                            </tr>
+
+                            <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                            <tr class="Shipment-Details-TableRow-Content">
+
+                                <td id="Shipment-1-taId" class="Shipment-Details-Content">TA_1000</td>
+                                <td id="Shipment-1-lcId" class="Shipment-Details-Content">LC_1000</td>
+                                <td id="Shipment-1-Buyer" class="Shipment-Details-Content">Dealer</td>
+                                <td id="Shipment-1-Bank" class="Shipment-Details-Content">HDFC</td>
+                                <td id="Shipment-1-Seller" class="Shipment-Details-Content">BMW</td>
+                                <td id="Shipment-1-Shipment" class="Shipment-Details-Content">BMW X5</td>
+                                <td id="Shipment-1-Shipment-Count" class="Shipment-Details-Content">10</td>
+                                <td id="Shipment-1-Expiry-Date" class="Shipment-Details-Content">2/28/2019</td>
+                                <td id="Shipment-1-Credit-Amount" class="Shipment-Details-Content">100000</td>
+                                <td id="Shipment-1-LC-Select" class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>
+
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                    <div class="BuyerBank-Generate-LC">
+
+                        <br />
+                        <br />
+                        <label id="Label_buffer" style="padding-right: 15%"></label>
+                        <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+
+                    </div>
 
             </div>
 
         </div>
-
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
     <script>
 
 
-        // future js code goes here
+        /****************************************************************************************
+            Retrieve Shipment Details to Display in Shipment Orders Table
+        *****************************************************************************************/
+
+        $("#Retrieve-Shipment-Details-Button").click(function () {
+
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/";
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "getLC";
+
+            /****************************************************************************************
+                getLC : Retrieve the details from mongo db for currentLC Request
+            *****************************************************************************************/
+
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+            *****************************************************************************************/
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("GET", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert(responseObject);
+
+                    alert("Received Success Response from Server for getLC call : " + responseObject);
+
+                    // Display the response on UI
+
+                    //document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
+
+                    document.getElementById("Shipment-1-taId").innerHTML = responseObject['data'].taId;
+                    document.getElementById("Shipment-1-lcId").innerHTML = responseObject['data'].lcId;
+                    document.getElementById("Shipment-1-Buyer").innerHTML = responseObject['data'].buyer;
+                    document.getElementById("Shipment-1-Bank").innerHTML = responseObject['data'].bank;
+                    document.getElementById("Shipment-1-Seller").innerHTML = responseObject['data'].seller;
+                    document.getElementById("Shipment-1-Shipment").innerHTML = responseObject['data'].goods;
+                    document.getElementById("Shipment-1-Shipment-Count").innerHTML = responseObject['data'].goodsCount;
+                    document.getElementById("Shipment-1-Expiry-Date").innerHTML = responseObject['data'].expiryDate;
+                    document.getElementById("Shipment-1-Credit-Amount").innerHTML = responseObject['data'].amount;
+
+                } else {
+
+                    alert("Failure to place getLC call :=> Status : " + this.status + ", readyState : " + this.readyState);
+                }
+
+            };
+
+            var lcid_value = document.getElementById("LC-Id-Input").value;
+            obj = { lcId: lcid_value };
+            params = JSON.stringify(obj);
+
+            alert("Calling getLC with Params" + params);
+            xmlhttp.send(params);
+
+        });
+
 
         /****************************************************************************************
             Generate "Letter of Credit PDF files" for selected Shipment orders
         *****************************************************************************************/
 
-        $("#BuyerBank-Generate-LoC-Button").click(function () {
+        $("#BuyerBank-Generate-LC-Button").click(function () {
 
             alert("Generate LoC Button Event : Generating LoC PDF Files");
 
-            // Create LoC : PDF File
+            // Create LC : PDF File
 
             var pdfDoc = new jsPDF();
 
@@ -132,16 +210,16 @@
             // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
             // Map & Functions ( dynamic content retrievals & Generation of LC )
 
-            var shipmentId = document.getElementById('Shipment-1-Id').textContent;
+            var shipmentId = document.getElementById('Shipment-1-taId').textContent;
+            var shipmentLcId = document.getElementById('Shipment-1-lcId').textContent;
             var shipmentBuyer = document.getElementById('Shipment-1-Buyer').textContent;
+            var shipmentBuyerBank = document.getElementById('Shipment-1-Bank').textContent;
             var shipmentSeller = document.getElementById('Shipment-1-Seller').textContent;
-            var shipmentBuyerBank = document.getElementById('Shipment-1-BuyerBank').textContent;
-            var shipmentSellerBank = document.getElementById('Shipment-1-SellerBank').textContent;
             var shipmentShipment = document.getElementById('Shipment-1-Shipment').textContent;
             var shipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
             var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
             var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
-            var shipmentLocSelectBox = document.getElementById('Shipment-1-LoC-Select').nodeValue;
+            var shipmentLocSelectBox = document.getElementById('Shipment-1-LC-Select').nodeValue;
 
             // Generate Pdf Doc
             // To Do: Completely Dynamic Content based on Form factor dimensions and fit to the exact width of the window
@@ -210,13 +288,66 @@
             var fileName = "LoC-Shipment-" + shipmentId + ".pdf"
             pdfDoc.save(fileName);
 
+            // Issue LC
+
+            issueLC();
+
         });
 
         /****************************************************************************************
-            Navigation Bar Page Browsing
+            Issue LC : Change the status of LC in mongo db by changing it to LC Issued
         *****************************************************************************************/
 
-        function processNavigationBar_HomeToCustomers(event) {
+        /****************************************************************************************
+            Issue LC : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        function issueLC() {
+
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "issueLC";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for issueLC call :=> " + responseObject);
+
+                } else {
+
+                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var lcId_value = document.getElementById("Shipment-1-lcId").value;
+
+            obj = { lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if ( lcId_value == null ) {
+
+                alert("LC Id value is missing while issuing LC : ");
+            }
+            else {
+
+                alert("Calling issueLC with Params" + params);
+                xmlhttp.send(params);
+            }
 
         }
 
@@ -225,5 +356,4 @@
 </body>
 
 </html>
-
 

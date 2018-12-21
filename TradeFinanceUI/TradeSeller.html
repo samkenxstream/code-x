@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 
 <html lang="en">
@@ -23,7 +23,6 @@ body {font-family: "Lato", sans-serif;}
     border: 1px solid #ccc;
     background-color: #f1f1f1;
     width: 30%;
-    height: 300px;
 }
 
 /* Style the buttons inside the tab */
@@ -58,8 +57,8 @@ body {font-family: "Lato", sans-serif;}
     border: 1px solid #ccc;
     width: 80%;
     border-left: none;
-    height: 300px;
 }
+
 .NavigationBar1 {
 
     float : left;
@@ -86,7 +85,6 @@ body {font-family: "Lato", sans-serif;}
         <div class="NavigationBar">
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
-            <a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</a>
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
@@ -97,43 +95,39 @@ body {font-family: "Lato", sans-serif;}
     <div class="container" style="width: 100%">
 
         <div class="LeftBrowserBox" style="width: 12%">
-         <div class="NavigationBar1">
-          
-           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">ShowTrade</a>
-           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">ShowLOC</a>
-         
-           
- </div>
+
+            <div class="NavigationBar1">
+
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">ShowTrade</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">ShowLC</a>
+
+            </div>
+
         </div>
 
+        <div class="RightBrowserBox" style="width: 85%; float: left">
 
             <h1 class="Shipment-Order-Details-Header">Trade Details</h1>
 
-           
+            <div class="tab">
+                <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">Buyer1</button>
+                <button class="tablinks" onclick="openCity(event, 'Paris')">Buyer2</button>
+                <button class="tablinks" onclick="openCity(event, 'Tokyo')">Buyer3</button>
+            </div>
 
-<div class="tab">
-  <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">Buyer1</button>
-  <button class="tablinks" onclick="openCity(event, 'Paris')">Buyer2</button>
-  <button class="tablinks" onclick="openCity(event, 'Tokyo')">Buyer3</button>
-</div>
+            <div id="London" class="tabcontent">
 
-<div id="London" class="tabcontent">
-  <table class="Buyer-Bank-Shipment-Order-Details">
+                <table class="Buyer-Bank-Shipment-Order-Details">
 
                     <tr class="Shipment-Details-TableRow-Header">
 
                         <th class="Shipment-Details-TableHeader">TradeId</th>
                         <th class="Shipment-Details-TableHeader">Buyer</th>
-                       <!-- <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">BuyerBank</th>
-                        <th class="Shipment-Details-TableHeader">SellerBank</th>-->
                         <th class="Shipment-Details-TableHeader">Shipment</th>
                         <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                     <!--   <th class="Shipment-Details-TableHeader">ExpiryDate</th>-->
                         <th class="Shipment-Details-TableHeader">Amount</th>
                         <th class="Shipment-Details-TableHeader">Status</th>
-                       <!-- <th class="Shipment-Details-TableHeader">LOC</th>-->
-                         <th class="Shipment-Details-TableHeader"></th>
+                        <th class="Shipment-Details-TableHeader"></th>
                     </tr>
 
                     <!-- ToDo : Dynamically add the Shipment order details : New rows -->
@@ -142,100 +136,163 @@ body {font-family: "Lato", sans-serif;}
 
                         <td class="Shipment-Details-Content">TD1</td>
                         <td class="Shipment-Details-Content">Dealer</td>
-                       <!-- <td class="Shipment-Details-Content">BMW</td>
-                        <td class="Shipment-Details-Content">HDFC</td>
-                        <td class="Shipment-Details-Content">Deutsche Bank</td>-->
                         <td class="Shipment-Details-Content">BMW X5</td>
                         <td class="Shipment-Details-Content">10</td>
-                      <!--  <td class="Shipment-Details-Content">2/28/2019</td>-->
                         <td class="Shipment-Details-Content">100000</td>
                         <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                       <!-- <td class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>-->
-                        <!--<td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LOC</a></td>-->
                         <td class="Shipment-Details-Content"><button onclick="myFunction()">AcceptTrade</button></td>
                     </tr>
 
                 </table>
-            
-            </div>
-</div>
 
-<div id="Paris" class="tabcontent">
-  <table class="Buyer-Bank-Shipment-Order-Details">
-
-                    <tr class="Shipment-Details-TableRow-Header">
-
-                         <th class="Shipment-Details-TableHeader">TradeId</th>
-                        <th class="Shipment-Details-TableHeader">Buyer</th>
-                       <!-- <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">BuyerBank</th>
-                        <th class="Shipment-Details-TableHeader">SellerBank</th>-->
-                        <th class="Shipment-Details-TableHeader">Shipment</th>
-                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                     <!--   <th class="Shipment-Details-TableHeader">ExpiryDate</th>-->
-                        <th class="Shipment-Details-TableHeader">Amount</th>
-                        <th class="Shipment-Details-TableHeader">Status</th>
-                       <!-- <th class="Shipment-Details-TableHeader">LOC</th>-->
-                         <th class="Shipment-Details-TableHeader"></th>
-                    </tr>
-
-                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
-
-                    <tr class="Shipment-Details-TableRow-Content">
-
-                        <td class="Shipment-Details-Content">TD1</td>
-                        <td class="Shipment-Details-Content">Dealer</td>
-                        <!--<td class="Shipment-Details-Content">BENZ</td>
-                        <td class="Shipment-Details-Content">ICICI</td>
-                        <td class="Shipment-Details-Content">HSBC</td>-->
-                        <td class="Shipment-Details-Content">BENZ X5</td>
-                        <td class="Shipment-Details-Content">20</td>
-                    <!--    <td class="Shipment-Details-Content">07/20/2020</td>-->
-                        <td class="Shipment-Details-Content">100000</td>
-                        <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                       <!-- <td class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>-->
-                    <!--    <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LOC</a></td>-->
-                        <td class="Shipment-Details-Content"><button onclick="myFunction()">AcceptTrade</button></td>
-                    </tr>
-
-                </table>
-</div>
-
-<div id="Tokyo" class="tabcontent">
-  <h3>Buyer3</h3>
-  <p>Tokyo is the capital of Japan.</p>
-</div>
-    
             </div>
 
-  <script>
-function myFunction() {
-  var x = document.getElementById("myDIV");
-  if (x.innerHTML === "Pending") {
-    x.innerHTML = "Approved";
-  } 
-}
-</script>
+            <div class="Retrieve-Trade-Details" style="clear: left">
 
-<script>
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-right: 6%; padding-left: 6%">TradeId</label>
+                <input id="Trade-Id-Input" type="text">
+                <br /><br /><br />
 
-function openCity(evt, cityName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-    document.getElementById(cityName).style.display = "block";
-    evt.currentTarget.className += " active";
-}
+                <label id="Label_buffer" style="padding-right: 12%"></label>
+                <button id="Accept-Trade-Button" class="Accept-Trade-Class">Accept Trade</button>
 
-// Get the element with id="defaultOpen" and click on it
-document.getElementById("defaultOpen").click();
-</script>
+            </div>
+
+        </div>
+
+        <div id="Paris" class="tabcontent">
+            <table class="Buyer-Bank-Shipment-Order-Details">
+
+                <tr class="Shipment-Details-TableRow-Header">
+
+                    <th class="Shipment-Details-TableHeader">TradeId</th>
+                    <th class="Shipment-Details-TableHeader">Buyer</th>
+                    <th class="Shipment-Details-TableHeader">Shipment</th>
+                    <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                    <th class="Shipment-Details-TableHeader">Amount</th>
+                    <th class="Shipment-Details-TableHeader">Status</th>
+                    <th class="Shipment-Details-TableHeader"></th>
+                </tr>
+
+                <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                <tr class="Shipment-Details-TableRow-Content">
+
+                    <td class="Shipment-Details-Content">TD1</td>
+                    <td class="Shipment-Details-Content">Dealer</td>
+                    <td class="Shipment-Details-Content">BENZ X5</td>
+                    <td class="Shipment-Details-Content">20</td>
+                    <td class="Shipment-Details-Content">100000</td>
+                    <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
+                    <td class="Shipment-Details-Content"><button onclick="myFunction()">AcceptTrade</button></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div id="Tokyo" class="tabcontent">
+            <h3>Buyer3</h3>
+            <p>Tokyo is the capital of Japan.</p>
+        </div>
+
+    </div>
+
+
+    <script>
+        function myFunction() {
+            var x = document.getElementById("myDIV");
+            if (x.innerHTML === "Pending") {
+                x.innerHTML = "Approved";
+            }
+        }
+    </script>
+
+    <script>
+
+        function openCity(evt, cityName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(cityName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Get the element with id="defaultOpen" and click on it
+
+        document.getElementById("defaultOpen").click();
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+    /****************************************************************************************
+    Accept Trade : Change the status of Trade Agreement in mongo db by changing it to "Trade Accepted"
+    *****************************************************************************************/
+
+    /****************************************************************************************
+    Accept Trade : Place HyperLedger API Call
+    *****************************************************************************************/
+
+        $("#Accept-Trade-Button").click(function () {
+
+
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "acceptTrade";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for tradeAccept call :=> " + responseObject);
+
+                } else {
+
+                    alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            obj = { taId: taId_value };
+            params = JSON.stringify(obj);
+
+            if (taId_value == null) {
+
+                alert("Trade Agreement Id value is missing while accepting Trade : ");
+            }
+            else {
+
+                alert("Calling acceptTrade with Params :" + params);
+                xmlhttp.send(params);
+            }
+        });
+
+    </script>
+
 </body>
 
 </html>

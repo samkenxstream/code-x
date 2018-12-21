@@ -34,33 +34,32 @@
             border: 1px solid #ccc;
             background-color: #f1f1f1;
             width: 30%;
-            height: 300px;
         }
 
-            /* Style the buttons inside the tab */
-            .tab button {
-                display: block;
-                background-color: inherit;
-                color: black;
-                padding: 22px 16px;
-                width: 100%;
-                border: none;
-                outline: none;
-                text-align: left;
-                cursor: pointer;
-                transition: 0.3s;
-                font-size: 17px;
-            }
+        /* Style the buttons inside the tab */
+        .tab button {
+            display: block;
+            background-color: inherit;
+            color: black;
+            padding: 22px 16px;
+            width: 100%;
+            border: none;
+            outline: none;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 17px;
+        }
 
-                /* Change background color of buttons on hover */
-                .tab button:hover {
-                    background-color: #ddd;
-                }
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
 
-                /* Create an active/current "tab button" class */
-                .tab button.active {
-                    background-color: #ccc;
-                }
+        /* Create an active/current "tab button" class */
+        .tab button.active {
+            background-color: #ccc;
+        }
 
         /* Style the tab content */
         .tabcontent {
@@ -69,17 +68,16 @@
             border: 1px solid #ccc;
             width: 80%;
             border-left: none;
-            height: 300px;
         }
         .NavigationBar1 {
 
-    float : left;
-    padding: 6px 8px 6px 16px;
-    text-decoration: none;
-    font-size: 22px;
-    color: #818181;
-    padding-top: 50px;
-}
+            float : left;
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 22px;
+            color: #818181;
+            padding-top: 50px;
+        }
 
     </style>
 
@@ -95,8 +93,6 @@
         <div class="NavigationBar">
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
-           <!-- <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>-->
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
@@ -107,27 +103,85 @@
     <div class="container" style="width: 100%">
 
         <div class="LeftBrowserBox" style="width: 12%">
-        <div class="NavigationBar1">
-          
-           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">ShowTrade</a>
-           <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">ShowLOC</a>
-         
-           
- </div>
+
+            <div class="NavigationBar1">
+
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">ShowTrade</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">ShowLC</a>
+
+            </div>
         </div>
 
-
-        <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
-
+        <div class="RightBrowserBox" style="width: 85%; float: left">
 
 
-        <div class="tab">
-            <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">Buyer1</button>
-            <button class="tablinks" onclick="openCity(event, 'Paris')">Buyer2</button>
-            <button class="tablinks" onclick="openCity(event, 'Tokyo')">Buyer3</button>
+            <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
+
+            <div class="tab">
+                <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">Buyer1</button>
+                <button class="tablinks" onclick="openCity(event, 'Paris')">Buyer2</button>
+                <button class="tablinks" onclick="openCity(event, 'Tokyo')">Buyer3</button>
+            </div>
+
+            <div id="London" class="tabcontent">
+
+                <table class="Buyer-Bank-Shipment-Order-Details">
+
+                    <tr class="Shipment-Details-TableRow-Header">
+
+                        <th class="Shipment-Details-TableHeader">taId</th>
+                        <th class="Shipment-Details-TableHeader">lcId</th>
+                        <th class="Shipment-Details-TableHeader">Buyer</th>
+                        <th class="Shipment-Details-TableHeader">Bank</th>
+                        <th class="Shipment-Details-TableHeader">Seller</th>
+                        <th class="Shipment-Details-TableHeader">Shipment</th>
+                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                        <th class="Shipment-Details-TableHeader">Amount</th>
+                        <th class="Shipment-Details-TableHeader">Status</th>
+                        <th class="Shipment-Details-TableHeader">LC</th>
+                        <th class="Shipment-Details-TableHeader"></th>
+                    </tr>
+
+                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                    <tr class="Shipment-Details-TableRow-Content">
+
+                        <td class="Shipment-Details-Content">TA_2500</td>
+                        <td class="Shipment-Details-Content">LC_2500</td>
+                        <td class="Shipment-Details-Content">Dealer</td>
+                        <td class="Shipment-Details-Content">HDFC</td>
+                        <td class="Shipment-Details-Content">BMW</td>
+                        <td class="Shipment-Details-Content">BMW X5</td>
+                        <td class="Shipment-Details-Content">10</td>
+                        <td class="Shipment-Details-Content">2/28/2019</td>
+                        <td class="Shipment-Details-Content">100000</td>
+                        <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
+                        <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LC</a></td>
+                        <td class="Shipment-Details-Content"><button onclick="myFunction()">Approve</button></td>
+                    </tr>
+
+                </table>
+
+                <div class="Retrieve-LC-Details" style="clear: left">
+
+                    <br /><br /><br />
+                    <label id="Label_buffer" style="padding-right: 6%; padding-left: 6%">LC_Id</label>
+                    <input id="LC-Id-Input" type="text">
+                    <br /><br /><br />
+
+                    <label id="Label_buffer" style="padding-right: 12%"></label>
+                    <button id="Accept-LC-Button" class="Accept-LC-Class">Accept LC</button>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <div id="London" class="tabcontent">
+        <!-- Dynamically generate content for all the Tabs with Just Template Rendering ( Having Accept LC Input Request ) -->
+
+        <div id="Paris" class="tabcontent">
             <table class="Buyer-Bank-Shipment-Order-Details">
 
                 <tr class="Shipment-Details-TableRow-Header">
@@ -150,17 +204,16 @@
 
                 <tr class="Shipment-Details-TableRow-Content">
 
-                    <td class="Shipment-Details-Content">LC1</td>
+                    <td class="Shipment-Details-Content">LC2</td>
                     <td class="Shipment-Details-Content">Dealer</td>
-                    <td class="Shipment-Details-Content">BMW</td>
-                    <td class="Shipment-Details-Content">HDFC</td>
-                    <td class="Shipment-Details-Content">Deutsche Bank</td>
-                    <td class="Shipment-Details-Content">BMW X5</td>
-                    <td class="Shipment-Details-Content">10</td>
-                    <td class="Shipment-Details-Content">2/28/2019</td>
+                    <td class="Shipment-Details-Content">BENZ</td>
+                    <td class="Shipment-Details-Content">ICICI</td>
+                    <td class="Shipment-Details-Content">HSBC</td>
+                    <td class="Shipment-Details-Content">BENZ X5</td>
+                    <td class="Shipment-Details-Content">20</td>
+                    <td class="Shipment-Details-Content">07/20/2020</td>
                     <td class="Shipment-Details-Content">100000</td>
                     <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                    <!-- <td class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>-->
                     <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LOC</a></td>
                     <td class="Shipment-Details-Content"><button onclick="myFunction()">Approve</button></td>
                 </tr>
@@ -168,53 +221,11 @@
             </table>
 
         </div>
-    </div>
 
-    <div id="Paris" class="tabcontent">
-        <table class="Buyer-Bank-Shipment-Order-Details">
-
-            <tr class="Shipment-Details-TableRow-Header">
-
-                <th class="Shipment-Details-TableHeader">ShipmentOrderId</th>
-                <th class="Shipment-Details-TableHeader">Buyer</th>
-                <th class="Shipment-Details-TableHeader">Seller</th>
-                <th class="Shipment-Details-TableHeader">BuyerBank</th>
-                <th class="Shipment-Details-TableHeader">SellerBank</th>
-                <th class="Shipment-Details-TableHeader">Shipment</th>
-                <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                <th class="Shipment-Details-TableHeader">LocAmount(In tokens)</th>
-                <th class="Shipment-Details-TableHeader">Status</th>
-                <th class="Shipment-Details-TableHeader">LOC</th>
-                <th class="Shipment-Details-TableHeader"></th>
-            </tr>
-
-            <!-- ToDo : Dynamically add the Shipment order details : New rows -->
-
-            <tr class="Shipment-Details-TableRow-Content">
-
-                <td class="Shipment-Details-Content">LC2</td>
-                <td class="Shipment-Details-Content">Dealer</td>
-                <td class="Shipment-Details-Content">BENZ</td>
-                <td class="Shipment-Details-Content">ICICI</td>
-                <td class="Shipment-Details-Content">HSBC</td>
-                <td class="Shipment-Details-Content">BENZ X5</td>
-                <td class="Shipment-Details-Content">20</td>
-                <td class="Shipment-Details-Content">07/20/2020</td>
-                <td class="Shipment-Details-Content">100000</td>
-                <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                <!-- <td class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>-->
-                <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LOC</a></td>
-                <td class="Shipment-Details-Content"><button onclick="myFunction()">Approve</button></td>
-            </tr>
-
-        </table>
-    </div>
-
-    <div id="Tokyo" class="tabcontent">
-        <h3>Buyer3</h3>
-        <p>Tokyo is the capital of Japan.</p>
-    </div>
+        <div id="Tokyo" class="tabcontent">
+            <h3>Buyer3</h3>
+            <p>Tokyo is the capital of Japan.</p>
+        </div>
 
     </div>
 
@@ -244,9 +255,75 @@
 
         // Get the element with id="defaultOpen" and click on it
         document.getElementById("defaultOpen").click();
+
     </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        /* To Do : Write Generic function for placing all the "web client calls" & Load it via client side js script */
+
+        /****************************************************************************************
+        Accept LC : Change the status of LC in mongo db by changing it to "LC Accepted"
+        *****************************************************************************************/
+
+        /****************************************************************************************
+        Accept LC : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        $("#Accept-LC-Button").click(function () {
+
+
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "acceptLC";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for acceptLC call :=> " + responseObject);
+
+                } else {
+
+                    alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            obj = { lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if (lcId_value == null) {
+
+                alert("LC Id value is missing while accepting LC : ");
+            }
+            else {
+
+                alert("Calling acceptLC with Params :" + params);
+                xmlhttp.send(params);
+            }
+        });
+
+    </script>
+
 </body>
 
 </html>
-
 

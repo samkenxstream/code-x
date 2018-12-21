@@ -45,9 +45,7 @@
 
         <div class="NavigationBar">
 
-            <!--<a class="LoC-Status" onclick='processNavigationBar_ToLoCStatus(event);' href="./TFLoCStatus.html">LoC-Status</a>-->
             <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <!--a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</!--a>-->
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
@@ -61,8 +59,8 @@
         <div class="NavigationBar1">
              
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">RequestLOC</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">RequestLC</a>
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LC-Status</a>
  </div>
 
         </div>
@@ -80,7 +78,15 @@
 
                 <div class="Shipment-Label-Container" style="width: 25%">
 
+                    <label id="Label_Trade_Id" class="Label-Trade-Id" style="padding-right: 40px; color: #7d4438">Trade_Id</label>
+                    <br />
+                    <br />
+
                     <label id="Label_LC_Id" class="Label-LC-Id" style="padding-right: 40px; color: #7d4438">LC_Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Buyer_Name" class="Label-Buyer-Name" style="padding-right: 40px; color: #7d4438">Buyer</label>
                     <br />
                     <br />
 
@@ -114,7 +120,15 @@
 
                 <div class="Shipment-Input-Container" style="width: 25%">
 
+                    <input id="TradeId-Input" type="text">
+                    <br />
+                    <br />
+
                     <label id="Label_LC_Id_Output" style="padding-right: 40px; color: #7d4438">LC Id To Be Updated</label>
+                    <br />
+                    <br />
+
+                    <input id="Buyer-Input" type="text">
                     <br />
                     <br />
 
@@ -132,7 +146,7 @@
                     </select>
                     <br />
                     <br />
-                    
+
                     <select id="Seller-Id-Input">
                         <option value="BMW-Id">ABCD-2345</option>
                         <option value="Adidas-Id">ABCD-2346</option>
@@ -148,7 +162,7 @@
                     <br />
                     <br />
 
-                    <select id="Seller-Id-Input">
+                    <select id="Bank-Input">
                         <option value="Deutsche">Deutsche Bank</option>
                         <option value="VarenGold">VarenGold Bank</option>
                         <option value="HDFC">HDFC Bank</option>
@@ -232,8 +246,77 @@
         $("#Shipment-Order-Submit").click(function () {
 
             var todaysDate = new Date();
-            var generateUniqueLcId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-            document.getElementById("Label_LC_Id_Output").textContent = generateUniqueLcId;
+            var uniqueLcId = "LC_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            document.getElementById("Label_LC_Id_Output").textContent = uniqueLcId;
+
+            /****************************************************************************************
+                Request LC : Store the details in mongo db for consumption by Buyer's Bank
+            *****************************************************************************************/
+
+            /****************************************************************************************
+                Request LC : Place HyperLedger API Call
+            *****************************************************************************************/
+
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "requestLC";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for requestLC call :=> " + responseObject);
+
+                } else {
+
+                    alert("Failure to place requestLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taid_value = document.getElementById("TradeId-Input").value;
+            var lcId_value = uniqueLcId;
+            var buyer_value = document.getElementById("Buyer-Input").value;
+            var seller_value = document.getElementById("Seller-Input").value;
+            var seller_Id_value = document.getElementById("Seller-Id-Input").value;
+            var bank_value = document.getElementById("Bank-Input").value;
+            var shipment_value = document.getElementById("Shipment-Input").value;
+            var shipmentCount_value = document.getElementById("ShipmentCount").value;
+            var amount_value = document.getElementById("CreditAmountInput").value;
+            var expiryDate_value = document.getElementById("ExpiryDateInput").value;
+            var currency_Unit_value = document.getElementById("Currency-Unit").value;
+
+            obj = {
+                taId: taid_value, lcId: lcId_value, expiryDate: expiryDate_value, buyer: buyer_value, bank: bank_value,
+                seller: seller_value, amount: amount_value, goods: shipment_value, goodsCount: shipmentCount_value,
+                currency: currency_Unit_value
+            };
+            params = JSON.stringify(obj);
+
+            if (taid_value == null || lcId_value == null || expiryDate_value == null || buyer_value == null || bank_value == null ||
+                seller_value == null || shipment_value == null || shipmentCount_value == null || amount_value == null ||
+                currency_Unit_value == null) {
+
+                alert("one or many of the required input values are missing for requesting the LC : " + params);
+            }
+            else {
+
+                alert("Calling requestLC with Params" + params);
+                xmlhttp.send(params);
+            }
 
         });
 

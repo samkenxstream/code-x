@@ -46,9 +46,7 @@
 
         <div class="NavigationBar">
 
-           <!-- <a class="LoC-Status" onclick='processNavigationBar_ToLoCStatus(event);' href="./TFLoCStatus.html">LoC-Status</a>-->
             <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Seller-Bank" onclick='processNavigationBar_ToSellerBank(event);' href="./TFSellerBank.html">Seller-Bank</a>
             <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
@@ -79,8 +77,12 @@
                 <p id="buffer2" style="padding-bottom : 10px"> </p>
 
                 <div class="Shipment-Label-Container" style="width: 35%">
-                     
-                     <label id="Label_Trade_Id" class="Label_Trade_Id" style="padding-right: 40px; color: #7d4438">Trade Id</label>
+
+                    <label id="Label_Trade_Id" class="Label_Trade_Id" style="padding-right: 40px; color: #7d4438">Trade Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Buyer_Name" class="Label-Buyer-Name" style="padding-right: 40px; color: #7d4438">Buyer</label>
                     <br />
                     <br />
 
@@ -97,10 +99,6 @@
                     <br />
 
                     <label id="Label_Credit_Amount" class="Label-Credit-Amount" style="padding-right: 40px; color: #7d4438">Amount</label>
-                   <!-- <br />
-                    <br />
-
-                    <label id="Label_Expiry_Date" class="Label-LoC-Expiry-Date" style="padding-right: 40px; color: #7d4438">Expiry Date</label>-->
 
                 </div>
 
@@ -108,6 +106,10 @@
 
                     <!--input id="TradeId" type="text">-->
                     <label id="TradeId" style="padding-right: 15%">Id To Be Updated</label>
+                    <br />
+                    <br />
+
+                    <input id="Buyer-Input" type="text">
                     <br />
                     <br />
 
@@ -146,7 +148,7 @@
                     <br />
 
                     <input id="CreditAmountInput" type="text">
-                 </div>
+                </div>
 
                 </div>
 
@@ -163,17 +165,78 @@
 
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script >
 
         <script>
+
 
             $("#Shipment-Order-Submit").click(function () {
 
                 var todaysDate = new Date();
-                var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-                document.getElementById("TradeId").textContent = generateUniqueTradeId;
+                var uniqueTradeId = "TA_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+                document.getElementById("TradeId").textContent = uniqueTradeId;
 
+                /****************************************************************************************
+                    Request Trade : Store the details in mongo db for consumption by Buyer's Bank
+                *****************************************************************************************/
 
+                /****************************************************************************************
+                    Request Trade : Place HyperLedger API Call
+                *****************************************************************************************/
+
+                var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+                var xmlhttp;
+                var httpRequestString = webServerPrefix + "requestTrade";
+
+                xmlhttp = new XMLHttpRequest();
+
+                xmlhttp.open("POST", httpRequestString, true);
+                xmlhttp.setRequestHeader("Content-type", "application/json");
+                xmlhttp.setRequestHeader("accept", "application/json");
+
+                // Wait for Async response and Handle it in web page
+
+                xmlhttp.onreadystatechange = function () {
+
+                    if (this.readyState == 4 && this.status == 200) {
+
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Server for requestTrade call :=> " + responseObject);
+
+                    } else {
+
+                        alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    }
+
+                };
+
+                // Prepare Http Request from Form data and send the request
+
+                var taid_value = uniqueTradeId;
+                var buyer_value = document.getElementById("Buyer-Input").value;
+                var seller_value = document.getElementById("Seller-Input").value;
+                var shipment_value = document.getElementById("Shipment-Input").value;
+                var shipmentCount_value = document.getElementById("ShipmentCount").value;
+                var amount_value = document.getElementById("CreditAmountInput").value;
+
+                obj = {
+                    taId: taid_value, buyer: buyer_value, seller: seller_value, amount: amount_value,
+                    goods: shipment_value, goodsCount: shipmentCount_value
+                };
+                params = JSON.stringify(obj);
+
+                if (taid_value == null || buyer_value == null || seller_value == null || shipment_value == null
+                    || shipmentCount_value == null || amount_value == null) {
+
+                    alert("one or many of the required input values are missing for requesting the Trade : " + params);
+                }
+                else {
+
+                    alert("Calling requestTrade with Params" + params);
+                    xmlhttp.send(params);
+                }
 
             });
 
