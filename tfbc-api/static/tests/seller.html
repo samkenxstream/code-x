@@ -67,7 +67,7 @@
   <div class="header">
     <a href="#default" class="logo">Seller Organization</a>
       <div class="header-right">
-      <a class="active" href="#home">Home</a>
+      <a class="active" href="http://localhost:3000/static/tests/homePage.html">Home</a>
     </div>
   </div>
 <br>
@@ -86,6 +86,26 @@
        <p></p>
        <p id="acceptTAMsg"></p>
   </form>
+<br>
+
+<form>
+  <div class="form-group">
+    <h4>Send Shipment</h4>
+  </div>
+    <div class="form-group">
+      <label for="name">Enter TA Id:</label>
+      <input class="form-control col-sm-4" type="text" id="ss_taId" name="ss_taId" />
+    </div>
+    <div class="form-group">
+      <label for="name">Enter LC Id:</label>
+      <input class="form-control col-sm-4" type="text" id="ss_lcId" name="ss_lcId" />
+    </div>
+    <div class="button">
+       <input type="button" class="btn btn-primary" onclick="sendShipment()" value="Send Shipment" >
+     </div>
+     <p></p>
+     <p id="sendShipmentMsg"></p>
+</form>
 <br>
 
   <form>
@@ -139,6 +159,42 @@ function acceptTrade() {
   var taId_value=document.getElementById("taId").value;
 
 	obj =   { "taId": taId_value };
+
+  params = JSON.stringify(obj);
+	xmlhttp.send(params);
+}
+
+function sendShipment() {
+  	var xmlhttp, txt = "";
+  	xmlhttp = new XMLHttpRequest();
+ 	  xmlhttp.open("POST", "http://localhost:3000/tfbc/sendShipment", true);
+  	xmlhttp.setRequestHeader("Content-type", "application/json");
+	  xmlhttp.setRequestHeader("accept", "application/json");
+	  xmlhttp.onreadystatechange = function()
+	{
+		if (this.readyState == 4 && this.status == 200)
+		{
+      //response will be in the
+      resp = JSON.parse(this.response);
+      if(resp['code']=='200'){
+        console.log(resp['message'])
+        txt += "<span class='badge badge-pill badge-success'>Success</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      } else {
+        console.log(resp)
+        txt += "<span class='badge badge-pill badge-danger'>Failed</span>"
+        txt += "<p style='font-size:160%;'>"+" "+resp['message']+"</p>"
+      }
+      document.getElementById("sendShipmentMsg").innerHTML = txt;
+		}
+	};
+
+  var ss_taId_value=document.getElementById("ss_taId").value;
+  var ss_lcId_value=document.getElementById("ss_lcId").value;
+
+	obj =   { "taId": ss_taId_value,
+            "lcId": ss_lcId_value
+           };
 
   params = JSON.stringify(obj);
 	xmlhttp.send(params);
