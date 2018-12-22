@@ -85,7 +85,8 @@ body {font-family: "Lato", sans-serif;}
         <div class="NavigationBar">
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
+            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+            <!--a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>-->
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
         </div>
@@ -268,7 +269,7 @@ body {font-family: "Lato", sans-serif;}
 
                 } else {
 
-                    alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -286,7 +287,7 @@ body {font-family: "Lato", sans-serif;}
             }
             else {
 
-                alert("Calling acceptTrade with Params :" + params);
+                //alert("Calling acceptTrade with Params :" + params);
                 xmlhttp.send(params);
             }
         });

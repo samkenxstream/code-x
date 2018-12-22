@@ -142,11 +142,11 @@
 
                 /****************************************************************************************
                     getLC : Place HyperLedger API Call
-                *****************************************************************************************/
+                ******************************	***********************************************************/
 
                 xmlhttp = new XMLHttpRequest();
 
-                xmlhttp.open("GET", httpRequestString, true);
+                xmlhttp.open("POST", httpRequestString, true);
                 xmlhttp.setRequestHeader("Content-type", "application/json");
                 xmlhttp.setRequestHeader("accept", "application/json");
 
@@ -174,7 +174,7 @@
 
                     } else {
 
-                        //alert("Failure to place getLC call :=> Status : " + this.status);
+                        alert("Failure to place getLC call :=> Status : " + this.status);
                     }
 
                 };
@@ -183,7 +183,7 @@
                 obj = { lcId: lcid_value };
                 params = JSON.stringify(obj);
 
-                //alert("Calling getLC with Params" + params);
+                alert("Calling getLC with Params" + params);
                 xmlhttp.send(params);
 
             });

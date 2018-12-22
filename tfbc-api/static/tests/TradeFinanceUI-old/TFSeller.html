@@ -93,8 +93,7 @@
         <div class="NavigationBar">
 
             <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <!--a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>-->
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TradeSeller.html">Seller</a>
             <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
 
         </div>
@@ -299,7 +298,7 @@
 
                 } else {
 
-                    //alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -317,7 +316,7 @@
             }
             else {
 
-                //alert("Calling acceptLC with Params :" + params);
+                alert("Calling acceptLC with Params :" + params);
                 xmlhttp.send(params);
             }
         });

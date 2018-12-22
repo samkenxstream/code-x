@@ -128,8 +128,6 @@
     <script>
 
 
-        var bDebug = False;
-     
         /****************************************************************************************
             Retrieve Shipment Details to Display in Shipment Orders Table
         *****************************************************************************************/
@@ -150,7 +148,7 @@
 
             xmlhttp = new XMLHttpRequest();
 
-            xmlhttp.open("GET", httpRequestString, true);
+            xmlhttp.open("POST", httpRequestString, true);
             xmlhttp.setRequestHeader("Content-type", "application/json");
             xmlhttp.setRequestHeader("accept", "application/json");
 
@@ -161,6 +159,7 @@
                     //Parse the JSON Response Object
 
                     responseObject = JSON.parse(this.response);
+                    alert(responseObject);
 
                     alert("Received Success Response from Server for getLC call : " + responseObject);
 
@@ -180,9 +179,7 @@
 
                 } else {
 
-                     if( bDebug ) {
-                        alert("Failure to place getLC call :=> Status : " + this.status + ", readyState : " + this.readyState);
-                     }
+                    alert("Failure to place getLC call :=> Status : " + this.status + ", readyState : " + this.readyState);
                 }
 
             };
@@ -191,9 +188,7 @@
             obj = { lcId: lcid_value };
             params = JSON.stringify(obj);
 
-            if( bDebug ) {
-              alert("Calling getLC with Params" + params);
-            }
+            alert("Calling getLC with Params" + params);
             xmlhttp.send(params);
 
         });
@@ -205,9 +200,7 @@
 
         $("#BuyerBank-Generate-LC-Button").click(function () {
 
-            if( bDebug ) {
-                alert("Generate LoC Button Event : Generating LoC PDF Files");
-            }
+            alert("Generate LoC Button Event : Generating LoC PDF Files");
 
             // Create LC : PDF File
 
@@ -311,7 +304,7 @@
 
         function issueLC() {
 
-            var webServerPrefix = "./tfbc/"
+            var webServerPrefix = "/tfbc/"
             var xmlhttp;
             var httpRequestString = webServerPrefix + "issueLC";
 
@@ -334,7 +327,7 @@
 
                 } else {
 
-                    //alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -352,7 +345,7 @@
             }
             else {
 
-                //alert("Calling issueLC with Params" + params);
+                alert("Calling issueLC with Params" + params);
                 xmlhttp.send(params);
             }
 
