@@ -17,10 +17,52 @@
 
 }
 
+.Application-Info {
+    color: #F8C471;
+    /*color: #FAD7A0;*/
+    background-color: #6A3C47;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 80px;
+    padding-right: 40px;
+    font-family: Times New Roman;
+    font-size: 30px;
+    border: 2px solid;
+}
+
+.Hyper-Ledger-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    /*background-image: "GemsAndDiamonds.jpg";*/
+    border: 2px solid;
+    float: left;
+}
+
+.Smart-Contract-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    border: 2px solid;
+    float: left;
+}
+
+.Project-Theme-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    border: 2px solid;
+    float: left;
+}
+
 .header a.Current {
     
     font-size : 45px;
-
 }
 
 .NavigationBar {
@@ -185,6 +227,32 @@
     float : left;
 }
 
+/* Shipment Status Info Page */
+
+.Shipment-Status {
+    color: #30112E;
+    background-color: #76382B;
+    padding-top: 10px;
+}
+
+.Shipment-Details1 {
+    color: #594146;
+    background-color: #A48F8A;
+    padding-top: 10px;
+}
+
+.Shipment-Details-Label-Container {
+    color: #110604;
+    float: left;
+}
+
+.Shipment-Details-Status-Container {
+    float: left;
+}
+
+.Retrieve-TA-Details {
+    clear: left;
+}
 
 /* Buyer Bank Page : Show Shipment Order Details & Generate Letter of Credit */
 
@@ -269,6 +337,131 @@
     width : 15px;
     height : 15px;
 
+}
+
+
+/* Seller Page - Monitor Trade, LC & ShipGoods */
+
+.Goods-Status-Details-Header {
+
+    color: #30112E;
+    background-color: #6A3C47;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 2px solid;
+}
+
+.RightBrowserBox {
+    float: left;
+    padding-left: 2%;
+}
+
+.Ship-Goods-And-Request-Payment {
+    color: #30112E;
+    background-color: #A48F8A;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 2px solid;
+}
+
+.NavigationBar_Vertical {
+    float: left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
+.Ship-Goods-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Request-Payment-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+/* Buyer Bank */
+
+
+.Retrieve-Shipment-Details {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Generate-LC-Button {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Make-Payment-To-Seller {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+/* Shipment Status */
+
+.Retrieve-TA-Details-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Accept-Shipment-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
 }
 
 

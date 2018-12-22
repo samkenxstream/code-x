@@ -46,15 +46,19 @@
         </div>
     </div>
     <div class="container" style="width: 95%">
-        <div class="LeftBrowserBox" style="width: 12%">
+        <div class="LeftBrowserBox" style="width: 15%">
             <div class="NavigationBar1">
-
-                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">TFBuyer</a>
-                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">RequestTrade</a>
-                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
+                <a class="BuyerTrade" style="clear: left" href="./TradeBuyer.html">RequestTrade</a>
+                <br />
+                <a class="BuyerLC" style="clear: left" href="./TFBuyer.html">RequestLC</a>
+                <br />
+                <a class="Seller" style="clear: left" href="./TFLoCStatus.html">LC-Status</a>
+                <br />
+                <a class="ShipmentStatus" style="clear: left" href="./TFShipmentStatus.html">ShipmentStatus</a>
             </div>
+
         </div>
-        <div class="ContentBrowser" style="width: 85%">
+        <div class="ContentBrowser" style="width: 80%">
             <p id="buffer1" style="padding-bottom : 10px"> </p>
             <h1 class="LetterOfCredit-Status">LetterOfCredit-Status</h1>
             <div class="LetterOfCredit-Details" style="width: 80%">
@@ -153,8 +157,6 @@
                         //Parse the JSON Response Object
 
                         responseObject = JSON.parse(this.response);
-                        alert(responseObject);
-
                         alert("Received Success Response from Server for getLC call" + responseObject);
 
                         // Display the response on UI

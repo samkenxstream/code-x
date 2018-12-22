@@ -1,0 +1,200 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+ </head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
+            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 100%">
+
+        <div class="LeftBrowserBox" style="width: 12%">
+
+            <div class="NavigationBar_Vertical">
+
+                <a class="SellerTrade" href="./TradeSeller.html">ShowTrade</a>
+                <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
+                <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
+
+            </div>
+
+        </div>
+
+        <div class="RightBrowserBox" style="width: 85%; float: left">
+
+            <h1 class="Goods-Status-Details-Header">Goods Details</h1>
+
+            <div class="Ship-Goods-And-Request-Payment" style="clear: left">
+
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-right: 6%; padding-left: 6%">TradeId</label>
+                <input id="Trade-Id-Input" type="text">
+                <br /><br />
+                <label id="Label_buffer" style="padding-right: 7.5%; padding-left: 6%">LcId</label>
+                <input id="LC-Id-Input" type="text">
+                <br /><br /><br /><br />
+
+                <label id="Label_buffer" style="padding-right: 12%"></label>
+                <button id="Ship-Goods-Button" class="Ship-Goods-Class">ShipGoods</button>
+                <br /><br /><br />
+
+                <label id="Label_buffer" style="padding-right: 12%"></label>
+                <button id="Request-Payment-Button" class="Request-Payment-Class">RequestPayment</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+    /****************************************************************************************
+    Send Shipment : Change the status of Trade Agreement in mongo db by changing it to "Shipped"
+    *****************************************************************************************/
+
+    /****************************************************************************************
+    Send Shipment : Place HyperLedger API Call
+    *****************************************************************************************/
+
+        $("#Ship-Goods-Button").click(function () {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "sendShipment";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for sendShipment call :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            obj = { taId: taId_value, lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if (taId_value == null || lcId_value == null) {
+
+                alert(" (Trade Agreement Id & lcId)  values are missing while sending the Shipment : ");
+            }
+            else {
+
+                //alert("Calling acceptTrade with Params :" + params);
+                xmlhttp.send(params);
+            }
+        });
+
+        /****************************************************************************************
+        Request Payment : Change the status of Trade Agreement in mongo db by changing it to "PAYMENT REQUESTED"
+        *****************************************************************************************/
+
+        /****************************************************************************************
+        Request Payment : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        $("#Request-Payment-Button").click(function () {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "requestPayment";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for requestPayment call :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            obj = { taId: taId_value, lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if (taId_value == null || lcId_value == null) {
+
+                alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
+            }
+            else {
+
+                //alert("Calling acceptTrade with Params :" + params);
+                xmlhttp.send(params);
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
+
+
