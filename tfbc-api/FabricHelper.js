@@ -592,6 +592,7 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 	tx_id = fabric_client.newTransactionID();
 	console.log("Assigning transaction_id: ", tx_id._transaction_id);
 
+	//console.log(req);
 	// createCar chaincode function - requires 5 args, ex: args: ['CAR12', 'Honda', 'Accord', 'Black', 'Tom'],
 	// changeCarOwner chaincode function - requires 2 args , ex: args: ['CAR10', 'Dave'],
 	// must send the proposal to endorsing peers
@@ -601,12 +602,16 @@ Fabric_Client.newDefaultKeyValueStore({ path: store_path
 		chainId: 'tfbcchannel',
 		txId: tx_id};
 
-	// send the transaction proposal to the peers
+	console.log(request);
+// send the transaction proposal to the peers
 	return channel.sendTransactionProposal(request);
 }).then((results) => {
 	var proposalResponses = results[0];
 	var proposal = results[1];
 	let isProposalGood = false;
+
+	console.log(proposalResponses);
+
 	if (proposalResponses && proposalResponses[0].response &&
 		proposalResponses[0].response.status === 200) {
 			isProposalGood = true;
