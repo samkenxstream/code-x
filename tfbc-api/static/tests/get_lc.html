@@ -61,6 +61,15 @@
         float: none;
         }
         }
+
+        .progress{
+          background-color: #a6a6a6;
+          width:800px;
+        }
+        .progress-bar{
+          background-color: #a6a6a6;
+          width:800px;
+        }
         </style>
 </head>
 <body>
@@ -99,6 +108,7 @@
        <input type="button" class="btn btn-primary" onclick="getTAHistory()" value="Get TA History" >
      </div>
      <p></p>
+     <p id="taProgressDemo"></p>
      <p id="tademo"></p>
   </form>
 
@@ -129,7 +139,7 @@ function getLc() {
         txt += "<tr><td>ExpiryDate: </td><td>"+resp['data'].expiryDate+"</td></tr>"
         txt += "</tbody></table>"
         document.getElementById("lcdemo").innerHTML = txt;
-
+        //Progress Bar
         status = resp['data'].status
         if(status == 'REQUESTED'){
           txt1 ="<div class='progress' style='height: 30px;'>"
@@ -197,7 +207,7 @@ function getLcHistory() {
 }
 
 function getTA() {
-  	var xmlhttp, txt = "";
+  	var xmlhttp, txt, txt1, status = "";
   	xmlhttp = new XMLHttpRequest();
  	xmlhttp.open("POST", "http://localhost:3000/tfbc/getTA", true);
   	xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -207,10 +217,10 @@ function getTA() {
 		if (this.readyState == 4 && this.status == 200)
 		{
 
-			//response will be in the
-			resp = JSON.parse(this.response);
-      console.log(resp['data'])
-      txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
+			  //response will be in the
+			  resp = JSON.parse(this.response);
+        console.log(resp['data'])
+        txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
         txt += "<tr><td>Status: </td><td><b>"+resp['data'].status+"</b></td></tr>"
         txt += "<tr><td>Goods: </td><td><b>"+resp['data'].Goods+"</b></td></tr>"
         txt += "<tr><td>GoodsCount: </td><td>"+resp['data'].GoodsCount+"</td></tr>"
@@ -218,8 +228,63 @@ function getTA() {
         txt += "<tr><td>Buyer: </td><td>"+resp['data'].buyer+"</td></tr>"
         txt += "<tr><td>Seller: </td><td>"+resp['data'].seller+"</td></tr>"
         txt += "<tr><td>TAId: </td><td>"+resp['data'].tradeAgreementId+"</td></tr>"
-      txt += "</tbody></table>"
-      document.getElementById("tademo").innerHTML = txt;
+        txt += "</tbody></table>"
+        document.getElementById("tademo").innerHTML = txt;
+
+        //Progress Bar
+        status = resp['data'].status
+        if(status == 'REQUESTED'){
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }else if(status == 'ACCEPTED') {
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }else if(status == 'SHIPPED'){
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }else if(status == 'GOODS RECEIVED'){
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }else if(status == 'PAYMENT REQUESTED'){
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }else if(status == 'PAYMENT DONE'){
+          txt1 = "<div class='progress' style='height: 30px;'>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'>Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Shipped</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Goods Received</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Requested</div>"
+          txt1 += "<div class='progress-bar bg-success' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Payment Done</div></div>"
+        }
+        document.getElementById("taProgressDemo").innerHTML = txt1;
+
+
 		}
 	};
 
