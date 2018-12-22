@@ -117,13 +117,13 @@
 .Shipment-Input-Details-Label-Container {
 
     float : left;
-    padding-top : 175px;
+    padding-top : 290px;
 }
 
 .Shipment-Input-Details-Input-Container {
 
     float : left;
-    padding-top : 180px;
+    padding-top : 295px;
 }
 
 .Shipment-Container-buffer {
@@ -187,6 +187,11 @@
 
 
 /* Buyer Bank Page : Show Shipment Order Details & Generate Letter of Credit */
+
+
+.Current-Shipment-Order-Details {
+    padding-top: 40px;
+}
 
 .Shipment-Order-Details-Header {
 

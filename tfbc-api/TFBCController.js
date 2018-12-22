@@ -39,7 +39,10 @@ res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Ty
 // Request Trade
 router.post('/requestTrade', function (req, res) {
 res.header("Access-Control-Allow-Origin", "*");
+
 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+console.log ("calling request trade");
 
     TFBC.requestTrade(req, res);
 
