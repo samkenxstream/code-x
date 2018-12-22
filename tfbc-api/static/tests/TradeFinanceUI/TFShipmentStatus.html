@@ -228,12 +228,13 @@
             obj = { taId: taId_value };
             params = JSON.stringify(obj);
 
-            if (shipment_status != "SHIPPED") {
-                alert("Goods haven't been shipped yet...please wait for goods to be shippped.");
+                /*if (shipment_status != "SHIPPED") {
+                    alert("Goods haven't been shipped yet...please wait for goods to be shippped.shipment_status " + shipment_status);
             }
-            else {
+            else {*/
+                alert("Goods Shipment_status " + shipment_status);
                 xmlhttp.send(params);
-            }
+            //}
 
             });
 
