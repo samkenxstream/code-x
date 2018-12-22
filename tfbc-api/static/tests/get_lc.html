@@ -120,7 +120,7 @@ function getLc() {
 			  resp = JSON.parse(this.response);
         console.log(resp['data'])
 
-        txt += "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
+        txt = "<table class='table'><thead><tr><th scope='col'>Field</th><th scope='col'>Info</th></tr></thead><tbody>"
         txt += "<tr><td>Status: </td><td><b>"+resp['data'].status+"</b></td></tr>"
         txt += "<tr><td>Amount: </td><td>"+resp['data'].amount+"</td></tr>"
         txt += "<tr><td>Bank: </td><td>"+resp['data'].bank+"</td></tr>"
@@ -132,7 +132,7 @@ function getLc() {
 
         status = resp['data'].status
         if(status == 'REQUESTED'){
-          txt1+="<div class='progress' style='height: 30px;'>"
+          txt1 ="<div class='progress' style='height: 30px;'>"
           txt1+="<div class='progress-bar bg-success' role='progressbar' style='width: 34%;' aria-valuenow='34' aria-valuemin='0' aria-valuemax='100'><b>Requested</b></div>"
           txt1+="<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='' aria-valuemax='100'>Issued</div>"
           txt1+="<div class='progress-bar progress-bar-striped' role='progressbar' style='width: 33%;' aria-valuenow='33' aria-valuemin='0' aria-valuemax='100'>Accepted</div></div>"
