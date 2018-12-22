@@ -69,8 +69,6 @@
                     <br />
                     <label id="Loc_Details_Buyer_Bank_Name" class="LoC-Details-Buyer-Bank-Name" style="padding-right: 40px; color: #7d4438">Buyer Bank</label>
                     <br />
-                    <label id="Loc_Details_Seller_Bank_Name" class="LoC-Details-Seller-Bank-Name" style="padding-right: 40px; color: #7d4438">Seller Bank</label>
-                    <br />
                     <label id="Loc_Details_Shipment" class="LoC-Details-Shipment" style="padding-right: 40px; color: #7d4438">Shipment</label>
                     <br />
                     <label id="Loc_Details_Shipment_Count" class="LoC-Details-Shipment-Count" style="padding-right: 40px; color: #7d4438">Shipment Count</label>
@@ -91,8 +89,6 @@
                     <label id="Loc_Details_Seller_Name_Value" class="LoC-Details-Seller-Name" style="padding-right: 40px; color: #7d4438"></label>
                     <br />
                     <label id="Loc_Details_Buyer_Bank_Name_Value" class="LoC-Details-Buyer-Bank-Name" style="padding-right: 40px; color: #7d4438"></label>
-                    <br />
-                    <label id="Loc_Details_Seller_Bank_Name_Value" class="LoC-Details-Seller-Bank-Name" style="padding-right: 40px; color: #7d4438"></label>
                     <br />
                     <label id="Loc_Details_Shipment_Value" class="LoC-Details-Shipment" style="padding-right: 40px; color: #7d4438"></label>
                     <br />
@@ -170,7 +166,9 @@
                         document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
                         document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
                         document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = responseObject['data'].expiryDate;
-                        document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = rresponseObject['data'].lcId;
+                        document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = responseObject['data'].lcId;
+                        document.getElementById("Loc_Details_Shipment_Value").innerHTML = responseObject['data'].Goods;
+                        document.getElementById("Loc_Details_Shipment_Count_Value").innerHTML = responseObject['data'].GoodsCount;
 
                     } else {
 
