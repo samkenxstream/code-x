@@ -246,7 +246,7 @@ body {font-family: "Lato", sans-serif;}
         $("#Accept-Trade-Button").click(function () {
 
 
-            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var webServerPrefix = "/tfbc/"
             var xmlhttp;
             var httpRequestString = webServerPrefix + "acceptTrade";
 
@@ -269,7 +269,7 @@ body {font-family: "Lato", sans-serif;}
 
                 } else {
 
-                    alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -287,7 +287,7 @@ body {font-family: "Lato", sans-serif;}
             }
             else {
 
-                alert("Calling acceptTrade with Params :" + params);
+                //alert("Calling acceptTrade with Params :" + params);
                 xmlhttp.send(params);
             }
         });
