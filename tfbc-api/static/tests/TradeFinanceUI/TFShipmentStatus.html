@@ -158,7 +158,17 @@
                         responseObject = JSON.parse(this.response);
                         alert("Received Success Response from Server for getLC call" + responseObject);
 
+                        var taId_value = document.getElementById("TA-Id-Input").value;
+
                         // Display the response on UI
+
+                        if (responseObject['data'].taId != null && responseObject['data'].taId != undefined) {
+
+                            document.getElementById("Shipment_Details_TA_Id_Value").innerHTML = responseObject['data'].taId;
+                        } else {
+
+                            document.getElementById("Shipment_Details_TA_Id_Value").innerHTML = taId_value;
+                        }
 
                         document.getElementById("Shipment_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
 
@@ -166,7 +176,6 @@
                         document.getElementById("Shipment_Details_Buyer_Bank_Name_Value").innerHTML = responseObject['data'].bank;
                         document.getElementById("Shipment_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
                         document.getElementById("Shipment_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
-                        document.getElementById("Shipment_Details_TA_Id_Value").innerHTML = responseObject['data'].lcId;
                         document.getElementById("Shipment_Details_Shipment_Value").innerHTML = responseObject['data'].Goods;
                         document.getElementById("Shipment_Details_Shipment_Count_Value").innerHTML = responseObject['data'].GoodsCount;
 
