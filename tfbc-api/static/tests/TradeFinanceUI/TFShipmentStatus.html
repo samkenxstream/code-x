@@ -216,6 +216,8 @@
                     responseObject = JSON.parse(this.response);
                     alert("Received Success Response from Server for receiveShipment call" + responseObject);
 
+                    document.getElementById("Shipment_Details_Status_Value").innerHTML = responseObject['data'].status;
+
                 } else {
 
                     //alert("Failure to place getLC call :=> Status : " + this.status);
@@ -224,7 +226,7 @@
             };
 
             var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
-            var shipment_status = document.getElementById("Shipment_Details_Status_Value").value;
+            var shipment_status = document.getElementById("Shipment_Details_Status_Value").textContent;
             obj = { taId: taId_value };
             params = JSON.stringify(obj);
 
@@ -232,7 +234,7 @@
                     alert("Goods haven't been shipped yet...please wait for goods to be shippped.shipment_status " + shipment_status);
             }
             else {*/
-                alert("Goods Shipment_status " + shipment_status);
+                //alert("Goods Shipment_status " + shipment_status);
                 xmlhttp.send(params);
             //}
 

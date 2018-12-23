@@ -174,14 +174,25 @@
 
                     //document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
 
-                    if (responseObject['data'].taId != null) {
+                    var taId_value = document.getElementById("TA-Id-Input").value;
+                    var lcId_value = document.getElementById("LC-Id-Input").value;
+
+                    if (responseObject['data'].taId != null && responseObject['data'].taId != undefined) {
 
                         document.getElementById("Shipment-1-taId").innerHTML = responseObject['data'].taId;
                     } else {
 
-                        document.getElementById("Shipment-1-taId").innerHTML = responseObject['data'].taId;
+                        document.getElementById("Shipment-1-taId").innerHTML = taId_value;
                     }
-                    document.getElementById("Shipment-1-lcId").innerHTML = responseObject['data'].lcId;
+
+                    if (responseObject['data'].lcId != null && responseObject['data'].lcId != undefined) {
+
+                        document.getElementById("Shipment-1-lcId").innerHTML = responseObject['data'].lcId;
+                    } else {
+
+                        document.getElementById("Shipment-1-taId").innerHTML = lcId_value;
+                    }
+
                     document.getElementById("Shipment-1-Buyer").innerHTML = responseObject['data'].buyer;
                     document.getElementById("Shipment-1-Bank").innerHTML = responseObject['data'].bank;
                     document.getElementById("Shipment-1-Seller").innerHTML = responseObject['data'].seller;
