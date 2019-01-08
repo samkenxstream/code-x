@@ -1,0 +1,412 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+<style>
+
+/* {box-sizing: border-box} */
+
+body {font-family: "Lato", sans-serif;}
+
+/* Style the tab */
+
+    .tab {
+        float: left;
+        /*border: 1px solid #ccc;*/
+        background-color: #f1f1f1;
+        width: 30%;
+    }
+
+/* Style the buttons inside the tab */
+    .tab button {
+        display: block;
+        background-color: inherit;
+        color: black;
+        padding: 22px 16px;
+        width: 100%;
+        /* border: none; */
+        outline: none;
+        text-align: left;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 17px;
+    }
+
+/* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+/* Create an active/current "tab button" class */
+    .tab button.active {
+        background-color: #ccc;
+    }
+
+/* Style the tab content */
+    .tabcontent {
+        float: left;
+        padding: 0px 12px;
+        /*border: 1px solid #ccc;*/
+        width: 80%;
+        border-left: none;
+    }
+
+    .NavigationBar1 {
+
+        float : left;
+        padding: 6px 8px 6px 16px;
+        text-decoration: none;
+        font-size: 22px;
+        color: #818181;
+        padding-top: 50px;
+    }
+
+</style>
+
+
+</head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
+            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 100%">
+
+        <div class="LeftBrowserBox" style="width: 12%">
+
+            <div class="NavigationBar1">
+
+                <a class="SellerTrade" href="./TradeSeller.html">ShowTrade</a>
+                <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
+                <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
+
+            </div>
+
+        </div>
+
+        <div class="RightBrowserBox" style="width: 85%; float: left">
+
+            <h1 class="Shipment-Order-Details-Header">Trade Details</h1>
+
+            <div id="London" class="tabcontent">
+
+                <table id="Seller_Page_Trade_Details" class="Seller-Page-Trade-Details">
+
+                    <tr class="Shipment-Details-TableRow-Header">
+
+                        <th class="Shipment-Details-TableHeader">TradeId</th>
+                        <th class="Shipment-Details-TableHeader">Buyer</th>
+                        <th class="Shipment-Details-TableHeader">Seller</th>
+                        <th class="Shipment-Details-TableHeader">Shipment</th>
+                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                        <th class="Shipment-Details-TableHeader">Amount</th>
+                        <th class="Shipment-Details-TableHeader">Status</th>
+                        <th class="Shipment-Details-TableHeader">Select</th>
+                    </tr>
+
+                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                    <tr class="Shipment-Details-TableRow-Content">
+
+                        <td class="Shipment-Details-Content">Trade_1</td>
+                        <td class="Shipment-Details-Content">BMW Dealer</td>
+                        <td class="Shipment-Details-Content">BMW</td>
+                        <td class="Shipment-Details-Content">BMW X5</td>
+                        <td class="Shipment-Details-Content">10</td>
+                        <td class="Shipment-Details-Content">100000</td>
+                        <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
+                        <td class="Shipment-Details-Content"><button onclick="myFunction()"></button></td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="Retrieve-Trade-Details" style="clear: left">
+
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-left: 6%; padding-right: 6%">TradeId</label>
+                <input id="Trade-Id-Input" type="text">
+                <br /><br /><br />
+
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Accept-Trade-Button" class="Accept-Trade-Class">Accept Trade</button>
+
+                <label id="Label_buffer" style="padding-right: 12%"></label>
+                <button id="Retrieve_Shipments" class="Retrieve-Shipments">Retrieve Shipments</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        function myFunction() {
+            var x = document.getElementById("myDIV");
+            if (x.innerHTML === "Pending") {
+                x.innerHTML = "Approved";
+            }
+        }
+    </script>
+
+    <script>
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+    /****************************************************************************************
+    Accept Trade : Change the status of Trade Agreement in mongo db by changing it to "Trade Accepted"
+    *****************************************************************************************/
+
+    /****************************************************************************************
+    Accept Trade : Place HyperLedger API Call
+    *****************************************************************************************/
+
+        var bDebug = false;
+
+        $("#Accept-Trade-Button").click(function () {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "acceptTrade";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for tradeAccept call :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            obj = { taId: taId_value };
+            params = JSON.stringify(obj);
+
+            if (taId_value == null) {
+
+                alert("Trade Agreement Id value is missing while accepting Trade : ");
+            }
+            else {
+
+                //alert("Calling acceptTrade with Params :" + params);
+                xmlhttp.send(params);
+            }
+        });
+
+
+        $("#Retrieve_Shipments").click(function () {
+
+            /****************************************************************************************
+                RetrieveTradeDetails : Retrieve the Trade details of current buyer from mongo db
+            *****************************************************************************************/
+
+            var Client_Request = "RetrieveAllRecords";
+            retrieveShipmentRecordsOfBuyer_FromMongoDB(Client_Request);
+
+        });
+
+        /****************************************************************************************************************************
+        Retrieve Shipment Details of Buyer : Retrieve Shipment Details from MongoDB that haven't reached LC stage
+        *****************************************************************************************************************************/
+
+        function retrieveShipmentRecordsOfBuyer_FromMongoDB(Client_Request) {
+
+            var webServerPrefix = "http://127.0.0.1:3500/?"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix;
+
+            xmlhttp = new XMLHttpRequest();
+            httpRequestString += "Client_Request=" + Client_Request;
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    var responseString = this.response;
+                    var tradeRecords = responseString.split("\n");
+
+                    if (bDebug == true) {
+                        alert(" All the Trade Records of Current Buyer => " + tradeRecords);
+                    }
+
+                    fillTheTradeDetailsOfCurrentBuyer(tradeRecords);
+
+                } else {
+
+                    alert("Failure to place RetrieveAllRecords call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            alert("Retrieving the Trade Requests of Current Buyer => httpRequest : " + httpRequestString);
+            xmlhttp.send();
+
+        }
+
+        /***********************************************************************************************************
+        fillTheTradeDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
+        ************************************************************************************************************/
+
+        function fillTheTradeDetailsOfCurrentBuyer(tradeRecords) {
+
+            for (var i = 0, currentRowIndex = 0; i < tradeRecords.length; i++) {
+
+                responseSingleObject = JSON.parse(tradeRecords[i]);
+
+                if (responseSingleObject.Lc_Id != undefined && responseSingleObject.Lc_Id != null) {
+                    continue;
+                }
+
+                var shipmentDetailsTable = document.getElementById("Seller_Page_Trade_Details");
+
+                var currentRow = shipmentDetailsTable.insertRow(currentRowIndex + 1);
+                currentRowIndex += 1;
+
+                var currentRowElementsArray = [];
+
+                // Add Cells in the Row
+
+                for (var j = 0; j < 8; j++) {
+
+                    var currentRowElement;
+
+                    if (j == 7) {
+
+                        currentRowElement = document.createElement('input');
+                        currentRowElement.type = "checkbox";
+
+                    } else {
+
+                        currentRowElement = document.createElement('td');
+
+                    }
+
+                    currentRow.appendChild(currentRowElement);
+                    currentRowElementsArray.push(currentRowElement);
+                }
+
+                // Fill the Cell data
+
+                fillTableData_CurrentRowElement(currentRowElementsArray, 0, responseSingleObject.Trade_Id);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 1, responseSingleObject.Buyer);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 2, responseSingleObject.Seller);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 3, responseSingleObject.Shipment);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 4, responseSingleObject.ShipmentCount);
+
+                var filteredTradeAmountValue = filterTradeAmount(responseSingleObject.Amount);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 5, filteredTradeAmountValue);
+
+                fillTableData_CurrentRowElement(currentRowElementsArray, 6, responseSingleObject.Current_Status);
+
+            }
+        }
+
+        /***********************************************************************************************************
+        filterTradeAmount : Filter to make sure only numericals exist in the Amount field
+        ************************************************************************************************************/
+
+        function filterTradeAmount(currentElement) {
+
+            var newStr = new String(currentElement);
+            var i = 0;
+
+            for (; i < newStr.length; i++) {
+
+                if (newStr.charAt(i) > '9' || newStr.charAt(i) < '0') {
+
+                    alert("Found alpha instead numeric in current string : " + newStr);
+                    break;
+                }
+            }
+
+            return newStr.substring(0, i);
+        }
+
+        /***********************************************************************************************************
+        fillTableData_CurrentRowElement : Fills the current Element value in Table Cell
+        ************************************************************************************************************/
+
+        function fillTableData_CurrentRowElement(currentRowElementsArray, currentIndex, currentElement) {
+
+            if (currentElement != undefined && currentElement != null) {
+
+                currentRowElementsArray[currentIndex].innerHTML = currentElement;
+
+            } else {
+
+                currentRowElementsArray[currentIndex].innerHTML = "-NA-";
+
+            }
+
+            currentRowElementsArray[currentIndex].style.color = "#422319";
+            currentRowElementsArray[currentIndex].style.backgroundColor = "#E7D8D9";
+            currentRowElementsArray[currentIndex].style.paddingTop = "10px";
+            currentRowElementsArray[currentIndex].style.paddingRight = "10px";
+            currentRowElementsArray[currentIndex].style.paddingBottom = "10px";
+            currentRowElementsArray[currentIndex].style.paddingLeft = "10px";
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+

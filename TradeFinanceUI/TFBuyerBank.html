@@ -1,0 +1,536 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+ <style type="text/css">
+
+    body {
+     background-color:#F0F0F0;
+     padding-top: 1em;
+     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+    }
+
+ </style>
+
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+
+</head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 100%">
+
+        <div class="LeftBrowserBox" style="width: 10%">
+        </div>
+
+        <div class="ContentBrowser" style="width: 85%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+
+            <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
+
+            <div class="Retrieve-Shipment-Order-Details-Container" style="width: 80%">
+
+                <br />
+                <label id="Label_buffer" style="padding-right: 5%; padding-left: 18%">TA-Id</label>
+                <input id="TA-Id-Input" type="text">
+
+                <br /><br />
+                <label id="Label_buffer" style="padding-right: 5%; padding-left: 18%">LC-Id</label>
+                <input id="LC-Id-Input" type="text">
+                <br /><br /><br />
+
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipment Details</button>
+
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Make-Payment-Button" class="Make-Payment-To-Seller">MakePayment</button>
+                <br />
+                <br />
+
+            </div>
+
+            <div class="Current-Shipment-Order-Details" style="width: 80%">
+
+                    <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+
+                        <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+
+                            <th class="Shipment-Details-TableHeader">taId</th>
+                            <th class="Shipment-Details-TableHeader">lcId</th>
+                            <th class="Shipment-Details-TableHeader">Buyer</th>
+                            <th class="Shipment-Details-TableHeader">Bank</th>
+                            <th class="Shipment-Details-TableHeader">Seller</th>
+                            <th class="Shipment-Details-TableHeader">Shipment</th>
+                            <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                            <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                            <th class="Shipment-Details-TableHeader">Amount</th>
+                            <th class="Shipment-Details-TableHeader">Select</th>
+
+                        </tr>
+
+                        <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+                        <tr class="Shipment-Details-TableRow-Content">
+
+                            <td id="Shipment-1-taId" class="Shipment-Details-Content">TA_1000</td>
+                            <td id="Shipment-1-lcId" class="Shipment-Details-Content">LC_1000</td>
+                            <td id="Shipment-1-Buyer" class="Shipment-Details-Content">Dealer</td>
+                            <td id="Shipment-1-Bank" class="Shipment-Details-Content">HDFC</td>
+                            <td id="Shipment-1-Seller" class="Shipment-Details-Content">BMW</td>
+                            <td id="Shipment-1-Shipment" class="Shipment-Details-Content">BMW X5</td>
+                            <td id="Shipment-1-Shipment-Count" class="Shipment-Details-Content">10</td>
+                            <td id="Shipment-1-Expiry-Date" class="Shipment-Details-Content">2/28/2019</td>
+                            <td id="Shipment-1-Credit-Amount" class="Shipment-Details-Content">100000</td>
+                            <td id="Shipment-1-LC-Select" class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
+
+                    <br />
+                    <br />
+                    <label id="Label_buffer" style="padding-right: 15%"></label>
+                    <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        var bDebug = false;
+     
+        /****************************************************************************************
+            Retrieve Shipment Details to Display in Shipment Orders Table
+        *****************************************************************************************/
+
+        $("#Retrieve-Shipment-Details-Button").click(function () {
+
+            /****************************************************************************************
+                RetrieveLcDetails : Retrieve the LC details of current buyer from mongo db
+            *****************************************************************************************/
+
+            // Retrieve the Lc Details from mongoDb
+
+            var Client_Request = "RetrieveAllRecords";
+            retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request);
+
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+                        ( Currently no API Exists to get all LC Requests of current buyer )
+            *****************************************************************************************/
+
+            var API_Name = "getLC";
+            //httpRequestToHyperLedgerServer(lcId_value, API_Name);
+
+        });
+
+
+        /****************************************************************************************
+            Generate "Letter of Credit PDF files" for selected Shipment orders
+        *****************************************************************************************/
+
+        $("#BuyerBank-Generate-LC-Button").click(function () {
+
+            if( bDebug ) {
+                alert("Generate LoC Button Event : Generating LoC PDF Files");
+            }
+
+            // Create LC : PDF File
+
+            var pdfDoc = new jsPDF();
+
+            // Retrieve the details of the Shipment Order
+            // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
+            // Map & Functions ( dynamic content retrievals & Generation of LC )
+
+            var shipmentId = document.getElementById('Shipment-1-taId').textContent;
+            var shipmentLcId = document.getElementById('Shipment-1-lcId').textContent;
+            var shipmentBuyer = document.getElementById('Shipment-1-Buyer').textContent;
+            var shipmentBuyerBank = document.getElementById('Shipment-1-Bank').textContent;
+            var shipmentSeller = document.getElementById('Shipment-1-Seller').textContent;
+            var shipmentShipment = document.getElementById('Shipment-1-Shipment').textContent;
+            var shipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
+            var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
+            var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
+            var shipmentLocSelectBox = document.getElementById('Shipment-1-LC-Select').nodeValue;
+
+            // Generate Pdf Doc
+            // To Do: Completely Dynamic Content based on Form factor dimensions and fit to the exact width of the window
+
+            // Date
+
+            var todaysDate = new Date();
+            var todaysMonth = parseInt(todaysDate.getMonth().toString());
+            todaysMonth += 1;
+            var todaysYear = parseInt(todaysDate.getYear().toString());
+            todaysYear += 1900;
+
+            var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
+            pdfDoc.text(135, 30, dateString);
+
+            // Place
+
+            var placeString = "Place : " + "Hyderabad, India";
+            pdfDoc.text(135, 40, placeString);
+
+            // To Section Details
+
+            pdfDoc.text(15, 60, "To : ");
+            pdfDoc.text(15, 70, shipmentSeller + ",");
+
+            // Subject Section Details
+
+            var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentShipment + "), Id : (" + shipmentId + ")";
+            pdfDoc.text(25, 95, LCSubjectLine);
+
+            // Letter content Paragraph 1
+
+            var LCContentLine1 = shipmentBuyerBank + " here by certifies that, payment for the amount of " + shipmentCreditAmount;
+            var LCContentLine2 = "will be processed by " + shipmentBuyerBank + " on behalf of " + shipmentBuyer + ", as soon as";
+            var LCContentLine3 = shipmentShipment + "(" + shipmentCount + ")" + " are delivered on or before " + shipmentExpiryDate + ".";
+
+            pdfDoc.text(30, 120, LCContentLine1);
+            pdfDoc.text(15, 130, LCContentLine2);
+            pdfDoc.text(15, 140, LCContentLine3);
+
+            // Subject Section Details
+
+            var LCContentLine4 = "LC would expire with immediate effect on " + shipmentExpiryDate + " , if promised";
+            var LCContentLine5 = "items : " + shipmentShipment + "(" + shipmentCount + ")" + " are not delivered by then.";
+
+            pdfDoc.text(30, 155, LCContentLine4);
+            pdfDoc.text(15, 165, LCContentLine5);
+
+            // Closure : Addressing by Author
+
+            var LCAddressingSignOffByAuthor = "Thanks & Regards,";
+            pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
+            pdfDoc.text(135, 200, shipmentBuyer);
+
+            var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+
+            var tradeIdString = "Trade Id : " + generateUniqueTradeId;
+            var lcIdString = "LC Id : " + generateUniqueLCId;
+
+            pdfDoc.text(25, 220, tradeIdString);
+            pdfDoc.text(25, 230, lcIdString);
+
+            // Generate LC
+
+            var fileName = "LoC-Shipment-" + shipmentId + ".pdf"
+            pdfDoc.save(fileName);
+
+            // Issue LC
+
+            issueLC();
+
+        });
+
+        /****************************************************************************************
+            Issue LC : Change the status of LC in mongo db by changing it to LC Issued
+        *****************************************************************************************/
+
+        /****************************************************************************************
+            Issue LC : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        function issueLC() {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "issueLC";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for issueLC call :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            obj = { lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if ( lcId_value == null ) {
+
+                alert("LC Id value is missing while issuing LC : ");
+            }
+            else {
+
+                //alert("Calling issueLC with Params" + params);
+                xmlhttp.send(params);
+            }
+
+        }
+
+        /****************************************************************************************
+            Make Payment : Change the status of LC in mongo db by changing it to PAYMENT DONE
+        *****************************************************************************************/
+
+        /****************************************************************************************
+            Make Payment : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        $("#Make-Payment-Button").click(function () {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "makePayment";
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Server for makePayment call :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("TA-Id-Input").value;
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            obj = { taId: taId_value, lcId: lcId_value };
+            params = JSON.stringify(obj);
+
+            if (taId_value == null || lcId_value == null) {
+
+                alert("one or both of (ta_ID & LC_Id) values are missing while running makePayment : ");
+            }
+            else {
+
+                //alert("Calling issueLC with Params" + params);
+                xmlhttp.send(params);
+            }
+
+        });
+
+
+        /***********************************************************************************************************
+            Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row  
+        ************************************************************************************************************/
+
+        function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request) {
+
+            var webServerPrefix = "http://127.0.0.1:3500/?"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix;
+
+            xmlhttp = new XMLHttpRequest();
+            httpRequestString += "Client_Request=" + Client_Request;
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    var responseString = this.response;
+                    var lcRequestRecords = responseString.split("\n");
+                    var numOfRecords = lcRequestRecords.length-2;
+                    responseSingleObject = JSON.parse(lcRequestRecords[numOfRecords]);
+
+                    if (bDebug == true) {
+                        alert(" All the LC Records of Current Buyer => " + responseSingleObject);
+                    }
+
+                    fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords);
+
+                } else {
+
+                    alert("Failure to place RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            alert("Retrieving the Lc Requests of Current Buyer => httpRequest : " + httpRequestString);
+            xmlhttp.send();
+
+        }
+
+        /***********************************************************************************************************
+        fillTheLCRequestDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
+        ************************************************************************************************************/
+
+        function fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords) {
+
+            for (var i = 0; i < lcRequestRecords.length; i++) {
+
+                responseSingleObject = JSON.parse(lcRequestRecords[i]);
+                
+                var shipmentDetailsTable = document.getElementById("Buyer_Bank_Shipment_Order_Details");
+                var currentRow = shipmentDetailsTable.insertRow(i + 1);
+
+                var currentRowElementsArray = [];
+
+                // Add Cells in the Row
+
+                for (var j = 0; j < 10; j++) {
+
+                    var currentRowElement;
+
+                    if (j == 9) {
+
+                        currentRowElement = document.createElement('input');
+                        currentRowElement.type = "checkbox";
+
+                    } else {
+
+                        currentRowElement = document.createElement('td');
+
+                    }
+
+                    currentRow.appendChild(currentRowElement);
+                    currentRowElementsArray.push(currentRowElement);
+                }
+
+                if (bDebug == true) {
+
+                    if (responseSingleObject.Amount != undefined && responseSingleObject.Amount != null) {
+                        alert("currentRow Amount = " + responseSingleObject.Amount);
+                    }
+                }
+
+                fillTableData_CurrentRowElement(currentRowElementsArray, 0, responseSingleObject.Trade_Id);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 1, responseSingleObject.Lc_Id);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 2, responseSingleObject.Buyer);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 3, responseSingleObject.Bank);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 4, responseSingleObject.Seller);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 5, responseSingleObject.Shipment);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 6, responseSingleObject.ShipmentCount);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 7, responseSingleObject.Expiry_Date);
+
+                var filteredTradeAmountValue = filterTradeAmount(responseSingleObject.Amount);
+                fillTableData_CurrentRowElement(currentRowElementsArray, 8, filteredTradeAmountValue);
+            }
+        }
+
+        /***********************************************************************************************************
+        filterTradeAmount : Filter to make sure only numericals exist in the Amount field
+        ************************************************************************************************************/
+
+        function filterTradeAmount(currentElement) {
+
+            var newStr = new String(currentElement);
+            var i = 0;
+
+            for (; i < newStr.length; i++) {
+
+                if (newStr.charAt(i) > '9' || newStr.charAt(i) < '0') {
+                    break;
+                }
+            }
+
+            return newStr.substring(0, i);
+        }
+
+        /***********************************************************************************************************
+        fillTableData_CurrentRowElement : Fills the current Element in Table Cell
+        ************************************************************************************************************/
+
+        function fillTableData_CurrentRowElement(currentRowElementsArray, currentIndex, currentElement) {
+
+            if (currentElement != undefined && currentElement != null) {
+
+                currentRowElementsArray[currentIndex].innerHTML = currentElement;
+
+            } else {
+
+                currentRowElementsArray[currentIndex].innerHTML = "-NA-";
+
+            }
+
+            currentRowElementsArray[currentIndex].style.color = "#422319";
+            currentRowElementsArray[currentIndex].style.backgroundColor = "#E7D8D9";
+            currentRowElementsArray[currentIndex].style.paddingTop = "10px";
+            currentRowElementsArray[currentIndex].style.paddingRight = "10px";
+            currentRowElementsArray[currentIndex].style.paddingBottom = "10px";
+            currentRowElementsArray[currentIndex].style.paddingLeft = "10px";
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,403 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+ <style type="text/css">
+
+    body {
+     background-color:#F0F0F0;
+     padding-top: 1em;
+     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+    }
+    .NavigationBar1 {
+
+    float : left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
+ </style>
+
+ <script src="./../../EthereumInstallations/node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+
+
+<body>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar">
+
+            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 95%">
+
+        <div class="LeftBrowserBox" style="width: 15%">
+
+            <div class="NavigationBar1">
+                <a class="BuyerTrade" style="clear: left" href="./TradeBuyer.html">RequestTrade</a>
+                <br />
+                <a class="BuyerLC" style="clear: left" href="./TFBuyer.html">RequestLC</a>
+                <br />
+                <a class="Seller" style="clear: left" href="./TFLoCStatus.html">LC-Status</a>
+                <br />
+                <a class="ShipmentStatus" style="clear: left" href="./TFShipmentStatus.html">ShipmentStatus</a>
+            </div>
+
+        </div>
+
+        <div class="ContentBrowser" style="width: 80%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+
+            <h1 class="Place-Shipment-Order">Shipment Order Placement</h1>
+
+
+            <div class="LetterOfCredit-Details" style="width: 80%">
+
+                <p id="buffer2" style="padding-bottom : 10px"> </p>
+
+                <div class="Shipment-Label-Container" style="width: 25%">
+
+                    <label id="Label_Trade_Id" class="Label-Trade-Id" style="padding-right: 40px; color: #7d4438">Trade_Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_LC_Id" class="Label-LC-Id" style="padding-right: 40px; color: #7d4438">LC_Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Buyer_Name" class="Label-Buyer-Name" style="padding-right: 40px; color: #7d4438">Buyer</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Seller_Name" class="Label-Seller-Name" style="padding-right: 40px; color: #7d4438">Seller</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Seller_Id" class="Label-Seller-Id" style="padding-right: 40px; color: #7d4438">Seller Id</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Bank_Name" class="Label-Bank-Name" style="padding-right: 40px; color: #7d4438">Bank Name</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Shipment" class="Label-Shipment" style="padding-right: 40px; color: #7d4438">Shipment</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Shipment_Count" class="Label-Shipment-Count" style="padding-right: 40px; color: #7d4438">Shipment Count</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Credit_Amount" class="Label-Credit-Amount" style="padding-right: 40px; color: #7d4438">Credit Amount</label>
+                    <br />
+                    <br />
+
+                    <label id="Label_Expiry_Date" class="Label-LoC-Expiry-Date" style="padding-right: 40px; color: #7d4438">Expiry Date</label>
+
+                </div>
+
+                <div class="Shipment-Input-Container" style="width: 25%">
+
+                    <input id="TradeId-Input" type="text">
+                    <br />
+                    <br />
+
+                    <label id="Label_LC_Id_Output" style="padding-right: 40px; color: #7d4438">LC Id To Be Updated</label>
+                    <br />
+                    <br />
+
+                    <select id="Buyer-Input">
+                        <option value="TiffanyAndCo">Tiffany And Co</option>
+                        <option value="Cartier">Cartier</option>
+                        <option value="Pandora">Pandora</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Seller-Input">
+                        <option value="RajeshExports">Rajesh Exports Ltd</option>
+                        <option value="AlkaDiamond">Alka Diamond Industries Ltd</option>
+                        <option value="BhaktiGems">Bhakti Gems And Jewellers Ltd</option>
+                        <option value="DeepDiamond">Deep Diamond India Ltd</option>
+                        <option value="Geetanjali Gems">Geetanjali Gems Ltd</option>
+                        <option value="MokshOrnaments">Moksh Ornaments Ltd</option>
+                        <option value="PCJeweller">PC Jeweller Ltd</option>
+                        <option value="SuashishDiamonds">Suashish Diamonds Ltd</option>
+                        <option value="ZodiacJRD">Zodiac JRD MKJ Ltd</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Seller-Id-Input">
+                        <option value="RajeshExports">ABCD-1234</option>
+                        <option value="AlkaDiamond">ABCD-2345</option>
+                        <option value="BhaktiGems">ABCD-3456</option>
+                        <option value="DeepDiamond">ABCD-4567</option>
+                        <option value="Geetanjali Gems">ABCD-5678</option>
+                        <option value="MokshOrnaments">ABCD-5679</option>
+                        <option value="PCJeweller">ABCD-5610</option>
+                        <option value="SuashishDiamonds">ABCD-5628</option>
+                        <option value="ZodiacJRD">ABCD-5634</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Bank-Input">
+                        <option value="Deutsche">Deutsche Bank</option>
+                        <option value="VarenGold">VarenGold Bank</option>
+                        <option value="HDFC">HDFC Bank</option>
+                        <option value="ICICI">ICICI Bank</option>
+                        <option value="Yes">Yes Bank</option>
+                        <option value="Banca Credito Italiano">Banca Credito Italiano</option>
+                        <option value="Banca Monte Dei Paschi Di Siena">Banca Monte Dei Paschi Di Siena</option>
+                        <option value="American Express">American Express</option>
+                        <option value="ANZ">ANZ</option>
+                        <option value="Bank Of America">Bank Of America</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <select id="Shipment-Input">
+                        <option value="Diamonds">Cut And Polished Diamonds</option>
+                        <option value="GoldJewel">Gold Jewellery</option>
+                        <option value="GoldCoins">Gold medallions and coins</option>
+                        <option value="GemStones">Coloured Gemstones</option>
+                        <option value="SilverJewel">Silver Jewellery</option>
+                        <option value="Pearls">Pearls and Synthetic Stones</option>
+                        <option value="RoughDiamonds">Rough Diamonds</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <br />
+                    <br />
+
+                    <input id="ShipmentCount" type="text">
+                    <br />
+                    <br />
+
+                    <input id="CreditAmountInput" type="text">
+                    <br />
+                    <br />
+
+                    <input id="ExpiryDateInput" type="text">
+
+                </div>
+
+                <div class="Shipment-Input-Details-Label-Container" style="width: 10%">
+
+                    <label id="Label_Currency_Unit" class="Label-Currency-Unit" style="color: #7d4438">Unit Of Currency</label>
+                    <br />
+                    <br />
+
+                </div>
+
+                <div class="Shipment-Input-Details-Input-Container" style="width: 15%">
+
+                    <select id="Currency-Unit">
+                        <option value="Dollars">USD</option>
+                        <option value="Rupees">INR</option>
+                        <option value="Euro">EURO</option>
+                    </select>
+                    <br />
+                    <br />
+
+                </div>
+
+            </div>
+
+            <div class="Shipment-Submit-Input">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="Shipment-Order-Submit" class="Shipment-Order-Submit-button">Request LC</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        $("#Shipment-Order-Submit").click(function () {
+
+            var todaysDate = new Date();
+            var uniqueLcId = "LC_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+            document.getElementById("Label_LC_Id_Output").textContent = uniqueLcId;
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taid_value = document.getElementById("TradeId-Input").value;
+            var lcId_value = uniqueLcId;
+            var buyer_value = document.getElementById("Buyer-Input").value;
+            var seller_value = document.getElementById("Seller-Input").value;
+            var seller_Id_value = document.getElementById("Seller-Id-Input").value;
+            var bank_value = document.getElementById("Bank-Input").value;
+            var shipment_value = document.getElementById("Shipment-Input").value;
+            var shipmentCount_value = document.getElementById("ShipmentCount").value;
+            var amount_value = document.getElementById("CreditAmountInput").value;
+            var expiryDate_value = document.getElementById("ExpiryDateInput").value;
+            var currency_Unit_value = document.getElementById("Currency-Unit").value;
+
+            if (taid_value == null || lcId_value == null || expiryDate_value == null || buyer_value == null || bank_value == null ||
+                seller_value == null || shipment_value == null || shipmentCount_value == null || amount_value == null ||
+                currency_Unit_value == null) {
+
+                alert("one or many of the required input values are missing for requesting the LC : " + params);
+            }
+
+            // Save the details in mongoDb
+
+            var lcRequestKeys = ["Trade_Id", "Lc_Id", "Buyer", "Seller", "Seller_Id", "Bank", "Shipment", "ShipmentCount", "Amount", "Expiry_Date", "Request_Location"];
+            var lcRequestValues = [taid_value, lcId_value, buyer_value, seller_value, seller_Id_value, bank_value, shipment_value, shipmentCount_value, amount_value, expiryDate_value, "India"];
+            var lcRequestRecord = new Map();
+
+            for (var index = 0; index < lcRequestKeys.length; index++) {
+                lcRequestRecord.set(lcRequestKeys[index], lcRequestValues[index]);
+            }
+
+            var Client_Request = "RequestLC";
+
+            saveLC_DetailsInMongoDB(lcRequestRecord, Client_Request);
+
+            // HyperLedger API Call
+
+            lcRequestObject = {
+                taId: taid_value, lcId: lcId_value, expiryDate: expiryDate_value, buyer: buyer_value, bank: bank_value,
+                seller: seller_value, amount: amount_value, goods: shipment_value, goodsCount: shipmentCount_value,
+                currency: currency_Unit_value
+            };
+
+            var API_Name = "requestLC";
+
+            //httpRequestToHyperLedgerServer(lcRequestObject, API_Name);
+
+        });
+
+
+        /****************************************************************************************
+            Request LC : Store the details in mongo db for later consumption
+        *****************************************************************************************/
+
+        function saveLC_DetailsInMongoDB(lcRequestRecord, Client_Request) {
+
+            var webServerPrefix = "http://127.0.0.1:3500/?"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix;
+
+            xmlhttp = new XMLHttpRequest();
+            httpRequestString += "Client_Request=" + Client_Request;
+
+            var lcRequestKeys = lcRequestRecord.keys();
+
+            for (var currentKey of lcRequestKeys) {
+
+                httpRequestString += "&"
+                httpRequestString += currentKey + "=" + lcRequestRecord.get(currentKey);
+            }
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+
+                    alert(" Request Content: " + responseObject.Request);
+                    alert(" Status Content: " + responseObject.Status);
+
+                } else {
+
+                    alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            alert("Saving the LC detais in mongoDB => httpRequest : " + httpRequestString);
+            xmlhttp.send();
+
+        }
+
+        /****************************************************************************************
+        Request LC : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        function httpRequestToHyperLedgerServer(lcRequestObject, API_Name) {
+
+            var webServerPrefix = "/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + API_Name;
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+
+                } else {
+
+                    //alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            var httpParams = JSON.stringify(lcRequestObject);
+
+            //alert("Calling requestLC with Params" + params);
+            xmlhttp.send(httpParams);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+
