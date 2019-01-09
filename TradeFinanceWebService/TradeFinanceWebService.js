@@ -1,4 +1,19 @@
 
+/*************************************************************************
+ * 
+ * =================
+ * To Do List:
+ * =================
+ * 
+ * Modularize the service code
+ * Move the globals to local params & return values
+ * Decrypt the Client Requests after moving to HTTPS mode
+ * Store the password ( user registration ) as Hash instead of Plain Text
+ * 
+ * 
+ *************************************************************************/
+
+
 'use strict';
 
 
@@ -19,17 +34,32 @@ var port = process.env.PORT || 3500;
 var mongoDbConnection = require('mongodb');
 var mongoClient = mongoDbConnection.MongoClient;
 
+// Database & Table Names of "Trade & LC Details"
+
 var shipmentDatabase_Name = "shipmentTradeAndLcDb";
 var tradeAndLcTable_Name = "tradeAndLcCollection";
 
+// Database & Table Names of "User Details"
+
+var userDetails_DatabaseName = "userDetailsDb";
+var userDetails_TableName = "userDetailsCollection";
+
+
+// Database & Table Names of "Trade & LC Details"
+
 var mongoDbUrl = 'mongodb://127.0.0.1:27017/' + shipmentDatabase_Name;
+var mongoUserDetailsDbUrl = 'mongodb://127.0.0.1:27017/' + userDetails_DatabaseName;
 
 
 // Trade & LC Maps and Record Objects
 
 var tradeDetailsRequiredFields = ["Trade_Id", "Buyer", "Seller", "Shipment", "ShipmentCount", "Amount"];
+
 var lcDetailsRequiredFields = ["Trade_Id", "Lc_Id", "Buyer", "Seller", "Seller_Id", "Bank", "Shipment",
     "ShipmentCount", "Amount", "Expiry_Date", "Request_Location"];
+
+var userRegistrationData_RequiredFields = ["UserType", "User_Id", "Name", "Location", "Email", "Address", "UserName", "Password"];
+
 
 var trade_Object = {
     Trade_Id: "",
@@ -54,6 +84,17 @@ var lc_Object = {
     Expiry_Date: "",
     Request_Location: "",
     Current_Status: ""
+};
+
+var userData_Object = {
+    UserType: "",
+    User_Id: "",
+    Name: "",
+    Location: "",
+    Email: "",
+    Address: "",
+    UserName: "",
+    Password: ""
 };
 
 
@@ -94,192 +135,296 @@ http.createServer(function (req, res) {
     console.log( "Parsed the Web Client Request : " + clientRequestWithParamsMap.get("Client_Request") );
     var webClientRequest = clientRequestWithParamsMap.get("Client_Request");
 
+
     // Connect to Mongo DB, Create Database & Collections
 
-    var dbConnection_TradeAndLcDatabase;
+    // Connect to "User Details" db for "User Registration & Authentication"  
 
-    mongoClient.connect(mongoDbUrl, function (err, db) {
+    if (webClientRequest == "UserRegistration" || webClientRequest == "UserAuthentication") {
 
-        console.log("Inside the connection to Mongo DB");
+        var dbConnection_UserDetails_Database;
 
-        if (err != null) {
-            console.log("Error while connecting to mongo db on local server");
-            throw err;
-        }
-        else {
-            console.log("Successfully connected to MongoDb");
-        }
+        mongoClient.connect(mongoUserDetailsDbUrl, function (err, db) {
 
-        // Database Creation
+            console.log("Inside the connection to User Details Mongo DB");
 
-        console.log("Creating Trade and LC Information Database : ");
-        dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
-
-        // Table( Collection ) Creation
-        // ToDo: Check if the Table already exists and bail-out if it does 
-
-        dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
-
-            if (err) {
-                console.log("Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb");
+            if (err != null) {
+                console.log("Error while connecting to UserDetails mongo db on local server");
                 throw err;
             }
+            else {
+                console.log("Successfully connected to UserDetails MongoDb");
+            }
 
-            console.log("Successfully created collection (tradeAndLcCollection)");
-            console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
+            // Database Creation
+
+            console.log("Creating User Details Database : ");
+            dbConnection_UserDetails_Database = db.db(userDetails_DatabaseName);
+
+            // Table( Collection ) Creation
+
+            dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
+
+                if (err) {
+                    console.log("Error while creating Collection ( Table ) in User Details mongoDb");
+                    throw err;
+                }
+
+                console.log("Successfully created collection (userDetailsCollection)");
+                console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> User Registration information )");
+            });
+
+
+            // Redirect the web Requests based on Query Key => Client_Request
+
+            var registrationResult = null;
+
+            switch (webClientRequest) {
+
+                case "UserRegistration":
+
+                    if (addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
+                        userDetails_TableName,
+                        clientRequestWithParamsMap,
+                        userRegistrationData_RequiredFields,
+                        res)) {
+
+                        console.log("Web Service: Switch Statement : Successfully Registered the User");
+                        registrationResult = true;
+
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failure while Registering the User");
+                        registrationResult = false;
+
+                    }
+
+                    break;
+
+/*                case "UserAuthentication":
+
+                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        lcDetailsRequiredFields,
+                        true)) {
+
+                        console.log("Web Service: Switch Statement : Successfully added Record for LC");
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failure while adding Record for LC");
+                    }
+
+                    // Build Response
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
+                    var lcResponse = JSON.stringify(lcResponseObject);
+
+                    res.end(lcResponse);
+
+                    break;
+*/
+
+                default:
+
+                    break;
+            }
+        });
+    }
+
+    // Connect to "Shipment & LC details" db
+
+    else {
+
+        var dbConnection_TradeAndLcDatabase;
+
+        mongoClient.connect(mongoDbUrl, function (err, db) {
+
+            console.log("Inside the connection to Mongo DB");
+
+            if (err != null) {
+                console.log("Error while connecting to mongo db on local server");
+                throw err;
+            }
+            else {
+                console.log("Successfully connected to MongoDb");
+            }
+
+            // Database Creation
+
+            console.log("Creating Trade and LC Information Database : ");
+            dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
+
+            // Table( Collection ) Creation
+            // ToDo: Check if the Table already exists and bail-out if it does 
+
+            dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
+
+                if (err) {
+                    console.log("Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb");
+                    throw err;
+                }
+
+                console.log("Successfully created collection (tradeAndLcCollection)");
+                console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
+            });
+
+
+            // Redirect the web Requests based on Query Key => Client_Request
+
+            switch (webClientRequest) {
+
+                case "RequestTrade":
+
+                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        tradeDetailsRequiredFields,
+                        false)) {
+
+                        console.log("Web Service: Switch Statement : Successfully added Record for Trade");
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
+                    }
+
+                    // Build Response
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    var tradeResponseObject = { Request: "Request_Trade", Status: "Trade_Requested" };
+                    var tradeResponse = JSON.stringify(tradeResponseObject);
+
+                    res.end(tradeResponse);
+
+                    break;
+
+                case "RequestLC":
+
+                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        lcDetailsRequiredFields,
+                        true)) {
+
+                        console.log("Web Service: Switch Statement : Successfully added Record for LC");
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failure while adding Record for LC");
+                    }
+
+                    // Build Response
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
+                    var lcResponse = JSON.stringify(lcResponseObject);
+
+                    res.end(lcResponse);
+
+                    break;
+
+                case "RetrieveAllRecords":
+
+                    retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        null,
+                        null,
+                        handleQueryResults,
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
+
+                    // Build Response
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+                    break;
+
+                case "GetCurrentStatus":
+
+                    break;
+
+                case "RetrieveTradeDetails":
+
+                    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+                    var queriedTradeDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        tradeId,
+                        null,
+                        handleQueryResults,
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details => " + queriedTradeDetails);
+
+                    // Build Response
+                    // Complete Response will be built in Call back function after the DB Query
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+                    break;
+
+                case "RetrieveLCDetails":
+
+                    var lcId = clientRequestWithParamsMap.get("Lc_Id");
+                    var queriedLcDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        null,
+                        lcId,
+                        handleQueryResults,
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details => " + queriedLcDetails);
+
+                    // Build Response
+                    // Complete Response will be built in Call back function after the DB Query
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+                    break;
+
+                case "ApproveTrade":
+
+                    break;
+
+                case "ApproveLCRequest":
+
+                    break;
+
+                /*
+                case "StartShipment":
+    
+                    break;
+    
+                case "AcceptShipment":
+    
+                    break;
+    
+                case "RequestPayment":
+    
+                    break;
+    
+                case "MakePayment":
+    
+                    break;
+                */
+
+                default:
+
+                    console.error("Inappropriate Web Client Request received...exiting");
+                    break;
+
+            }
+
         });
 
-
-        // Redirect the web Requests based on Query Key => Client_Request
-
-        switch (webClientRequest) {
-
-            case "RequestTrade":
-
-                if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
-                    tradeAndLcTable_Name,
-                    clientRequestWithParamsMap,
-                    tradeDetailsRequiredFields,
-                    false)) {
-
-                    console.log("Web Service: Switch Statement : Successfully added Record for Trade");
-                }
-                else {
-
-                    console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
-                }
-
-                // Build Response
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                var tradeResponseObject = { Request: "Request_Trade", Status: "Trade_Requested" };
-                var tradeResponse = JSON.stringify(tradeResponseObject);
-
-                res.end(tradeResponse);
-    
-                break;
-
-            case "RequestLC":
-
-                if( addTradeAndLcRecordToDatabase( dbConnection_TradeAndLcDatabase,
-                    tradeAndLcTable_Name,
-                    clientRequestWithParamsMap,
-                    lcDetailsRequiredFields,
-                    true )) {
-
-                    console.log("Web Service: Switch Statement : Successfully added Record for LC");
-                }
-                else {
-
-                    console.error("Web Service: Switch Statement : Failure while adding Record for LC");
-                }
-
-                // Build Response
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
-                var lcResponse = JSON.stringify(lcResponseObject);
-
-                res.end(lcResponse);
-
-                break;
-
-            case "RetrieveAllRecords":
-
-                retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                    tradeAndLcTable_Name,
-                    null,
-                    null,
-                    handleQueryResults,
-                    req,
-                    res);
-
-                console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
-
-                // Build Response
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-
-                break;
-
-            case "GetCurrentStatus":
-
-                break;
-
-            case "RetrieveTradeDetails":
-
-                var tradeId = clientRequestWithParamsMap.get("Trade_Id");
-                var queriedTradeDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                    tradeAndLcTable_Name,
-                    tradeId,
-                    null,
-                    handleQueryResults,
-                    req,
-                    res);
-
-                console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details => " + queriedTradeDetails);
-
-                // Build Response
-                // Complete Response will be built in Call back function after the DB Query
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-
-                break;
-
-            case "RetrieveLCDetails":
-
-                var lcId = clientRequestWithParamsMap.get("Lc_Id");
-                var queriedLcDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                    tradeAndLcTable_Name,
-                    null,
-                    lcId,
-                    handleQueryResults,
-                    req,
-                    res);
-
-                console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details => " + queriedLcDetails);
-
-                // Build Response
-                // Complete Response will be built in Call back function after the DB Query
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-
-                break;
-
-            case "ApproveTrade":
-
-                break;
-
-            case "ApproveLCRequest":
-
-                break;
-
-            /*
-            case "StartShipment":
-
-                break;
-
-            case "AcceptShipment":
-
-                break;
-
-            case "RequestPayment":
-
-                break;
-
-            case "MakePayment":
-
-                break;
-            */
-
-            default:
-
-                console.error("Inappropriate Web Client Request received...exiting");
-                break;
-
-        }
-
-    });
+    }
 
     //  close the db connection
 
@@ -294,6 +439,8 @@ http.createServer(function (req, res) {
  * @param {any} clientRequestCollection  : List of <K,V> pairs from input http request
  * 
  */
+
+// ToDo : Decrypt the ClientRequest information after moving to HTTPS mode
 
 function ParseWebClientRequest(clientRequestCollection) {
 
@@ -311,9 +458,161 @@ function ParseWebClientRequest(clientRequestCollection) {
 }
 
 
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * User Registration & Authentication Module 
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
+
+
 /**
  * 
  * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
+ * 
+ */
+
+function prepareUserRegistrationObject(recordObjectMap) {
+
+    userData_Object.UserType = recordObjectMap.get("UserType");
+    userData_Object.User_Id = recordObjectMap.get("User_Id");
+    userData_Object.Name = recordObjectMap.get("Name");
+    userData_Object.Location = recordObjectMap.get("Location");
+    userData_Object.Email = recordObjectMap.get("Email");
+    userData_Object.Address = recordObjectMap.get("Address");
+    userData_Object.UserName = recordObjectMap.get("UserName");
+    userData_Object.Password = recordObjectMap.get("Password");
+}
+
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
+ * @param {any} requiredDetailsCollection : required keys for record addition ( User Registration Record )
+ *
+ */
+
+// ToDo : Store the Hash of the Password instead of PlainText 
+
+function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
+
+    http_Response.writeHead(200, { 'Content-Type': 'application/json' });
+    var userRegistrationResponseObject = null;
+
+    // Check if all the required fields are present before adding the record
+
+    for (var i = 0; i < requiredDetailsCollection.length; i++) {
+
+        var currentKey = requiredDetailsCollection[i];
+
+        if (recordObjectMap.get(currentKey) == null || recordObjectMap.get(currentKey) == undefined) {
+
+            console.error("addUserRegistrationRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
+
+            var failureMessage = "Failure: Required Key doesn't exist => " + currentKey;
+            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
+
+            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+            http_Response.end(userRegistrationResponse);
+
+            return false;
+        }
+    }
+
+    // Prepare "User Registration" Object and add them to UserDetails Database
+
+    prepareUserRegistrationObject(recordObjectMap);
+    console.log("addUserRegistrationRecordToDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + userData_Object.length);
+
+    addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, userData_Object, http_Response);
+
+    return true;
+}
+
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} document_Object : Document object to be added ( Record, Row in Table )
+ * 
+ */
+
+function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, document_Object, http_Response) {
+
+    // Throw Error if User already Exists ; Add Record Otherwise
+
+    var query = { User_Id: document_Object.User_Id };
+    console.log("addRecordToUserDetailsDatabase_IfNotExists => collectionName :" + collectionName + ", User_Id :" + document_Object.User_Id);
+
+    var userRegistrationResponseObject = null;
+
+    // Build Response
+
+    dbConnection.collection(collectionName).findOne(query, function (err, result) {
+
+        if (err) {
+
+            console.log("addRecordToUserDetailsDatabase_IfNotExists : Error while querying for document to be inserted");
+
+            var failureMessage = "Failure: Unknown failure during User Registration";
+            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
+            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+            http_Response.end(userRegistrationResponse);
+
+            throw err;
+        }
+
+        var recordPresent = (result) ? "true" : "false";
+
+        // Add User Registration Record, If not already registered
+
+        if (recordPresent == "false") {
+
+            console.log("addRecordToUserDetailsDatabase_IfNotExists : Record Not Found, Adding New Record => " + " User Id : " + document_Object.User_Id);
+            directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
+
+            userRegistrationResponseObject = { Request: "UserRegistration", Status: "Registration Successful"};
+            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+            http_Response.end(userRegistrationResponse);
+
+        } else {
+
+            // User Already Exists, Send Error Response
+
+            console.log("User Already Registered => " + " User Id : " + document_Object.User_Id);
+
+            var failureMessage = "Failure: User ( " + document_Object.Name + " ) was already registered";
+            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
+            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+            http_Response.end(userRegistrationResponse);
+
+        }
+
+    });
+
+}
+
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * Trade and LC record CRUD operations Module
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
+
+
+/**
+ * 
+ * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request ( Trade Record )
  * 
  */
 
@@ -330,7 +629,7 @@ function prepareTradeDocumentObject(recordObjectMap) {
 
 /**
  * 
- * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
+ * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request ( LC Record )
  * 
  */
 
@@ -350,11 +649,14 @@ function prepareLcDocumentObject(recordObjectMap) {
     lc_Object.Current_Status = "LC_Requested";
 }
 
+
 /**
  * 
  * @param {any} dbConnection  : Connection to database
  * @param {any} collectionName  : Name of Table ( Collection )
  * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
+ * @param {any} requiredDetailsCollection : required keys for record addition ( Trade & LC )
+ * @param {any} bLcRequest : "LC Request" R "Trade Request" ? 
  * 
  */
 
@@ -397,6 +699,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
     return true;
 }
+
 
 /**
  * 
@@ -461,6 +764,16 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
 
 }
 
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * Module to handle => Direct CRUD Operations with MongoDB.
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
 
 /**
  * 
@@ -555,6 +868,16 @@ function removeRecordFromTradeAndLcDatabase(dbConnection, collectionName, Trade_
     });
 
 }
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * Trade and LC record CRUD operations Module
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
 
 /**
  * 
@@ -727,4 +1050,5 @@ function buildLcRecord_JSON(queryResult) {
 
     return queryResponse_JSON;
 }
+
 
