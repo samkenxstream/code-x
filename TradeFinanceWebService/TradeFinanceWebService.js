@@ -9,6 +9,7 @@
  * Move the globals to local params & return values
  * Decrypt the Client Requests after moving to HTTPS mode
  * Store the password ( user registration ) as Hash instead of Plain Text
+ * Check for Uniqueness of UserName before Registration
  * 
  * 
  *************************************************************************/
@@ -27,6 +28,8 @@
 
 var http = require('http');
 var url = require('url');
+var cryptoModule = require('crypto');
+
 var port = process.env.PORT || 3500;
 
 // MongoDB Connection Variables  
@@ -96,6 +99,26 @@ var userData_Object = {
     UserName: "",
     Password: ""
 };
+
+var credentialsData_Object = {
+    UserName: "",
+    Password: ""
+};
+
+var randomSeed_ForPasswordHash = "RandomHashSeed";
+
+var bDebug = true;
+
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * Main Service Module
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
 
 
 /*************************************************************************
@@ -177,11 +200,13 @@ http.createServer(function (req, res) {
 
             // Redirect the web Requests based on Query Key => Client_Request
 
-            var registrationResult = null;
+            var registrationResult = true;
 
             switch (webClientRequest) {
 
                 case "UserRegistration":
+
+                    console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(User_Id) : ", clientRequestWithParamsMap.get("User_Id") );
 
                     if (addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
                         userDetails_TableName,
@@ -202,31 +227,21 @@ http.createServer(function (req, res) {
 
                     break;
 
-/*                case "UserAuthentication":
+                case "UserAuthentication":
 
-                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
+                    if (validateUserCredentials(dbConnection_UserDetails_Database,
+                        userDetails_TableName,
                         clientRequestWithParamsMap,
-                        lcDetailsRequiredFields,
-                        true)) {
+                        res)) {
 
-                        console.log("Web Service: Switch Statement : Successfully added Record for LC");
+                        console.log("Web Service: Switch Statement : Successfully Authenticated the User");
                     }
                     else {
 
-                        console.error("Web Service: Switch Statement : Failure while adding Record for LC");
+                        console.error("Web Service: Switch Statement : Failed to Authenticate the User");
                     }
 
-                    // Build Response
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
-                    var lcResponse = JSON.stringify(lcResponseObject);
-
-                    res.end(lcResponse);
-
                     break;
-*/
 
                 default:
 
@@ -477,14 +492,26 @@ function ParseWebClientRequest(clientRequestCollection) {
 
 function prepareUserRegistrationObject(recordObjectMap) {
 
+    console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id"));
+
     userData_Object.UserType = recordObjectMap.get("UserType");
+    console.log("prepareUserRegistrationObject : After Assignment => userData_Object.UserType : " + userData_Object.UserType );
+
     userData_Object.User_Id = recordObjectMap.get("User_Id");
     userData_Object.Name = recordObjectMap.get("Name");
     userData_Object.Location = recordObjectMap.get("Location");
     userData_Object.Email = recordObjectMap.get("Email");
     userData_Object.Address = recordObjectMap.get("Address");
     userData_Object.UserName = recordObjectMap.get("UserName");
-    userData_Object.Password = recordObjectMap.get("Password");
+
+    // Store Password in by generating Hash
+
+    var tempLocalParam_Password = recordObjectMap.get("Password");
+    var passwordHash = cryptoModule.createHash('md5').update(tempLocalParam_Password).digest('hex');
+
+    userData_Object.Password = passwordHash;
+
+    return userData_Object;
 }
 
 
@@ -494,6 +521,7 @@ function prepareUserRegistrationObject(recordObjectMap) {
  * @param {any} collectionName  : Name of Table ( Collection )
  * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
  * @param {any} requiredDetailsCollection : required keys for record addition ( User Registration Record )
+ * @param {any} http_Response : Http Response thats gets built
  *
  */
 
@@ -501,8 +529,9 @@ function prepareUserRegistrationObject(recordObjectMap) {
 
 function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
 
-    http_Response.writeHead(200, { 'Content-Type': 'application/json' });
     var userRegistrationResponseObject = null;
+
+    console.log("addUserRegistrationRecordToDatabase : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id") );
 
     // Check if all the required fields are present before adding the record
 
@@ -516,22 +545,158 @@ function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recor
 
             var failureMessage = "Failure: Required Key doesn't exist => " + currentKey;
             userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
-
             var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+
+            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
             http_Response.end(userRegistrationResponse);
 
             return false;
         }
     }
 
+
     // Prepare "User Registration" Object and add them to UserDetails Database
 
-    prepareUserRegistrationObject(recordObjectMap);
-    console.log("addUserRegistrationRecordToDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + userData_Object.length);
+    console.log("addUserRegistrationRecordToDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.length);
+    var currentDocument_Object = prepareUserRegistrationObject(recordObjectMap);
 
-    addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, userData_Object, http_Response);
+    console.log("addUserRegistrationRecordToDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + currentDocument_Object.length);
+
+    // Check the userData_Object after value assignment
+
+    if (bDebug == true) {
+
+        console.log("userData_Object values after converting from Map => ");
+        console.log("currentDocument_Object.UserType => + ", currentDocument_Object.UserType );
+    }
+
+    addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, currentDocument_Object, http_Response);
 
     return true;
+}
+
+
+/**
+ * 
+ * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
+ * 
+ */
+
+function prepareUserCredentialsObject(recordObjectMap) {
+
+    credentialsData_Object.UserName = recordObjectMap.get("UserName");
+    credentialsData_Object.Password = recordObjectMap.get("Password");
+}
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} document_Object : Document object to be added ( Record, Row in Table )
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function validateUserCredentials(dbConnection, collectionName, recordObjectMap, http_Response) {
+
+    var userAuthenticationResponseObject = null;
+
+    // Prepare Credentials Data Object
+
+    prepareUserCredentialsObject(recordObjectMap);
+    var document_Object = credentialsData_Object;
+
+    // Check if the request has UserName & Password Details
+
+    if (document_Object.UserName == null || document_Object.UserName == undefined ||
+        document_Object.Password == null || document_Object.Password == undefined) {
+
+        console.log("validateUserCredentials : Missing credential Details ( UserName || Password )");
+        var failureMessage = "Failure: Blank UserName || Password in input Request";
+
+        buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+    }
+
+    // DB Query
+
+    var query = { UserName: document_Object.UserName };
+    console.log("validateUserCredentials => collectionName :" + collectionName + ", UserName :" + document_Object.UserName);
+
+    // Validate Credentials and Build Response
+
+    dbConnection.collection(collectionName).findOne(query, function (err, result) {
+
+        if (err) {
+
+            console.log("validateUserCredentials : Error while querying DB for User Credentials");
+            var failureMessage = "Failure: Error while querying DB for User Credentials";
+
+            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+
+            throw err;
+        }
+
+        var recordPresent = (result) ? "true" : "false";
+
+        // Add User Registration Record, If not already registered
+
+        if (recordPresent == "false") {
+
+            console.log("validateUserCredentials : UserName was not registered : " + document_Object.UserName);
+            var failureMessage = "validateUserCredentials : UserName was not registered : " + document_Object.UserName;
+
+            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+
+        } else {
+
+            // User Exists. Validate the Password ( ToDo: Generate Hash and validate against the existing Password Hash)
+
+            console.log("validateUserCredentials : User Exists. Validate the Credentials for User : " + document_Object.UserName);
+
+            var inputPasswordHash = cryptoModule.createHash('md5').update(document_Object.Password).digest('hex');
+            console.log("validateUserCredentials : generated Hash for input password : " + inputPasswordHash);
+
+            if (result.Password != inputPasswordHash) {
+
+                console.log("validateUserCredentials : Passwords did not Match for UserName : " + document_Object.UserName);
+                var failureMessage = "validateUserCredentials : Passwords did not Match for UserName : " + document_Object.UserName;
+
+                buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+
+            } else {
+
+                http_Response.writeHead(200, { 'Content-Type': 'application/json' });
+
+                userAuthenticationResponseObject = { Request: "UserAuthentication", Status: "Authentication Successful" };
+                var userAuthenticationResponse = JSON.stringify(userAuthenticationResponseObject);
+
+                http_Response.end(userAuthenticationResponse);
+            }
+        }
+
+    });
+
+}
+
+
+/**
+ * 
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function buildErrorResponse_ForUserAuthentication(failureMessage, http_Response) {
+
+    // Check if the request has UserName & Password Details
+
+    var userCredsValidationResponseObject = null;
+
+    userCredsValidationResponseObject = { Request: "UserAuthentication", Status: failureMessage };
+    var userAuthenticationResponse = JSON.stringify(userCredsValidationResponseObject);
+
+    http_Response.writeHead(400, { 'Content-Type': 'application/json' });
+    http_Response.end(userAuthenticationResponse);
 }
 
 
@@ -540,6 +705,7 @@ function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recor
  * @param {any} dbConnection  : Connection to database 
  * @param {any} collectionName  : Name of Table ( Collection )
  * @param {any} document_Object : Document object to be added ( Record, Row in Table )
+ * @param {any} http_Response : Http Response thats gets built
  * 
  */
 
@@ -563,6 +729,8 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
             var failureMessage = "Failure: Unknown failure during User Registration";
             userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
             var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+
+            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
             http_Response.end(userRegistrationResponse);
 
             throw err;
@@ -579,17 +747,21 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
 
             userRegistrationResponseObject = { Request: "UserRegistration", Status: "Registration Successful"};
             var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+
+            http_Response.writeHead(200, { 'Content-Type': 'application/json' });
             http_Response.end(userRegistrationResponse);
 
         } else {
 
             // User Already Exists, Send Error Response
 
-            console.log("User Already Registered => " + " User Id : " + document_Object.User_Id);
+            console.log("User Already Registered => User Id : " + document_Object.User_Id);
 
             var failureMessage = "Failure: User ( " + document_Object.Name + " ) was already registered";
             userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
             var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+
+            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
             http_Response.end(userRegistrationResponse);
 
         }
