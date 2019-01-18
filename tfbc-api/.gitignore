@@ -3,3 +3,4 @@ node_modules
 npm-debug.log
 .serverless
 variables.env
+a/chaincode/hyperledger/fabric/peer/tfbcchannel.block and b/chaincode/hyperledger/fabric/peer/tfbcchannel.block
