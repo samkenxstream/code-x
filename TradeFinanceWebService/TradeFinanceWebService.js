@@ -8,7 +8,6 @@
  * Modularize the service code
  * Move the globals to local params & return values
  * Decrypt the Client Requests after moving to HTTPS mode
- * Store the password ( user registration ) as Hash instead of Plain Text
  * Check for Uniqueness of UserName before Registration
  * 
  * 
@@ -91,13 +90,13 @@ var lc_Object = {
 
 var userData_Object = {
     UserType: "",
-    User_Id: "",
     Name: "",
     Location: "",
     Email: "",
     Address: "",
     UserName: "",
-    Password: ""
+    Password: "",
+    _id: "",
 };
 
 var credentialsData_Object = {
@@ -181,7 +180,7 @@ http.createServer(function (req, res) {
 
             // Database Creation
 
-            console.log("Creating User Details Database : ");
+            console.log("Creating / Retrieving User Details Database : ");
             dbConnection_UserDetails_Database = db.db(userDetails_DatabaseName);
 
             // Table( Collection ) Creation
@@ -189,12 +188,12 @@ http.createServer(function (req, res) {
             dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
 
                 if (err) {
-                    console.log("Error while creating Collection ( Table ) in User Details mongoDb");
+                    console.log("Error while creating / retrieving Collection ( Table ) in User Details mongoDb");
                     throw err;
                 }
 
-                console.log("Successfully created collection (userDetailsCollection)");
-                console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> User Registration information )");
+                console.log("Successfully created / retrieved collection (userDetailsCollection)");
+                console.log("Created / retrieved Collection ( Table ) : Now taking care of User Registration and Authentication");
             });
 
 
@@ -206,7 +205,7 @@ http.createServer(function (req, res) {
 
                 case "UserRegistration":
 
-                    console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(User_Id) : ", clientRequestWithParamsMap.get("User_Id") );
+                    console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(UserName) : ", clientRequestWithParamsMap.get("UserName") );
 
                     if (addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
                         userDetails_TableName,
@@ -492,12 +491,12 @@ function ParseWebClientRequest(clientRequestCollection) {
 
 function prepareUserRegistrationObject(recordObjectMap) {
 
-    console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id"));
+    console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(UserName) : " + recordObjectMap.get("UserName"));
 
     userData_Object.UserType = recordObjectMap.get("UserType");
     console.log("prepareUserRegistrationObject : After Assignment => userData_Object.UserType : " + userData_Object.UserType );
 
-    userData_Object.User_Id = recordObjectMap.get("User_Id");
+    userData_Object._id = recordObjectMap.get("User_Id");
     userData_Object.Name = recordObjectMap.get("Name");
     userData_Object.Location = recordObjectMap.get("Location");
     userData_Object.Email = recordObjectMap.get("Email");
@@ -567,7 +566,7 @@ function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recor
     if (bDebug == true) {
 
         console.log("userData_Object values after converting from Map => ");
-        console.log("currentDocument_Object.UserType => + ", currentDocument_Object.UserType );
+        console.log("currentDocument_Object.UserType => " + currentDocument_Object.UserType );
     }
 
     addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, currentDocument_Object, http_Response);
@@ -713,8 +712,8 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
 
     // Throw Error if User already Exists ; Add Record Otherwise
 
-    var query = { User_Id: document_Object.User_Id };
-    console.log("addRecordToUserDetailsDatabase_IfNotExists => collectionName :" + collectionName + ", User_Id :" + document_Object.User_Id);
+    var query = { UserName: document_Object.UserName };
+    console.log("addRecordToUserDetailsDatabase_IfNotExists => collectionName :" + collectionName + ", UserName :" + document_Object.UserName);
 
     var userRegistrationResponseObject = null;
 
@@ -742,7 +741,7 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
 
         if (recordPresent == "false") {
 
-            console.log("addRecordToUserDetailsDatabase_IfNotExists : Record Not Found, Adding New Record => " + " User Id : " + document_Object.User_Id);
+            console.log("addRecordToUserDetailsDatabase_IfNotExists : Record Not Found, Adding New Record => " + " UserName : " + document_Object.UserName);
             directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
 
             userRegistrationResponseObject = { Request: "UserRegistration", Status: "Registration Successful"};
@@ -755,7 +754,7 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
 
             // User Already Exists, Send Error Response
 
-            console.log("User Already Registered => User Id : " + document_Object.User_Id);
+            console.log("User Already Registered => UserName : " + document_Object.UserName);
 
             var failureMessage = "Failure: User ( " + document_Object.Name + " ) was already registered";
             userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
@@ -962,10 +961,10 @@ function directAdditionOfRecordToDatabase(dbConnection, collectionName, document
     dbConnection.collection(collectionName).insertOne(document_Object, function (err, result) {
 
         if (err) {
-            console.log("Error while adding the Record to tradeAndLc Database collection");
+            console.log("Error while adding the Record to Database collection => " + collectionName);
             throw err;
         }
-        console.log("Successfully added the record to the Trade and LC Table : " + document_Object.Trade_Id);
+        console.log("Successfully added the record to the Collection : " + collectionName);
         console.log(result);
 
     });
@@ -1222,5 +1221,4 @@ function buildLcRecord_JSON(queryResult) {
 
     return queryResponse_JSON;
 }
-
 

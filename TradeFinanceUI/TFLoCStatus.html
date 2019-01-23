@@ -36,15 +36,36 @@
 
 
 <body>
+
+    <script src="./UserAuthentication.js"></script>
+
     <div class="header" style="color: #302827; width: 95%">
+
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
-        <div class="NavigationBar">
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
-            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        <div class="NavigationBar" id="Navigation-bar">
+
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
+
         </div>
+
     </div>
+
     <div class="container" style="width: 95%">
         <div class="LeftBrowserBox" style="width: 15%">
             <div class="NavigationBar1">
@@ -126,157 +147,168 @@
 
             </div>
 
-            </div>
+        </div>
 
-            </div>
+    </div>
 
-            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
-            <script>
+    <script>
 
-            var bDebug = false;
+        var bDebug = false;
 
-            $("#Retrieve-LC-Details-Button").click(function () {
-
-
-                /****************************************************************************************
-                    RetrieveLcDetails : Retrieve the LC details from mongo db
-                *****************************************************************************************/
-
-                var lcId_value = document.getElementById("LC-Id-Input").value;
-
-                if (lcId_value == null) {
-
-                    alert("lcId value must be entered to retrieve the LC Details");
-                }
-
-                // Retrieve the Lc Details from mongoDb
-
-                var Client_Request = "RetrieveLCDetails";
-                retrieveLcDetails_FromMongoDB(lcId_value, Client_Request);
-
-                /****************************************************************************************
-                    getLC : Place HyperLedger API Call
-                *****************************************************************************************/
-
-                var API_Name = "getLC";
-                //httpRequestToHyperLedgerServer(lcId_value, API_Name);
-
-            });
+        $("#Retrieve-LC-Details-Button").click(function () {
 
 
             /****************************************************************************************
-                Retrieve LC Details : Retrieve the lc details from mongo DB based on Lc_Id
+                RetrieveLcDetails : Retrieve the LC details from mongo db
             *****************************************************************************************/
 
-            function retrieveLcDetails_FromMongoDB(Lc_Id, Client_Request) {
+            var lcId_value = document.getElementById("LC-Id-Input").value;
 
-                var webServerPrefix = "http://127.0.0.1:3500/?"
-                var xmlhttp;
-                var httpRequestString = webServerPrefix;
+            if (lcId_value == null) {
 
-                xmlhttp = new XMLHttpRequest();
-                httpRequestString += "Client_Request=" + Client_Request;
-                httpRequestString += "&";
-                httpRequestString += "Lc_Id=" + Lc_Id;
+                alert("lcId value must be entered to retrieve the LC Details");
+            }
 
-                xmlhttp.open("POST", httpRequestString, true);
-                xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xmlhttp.setRequestHeader("accept", "application/json");
+            // Retrieve the Lc Details from mongoDb
 
-                // Wait for Async response and Handle it in web page
+            var Client_Request = "RetrieveLCDetails";
+            retrieveLcDetails_FromMongoDB(lcId_value, Client_Request);
 
-                xmlhttp.onreadystatechange = function () {
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+            *****************************************************************************************/
 
-                    if (this.readyState == 4 && this.status == 200) {
+            var API_Name = "getLC";
+            //httpRequestToHyperLedgerServer(lcId_value, API_Name);
 
-                        //Parse the JSON Response Object
+        });
 
-                        responseObject = JSON.parse(this.response);
 
-                        if (bDebug == true) {
-                            alert(" All the Trade Details for Trade Id => " + Lc_Id + " : " + responseObject);
-                        }
+        /****************************************************************************************
+            Retrieve LC Details : Retrieve the lc details from mongo DB based on Lc_Id
+        *****************************************************************************************/
 
-                        fillTheLCStatusDetailsPage(responseObject);
+        function retrieveLcDetails_FromMongoDB(Lc_Id, Client_Request) {
 
-                    } else {
+            var webServerPrefix = "http://127.0.0.1:3500/?"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix;
 
-                        alert("Failure to place RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+            xmlhttp = new XMLHttpRequest();
+            httpRequestString += "Client_Request=" + Client_Request;
+            httpRequestString += "&";
+            httpRequestString += "Lc_Id=" + Lc_Id;
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+
+                    if (bDebug == true) {
+                        alert(" All the Trade Details for Trade Id => " + Lc_Id + " : " + responseObject);
                     }
 
-                };
+                    fillTheLCStatusDetailsPage(responseObject);
 
-                alert("Retrieving the Lc detais from mongoDB => httpRequest : " + httpRequestString);
-                xmlhttp.send();
+                } else {
 
-            }
-
-            /****************************************************************************************
-                LC Status Details Page : Fill the LC Details based on Response
-            *****************************************************************************************/
-
-            function fillTheLCStatusDetailsPage(LcDetails_ResponseObject) {
-
-                document.getElementById("Loc_Details_Trade_Id_Value").innerHTML = LcDetails_ResponseObject.Trade_Id;
-                document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = LcDetails_ResponseObject.Lc_Id;
-                document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = LcDetails_ResponseObject.Buyer;
-                document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = LcDetails_ResponseObject.Seller;
-                document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = LcDetails_ResponseObject.Bank;
-                document.getElementById("Loc_Details_Shipment_Value").innerHTML = LcDetails_ResponseObject.Shipment;
-                document.getElementById("Loc_Details_Shipment_Count_Value").innerHTML = LcDetails_ResponseObject.ShipmentCount;
-                document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = LcDetails_ResponseObject.Amount;
-                document.getElementById("Loc_Details_Status_Value").innerHTML = LcDetails_ResponseObject.Current_Status;
-                document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = LcDetails_ResponseObject.Expiry_Date;
-
-            }
-
-            /****************************************************************************************
-            RetrieveLcDetails : Place HyperLedger API Call
-            *****************************************************************************************/
-
-            function httpRequestToHyperLedgerServer(lcId_value, API_Name) {
-
-                var webServerPrefix = "/tfbc/";
-                var xmlhttp;
-                var httpRequestString = webServerPrefix + API_Name;
-
-                xmlhttp = new XMLHttpRequest();
-
-                xmlhttp.open("POST", httpRequestString, true);
-                xmlhttp.setRequestHeader("Content-type", "application/json");
-                xmlhttp.setRequestHeader("accept", "application/json");
-
-                // Wait for Async response and Handle it in web page
-
-                xmlhttp.onreadystatechange = function () {
-
-                    if (this.readyState == 4 && this.status == 200) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
-
-                    } else {
-
-                        alert("Failure to place getLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                    }
-
-                };
-
-                var lcDetailsRequestObject = { lcId: lcId_value };
-                params = JSON.stringify(lcDetailsRequestObject);
-
-                if (bDebug == true) {
-                    alert("Calling getLC with Params" + params);
+                    alert("Failure to place RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
-                xmlhttp.send(params);
+
+            };
+
+            alert("Retrieving the Lc detais from mongoDB => httpRequest : " + httpRequestString);
+            xmlhttp.send();
+
+        }
+
+        /****************************************************************************************
+            LC Status Details Page : Fill the LC Details based on Response
+        *****************************************************************************************/
+
+        function fillTheLCStatusDetailsPage(LcDetails_ResponseObject) {
+
+            document.getElementById("Loc_Details_Trade_Id_Value").innerHTML = LcDetails_ResponseObject.Trade_Id;
+            document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = LcDetails_ResponseObject.Lc_Id;
+            document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = LcDetails_ResponseObject.Buyer;
+            document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = LcDetails_ResponseObject.Seller;
+            document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = LcDetails_ResponseObject.Bank;
+            document.getElementById("Loc_Details_Shipment_Value").innerHTML = LcDetails_ResponseObject.Shipment;
+            document.getElementById("Loc_Details_Shipment_Count_Value").innerHTML = LcDetails_ResponseObject.ShipmentCount;
+            document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = LcDetails_ResponseObject.Amount;
+            document.getElementById("Loc_Details_Status_Value").innerHTML = LcDetails_ResponseObject.Current_Status;
+            document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = LcDetails_ResponseObject.Expiry_Date;
+
+        }
+
+        /****************************************************************************************
+        RetrieveLcDetails : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        function httpRequestToHyperLedgerServer(lcId_value, API_Name) {
+
+            var webServerPrefix = "/tfbc/";
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + API_Name;
+
+            xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open("POST", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
+
+            // Wait for Async response and Handle it in web page
+
+            xmlhttp.onreadystatechange = function () {
+
+                if (this.readyState == 4 && this.status == 200) {
+
+                    //Parse the JSON Response Object
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+
+                } else {
+
+                    alert("Failure to place getLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+            };
+
+            var lcDetailsRequestObject = { lcId: lcId_value };
+            params = JSON.stringify(lcDetailsRequestObject);
+
+            if (bDebug == true) {
+                alert("Calling getLC with Params" + params);
             }
 
-            </script>
+            xmlhttp.send(params);
 
-    </body>
+        }
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
+
+    </script>
+
+</body>
 
 
 </html>

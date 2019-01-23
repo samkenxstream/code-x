@@ -5,25 +5,25 @@
 
 <head>
 
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
- <title>TradeFinance Smart Contract</title>
+    <title>TradeFinance Smart Contract</title>
 
- <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
 
- <style type="text/css">
+    <style type="text/css">
 
-    body {
-     background-color:#F0F0F0;
-     padding-top: 1em;
-     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
-    }
-
- </style>
+        body {
+            background-color: #F0F0F0;
+            padding-top: 1em;
+            font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+        }
+    </style>
 
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+    <script src="./UserAuthentication.js"></script>
 
 </head>
 
@@ -34,11 +34,23 @@
 
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
-        <div class="NavigationBar">
+        <div class="NavigationBar" id="Navigation-bar">
 
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
-            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
 
         </div>
 
@@ -526,6 +538,15 @@
             currentRowElementsArray[currentIndex].style.paddingBottom = "10px";
             currentRowElementsArray[currentIndex].style.paddingLeft = "10px";
 
+        }
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
         }
 
     </script>

@@ -5,37 +5,36 @@
 
 <head>
 
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
- <title>TradeFinance Smart Contract</title>
+    <title>TradeFinance Smart Contract</title>
 
- <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
 
- <style type="text/css">
+    <style type="text/css">
 
-    body {
-     background-color:#F0F0F0;
-     padding-top: 1em;
-     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
-    }
-    .NavigationBar1 {
+        body {
+            background-color: #F0F0F0;
+            padding-top: 1em;
+            font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+        }
 
-    float : left;
-    padding: 6px 8px 6px 16px;
-    text-decoration: none;
-    font-size: 22px;
-    color: #818181;
-    padding-top: 50px;
-}
+        .NavigationBar1 {
+            float: left;
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 22px;
+            color: #818181;
+            padding-top: 50px;
+        }
+    </style>
 
- </style>
-
- <script src="./../../EthereumInstallations/node_modules/web3/dist/web3.min.js"></script>
+    <script src="./../../EthereumInstallations/node_modules/web3/dist/web3.min.js"></script>
+    <script src="./UserAuthentication.js"></script>
 
 </head>
-
 
 <body>
 
@@ -43,11 +42,23 @@
 
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
-        <div class="NavigationBar">
+        <div class="NavigationBar" id="Navigation-bar">
 
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
-            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
 
         </div>
 
@@ -247,6 +258,10 @@
 
     <script>
 
+        /****************************************************************************************
+            Submit the LC Request
+        *****************************************************************************************/
+
         $("#Shipment-Order-Submit").click(function () {
 
             var todaysDate = new Date();
@@ -302,6 +317,29 @@
 
         });
 
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Content-Navigation-bar").style.display = "none";
+        }
+
+        /****************************************************************************************
+            User Logoff : Logoff from current session 
+                        : Redirect to Home Page 
+        *****************************************************************************************/
+
+        function processLogoff(event) {
+
+            alert("Logging out from TF Website");
+
+            document.getElementById("Content-Navigation-bar").style.display = "none";
+            document.getElementById("Login-Navigation-bar").style.display = "initial";
+            document.location.replace("./TradeFinanceHome.html");
+        }
 
         /****************************************************************************************
             Request LC : Store the details in mongo db for later consumption
@@ -392,6 +430,15 @@
             //alert("Calling requestLC with Params" + params);
             xmlhttp.send(httpParams);
 
+        }
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
         }
 
     </script>

@@ -1,5 +1,11 @@
 ﻿
-/* Home Page */
+/*************************************************************************************************************************************
+*************************************************************************************************************************************
+    
+    Home Page
+
+*************************************************************************************************************************************
+*************************************************************************************************************************************/
 
 .header {
     
@@ -7,6 +13,8 @@
     color : #110604;
     font-size : 35px;
     background-color : #93827F;
+
+    height : 50px;
 
     padding-left : 20px;
     padding-right : 20px;
@@ -18,8 +26,8 @@
 }
 
 .Application-Info {
+
     color: #F8C471;
-    /*color: #FAD7A0;*/
     background-color: #6A3C47;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -28,6 +36,7 @@
     font-family: Times New Roman;
     font-size: 30px;
     border: 2px solid;
+
 }
 
 .Hyper-Ledger-Container {
@@ -65,9 +74,9 @@
     font-size : 45px;
 }
 
-.NavigationBar {
+.Header-Home {
 
-    float : left;
+    float: left;
 }
 
 .NavigationBar {
@@ -75,12 +84,26 @@
     float : right;
 }
 
-.Buyer {
-    
-    padding-right : 20px;
+.Login_NavigationBar {
+
+    float: left;
 }
 
-.Buyer-Bank {
+.Content_NavigationBar {
+
+    float: left;
+}
+
+.Login {
+    padding-right: 20px;
+}
+
+.SignUp {
+
+    padding-right: 20px;
+}
+
+.Buyer {
     
     padding-right : 20px;
 }
@@ -100,6 +123,11 @@
     padding-right : 20px;
 }
 
+.Contact-Info {
+
+    padding-right: 20px;
+}
+
 .LeftBrowserBox {
 
     color : #110604;
@@ -115,6 +143,202 @@
     float : left;
     padding-left : 2%;
 }
+
+.logout_button {
+    
+    font-family: Times New Roman;
+    color: white;
+    background-color: #513C38;
+    font-size: 20px;
+    font-weight: bold;
+
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    
+    height: 55px;
+    width: 100px;
+    border: 1px solid thick brown;
+}
+
+/*************************************************************************************************************************************
+*************************************************************************************************************************************
+    
+    Login & Signup Containers
+
+*************************************************************************************************************************************
+*************************************************************************************************************************************/
+
+.dropdown {
+    position: relative;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Extra styles for the cancel button */
+
+.SignUp-Label {
+    color: #4F3934;
+    font-family: 'Times New Roman';
+}
+
+/* Extra styles for the Signup & Cancel Buttons */
+
+.Singup-Controls-Container {
+    padding-bottom: 20px;
+}
+
+.cancelbtn {
+    width: 150px;
+    float: left;
+    padding: 10px 18px;
+    background-color: #f44336;
+    border: groove 2px;
+}
+
+.signupbtn {
+    width: 150px;
+    float: left;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #50342E;
+    border: groove 2px;
+}
+
+.buffer-clearance {
+    float: left;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.bottom-buffer-clearance {
+    clear: left;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.cancelbtn_loginpage {
+    float: left;
+    width: 150px;
+    padding: 10px 18px;
+    background-color: #f44336;
+    border: groove 2px;
+}
+
+.loginbtn {
+    float: left;
+    width: 150px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #50342E;
+    border: groove 2px;
+}
+
+.remember-password-checkbox {
+    float: left;
+}
+
+.remember-password-label {
+    float: left;
+}
+
+.forgot-Password-Link {
+    float: left;
+}
+
+.loginControlsContainer {
+    clear: left;
+    padding-top: 10px;
+    padding-bottom: 15px;
+}
+
+/* Center the image and position the close button */
+
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+    position: relative;
+}
+
+img.avatar {
+    width: 15%;
+    border-radius: 50%;
+}
+
+.input-details-container {
+    padding: 16px;
+}
+
+span.psw {
+    float: right;
+    padding-top: 16px;
+}
+
+/* The Modal (background) */
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal Content/Box */
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 4% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+    border: 1px solid #888;
+    width: 40%; /* Could be more or less, depending on screen size */
+    padding-bottom: 30px;
+    padding-top: 15px;
+    padding-left: 25px;
+    padding-right: 30px;
+}
+
+/* The Close Button (x) */
+.close {
+    position: absolute;
+    right: 25px;
+    top: 0;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: red;
+    cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+
 
 /* Contacts Info Page */
 

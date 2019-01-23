@@ -18,15 +18,29 @@
 
 <body>
 
+    <script src="./UserAuthentication.js"></script>
+
     <div class="header" style="color: #302827; width: 95%">
 
         <a class="Header-Home" href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
-        <div class="NavigationBar">
+        <div class="NavigationBar" id="Navigation-bar">
 
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
 
         </div>
 
@@ -77,13 +91,13 @@
 
     <script>
 
-    /****************************************************************************************
-    Send Shipment : Change the status of Trade Agreement in mongo db by changing it to "Shipped"
-    *****************************************************************************************/
+        /****************************************************************************************
+        Send Shipment : Change the status of Trade Agreement in mongo db by changing it to "Shipped"
+        *****************************************************************************************/
 
-    /****************************************************************************************
-    Send Shipment : Place HyperLedger API Call
-    *****************************************************************************************/
+        /****************************************************************************************
+        Send Shipment : Place HyperLedger API Call
+        *****************************************************************************************/
 
         $("#Ship-Goods-Button").click(function () {
 
@@ -190,6 +204,15 @@
                 xmlhttp.send(params);
             }
         });
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
 
     </script>
 

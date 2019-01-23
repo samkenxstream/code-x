@@ -36,15 +36,36 @@
 
 
 <body>
+
+    <script src="./UserAuthentication.js"></script>
+
     <div class="header" style="color: #302827; width: 95%">
+
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
-        <div class="NavigationBar">
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
-            <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+
+        <div class="NavigationBar" id="Navigation-bar">
+
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
+
         </div>
+
     </div>
+
     <div class="container" style="width: 95%">
         <div class="LeftBrowserBox" style="width: 12%">
             <div class="NavigationBar1">
@@ -54,6 +75,7 @@
                 <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFLoCStatus.html">LOC-Status</a>
             </div>
         </div>
+
         <div class="ContentBrowser" style="width: 85%">
             <p id="buffer1" style="padding-bottom : 10px"> </p>
             <h1 class="LetterOfCredit-Status">LetterOfCredit-Status</h1>
@@ -122,75 +144,84 @@
 
             </div>
 
-            </div>
+        </div>
 
-            </div>
+    </div>
 
-            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
-            <script>
+    <script>
 
-            $("#Retrieve-LC-Details-Button").click(function () {
+        $("#Retrieve-LC-Details-Button").click(function () {
 
-                var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
-                var xmlhttp;
-                var httpRequestString = webServerPrefix + "getLC";
+            var webServerPrefix = "http://216.218.231.7:3000/tfbc/"
+            var xmlhttp;
+            var httpRequestString = webServerPrefix + "getLC";
 
-                /****************************************************************************************
-                    getLC : Retrieve the details from mongo db for currentLC Request
-                *****************************************************************************************/
+            /****************************************************************************************
+                getLC : Retrieve the details from mongo db for currentLC Request
+            *****************************************************************************************/
 
-                /****************************************************************************************
-                    getLC : Place HyperLedger API Call
-                *****************************************************************************************/
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+            *****************************************************************************************/
 
-                xmlhttp = new XMLHttpRequest();
+            xmlhttp = new XMLHttpRequest();
 
-                xmlhttp.open("GET", httpRequestString, true);
-                xmlhttp.setRequestHeader("Content-type", "application/json");
-                xmlhttp.setRequestHeader("accept", "application/json");
+            xmlhttp.open("GET", httpRequestString, true);
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.setRequestHeader("accept", "application/json");
 
-                xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = function () {
 
-                    if (this.readyState == 4 && this.status == 200) {
+                if (this.readyState == 4 && this.status == 200) {
 
-                        //Parse the JSON Response Object
+                    //Parse the JSON Response Object
 
-                        responseObject = JSON.parse(this.response);
-                        alert(responseObject);
+                    responseObject = JSON.parse(this.response);
+                    alert(responseObject);
 
-                        alert("Received Success Response from Server for getLC call" + responseObject);
+                    alert("Received Success Response from Server for getLC call" + responseObject);
 
-                        // Display the response on UI
+                    // Display the response on UI
 
-                        document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
+                    document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
 
-                        document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = responseObject['data'].amount;
-                        document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = responseObject['data'].bank;
-                        document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
-                        document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
-                        document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = responseObject['data'].expiryDate;
-                        document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = rresponseObject['data'].lcId;
+                    document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = responseObject['data'].amount;
+                    document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = responseObject['data'].bank;
+                    document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
+                    document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
+                    document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = responseObject['data'].expiryDate;
+                    document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = rresponseObject['data'].lcId;
 
-                    } else {
+                } else {
 
-                        alert("Failure to place getLC call :=> Status : " + this.status);
-                    }
+                    alert("Failure to place getLC call :=> Status : " + this.status);
+                }
 
-                };
+            };
 
-                var lcid_value = document.getElementById("LC-Id-Input").value;
-                obj = { lcId: lcid_value };
-                params = JSON.stringify(obj);
+            var lcid_value = document.getElementById("LC-Id-Input").value;
+            obj = { lcId: lcid_value };
+            params = JSON.stringify(obj);
 
-                alert("Calling getLC with Params" + params);
-                xmlhttp.send(params);
+            alert("Calling getLC with Params" + params);
+            xmlhttp.send(params);
 
-            });
+        });
 
-            </script>
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
 
-    </body>
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
+
+    </script>
+
+</body>
 
 
 </html>

@@ -5,38 +5,51 @@
 
 <head>
 
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
- <title>TradeFinance Smart Contract</title>
+    <title>TradeFinance Smart Contract</title>
 
- <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
 
- <style type="text/css">
+    <style type="text/css">
 
-    body {
-     background-color:#F0F0F0;
-     padding-top: 1em;
-     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
-    }
-
- </style>
+        body {
+            background-color: #F0F0F0;
+            padding-top: 1em;
+            font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+        }
+    </style>
 
 </head>
 
 
 <body>
 
+    <script src="./UserAuthentication.js"></script>
+
     <div class="header" style="color: #302827; width: 95%">
 
         <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
-        <div class="NavigationBar">
+        <div class="NavigationBar" id="Navigation-bar">
 
-            <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
-            <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
-            <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
 
         </div>
 
@@ -78,6 +91,22 @@
             </div>
         </div>
     </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
+
+    </script>
 
 </body>
 

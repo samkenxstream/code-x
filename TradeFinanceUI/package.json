@@ -1,0 +1,9 @@
+{
+  "name": "trade-finanace-web-client",
+  "version": "0.0.0",
+  "description": "TradeFinanaceWebClient",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  }
+}
