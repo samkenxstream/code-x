@@ -244,6 +244,8 @@ http.createServer(function (req, res) {
 
                 default:
 
+                    console.error("Inappropriate WebClientRequest : ", webClientRequest);
+
                     break;
             }
         });
@@ -405,33 +407,74 @@ http.createServer(function (req, res) {
 
                 case "ApproveTrade":
 
+                    var statusToBeUpdated = "Trade_Approved";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
 
                 case "ApproveLCRequest":
 
+                    var statusToBeUpdated = "LC_Approved";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
 
-                /*
                 case "StartShipment":
     
+                    var statusToBeUpdated = "Trade_Shipped";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
     
                 case "AcceptShipment":
     
+                    var statusToBeUpdated = "Shipment_Accepted";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
     
                 case "RequestPayment":
     
+                    var statusToBeUpdated = "Payment_Requested";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
     
                 case "MakePayment":
     
+                    var statusToBeUpdated = "Payment_Made";
+                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        statusToBeUpdated,
+                        res);
+
                     break;
-                */
 
                 default:
 
                     console.error("Inappropriate Web Client Request received...exiting");
+
                     break;
 
             }
@@ -442,8 +485,8 @@ http.createServer(function (req, res) {
 
     //  close the db connection
 
-    //db.close();
-    //console.log("Closed the Db connection successfully");
+    db.close();
+    console.log("Closed the Db connection successfully");
 
 }).listen(port);
 
@@ -774,7 +817,8 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
  **************************************************************************
  **************************************************************************
  * 
- * Trade and LC record CRUD operations Module
+ * Trade and LC record : CRUD operation Wrappers Module
+ *                       DB Specific User Input/Output processing
  * 
  **************************************************************************
  **************************************************************************
@@ -935,6 +979,145 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
 
 }
 
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} clientRequestWithParamsMap : input Map consisting of Query Details ( "Trade_Id, Lc_Id" )
+ * @param {any} statusToBeUpdated : status of the Record to be update
+ * @param {any} http_response : Http Response to be built based on the record updation
+ * 
+ */
+
+function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, clientRequestWithParamsMap, statusToBeUpdated, http_response) {
+
+    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+    var lcId = clientRequestWithParamsMap.get("Lc_Id");
+
+    var query_Object = { Trade_Id: tradeId, Lc_Id: lcId };
+    var document_Object = {
+        $set: { Current_Status: statusToBeUpdated }
+    };
+
+    updateRecordInTradeAndLcDatabase(dbConnection,
+        collectionName,
+        query_Object,
+        document_Object,
+        http_response);
+
+    console.log("Web Service: Switch Statement : Successfully launched the update Record with status Trade_Approved => Trade_Id: " + tradeId + " Lc_Id: " + lcId);
+
+    return;
+}
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} query_Object : Query object to retrieve the corresponding Record ( Record, Row in Table )
+ * @param {any} document_Object : Document object that needs to be updated ( Record, Row in Table )
+ * 
+ */
+
+function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, http_response) {
+
+    // Find Record & Update
+
+    var query = null;
+
+    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id);
+
+    if (document_Object.Trade_Id != null) {
+
+        query = { Trade_Id: document_Object.Trade_Id };
+
+    } else if (document_Object.Lc_Id != null) {
+
+        query = { Lc_Id: document_Object.Lc_Id };
+
+    } else {
+
+        var failureMessage = "Wrong Query/missing input data : Couldn't find Record";
+        buildErrorResponse_ForRecordUpdation(failureMessage, http_Response);
+
+        return;
+    }
+
+    // Update Record in DB
+
+    dbConnection.collection(collectionName).updateOne(query, document_Object, function (err, result) {
+
+        if (err) {
+
+            var failureMessage = "Error while executing the updation on Record";
+            buildErrorResponse_ForRecordUpdation(failureMessage, http_response);
+            throw err;
+        }
+
+        var recordPresent = (result == null || result == undefined) ? "false" : "true";
+        if (recordPresent == "false") {
+
+            // Record Not Found : Return Error Response
+
+            console.error("Record Not Found => For Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
+            var failureMessage = "Record Updation: Record not found for Trade_Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id;
+            buildErrorResponse_ForRecordUpdation(failureMessage, http_Response);
+
+        }
+        else {
+
+            // Record Updation Successful
+
+            console.log("Record Found, Updated the Record with latest Status => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
+            var successMessage = "Record Found, Updated the Record with latest Status => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id;
+            buildSuccessResponse_ForRecordUpdation(successMessage, http_Response);
+        }
+
+    });
+
+}
+
+
+/**
+ * 
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function buildErrorResponse_ForRecordUpdation(failureMessage, http_Response) {
+
+    // Build error Response for Record Updation
+
+    var recordUpdationResponseObject = null;
+
+    recordUpdationResponseObject = { Request: "UpdateRecord", Status: failureMessage };
+    var recordUpdationResponse = JSON.stringify(recordUpdationResponseObject);
+
+    http_Response.writeHead(400, { 'Content-Type': 'application/json' });
+    http_Response.end(recordUpdationResponse);
+}
+
+/**
+ * 
+ * @param {any} successMessage  : Success Message Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function buildSuccessResponse_ForRecordUpdation(successMessage, http_Response) {
+
+    // Build success Response for Record Updation
+
+    var recordUpdationResponseObject = null;
+
+    recordUpdationResponseObject = { Request: "UpdateRecord", Status: successMessage };
+    var recordUpdationResponse = JSON.stringify(recordUpdationResponseObject);
+
+    http_Response.writeHead(200, { 'Content-Type': 'application/json' });
+    http_Response.end(recordUpdationResponse);
+}
 
 /**************************************************************************
  **************************************************************************
