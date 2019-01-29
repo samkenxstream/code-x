@@ -303,16 +303,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for acceptLC call :=> " + responseObject);
+                        //Parse the JSON Response Object
+                        
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Server for acceptLC call :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -330,7 +340,10 @@
             }
             else {
 
-                //alert("Calling acceptLC with Params :" + params);
+                if (bDebug == true) {
+
+                    alert("Calling acceptLC with Params :" + params);
+                }
                 xmlhttp.send(params);
             }
         });
@@ -367,18 +380,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    var responseString = this.response;
-                    var lcRequests = responseString.split("\n");
+                        //Parse the JSON Response Object
 
-                    if (bDebug == true) {
-                        alert(" All the LC Requests of Current Buyer => " + lcRequests);
+                        var responseString = this.response;
+                        var lcRequests = responseString.split("\n");
+
+                        alert("All the lcRequests of Current Buyer => " + lcRequests);
+
+                        fillTheLcRequestDetailsOfCurrentSeller(lcRequests);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing RetrieveAllRecords call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
                     }
-
-                    fillTheLcRequestDetailsOfCurrentSeller(lcRequests);
 
                 } else {
 
@@ -387,7 +408,10 @@
 
             };
 
-            alert("Retrieving the LC Requests of Current Seller => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Retrieving the LC Requests of Current Seller => httpRequest : " + httpRequestString);
+            }
             xmlhttp.send();
 
         }

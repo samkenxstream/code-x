@@ -88,12 +88,20 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./TradeAndLC-StatusUpdate.js"></script>
 
     <script>
 
+        var bDebug = false;
+
         /****************************************************************************************
-        Send Shipment : Change the status of Trade Agreement in mongo db by changing it to "Shipped"
+            Login & Logout functionality : Hide and display the Internal content references
         *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
 
         /****************************************************************************************
         Send Shipment : Place HyperLedger API Call
@@ -101,38 +109,79 @@
 
         $("#Ship-Goods-Button").click(function () {
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "sendShipment";
+            /*          var webServerPrefix = "/tfbc/"
+                        var xmlhttp;
+                        var httpRequestString = webServerPrefix + "sendShipment";
 
-            xmlhttp = new XMLHttpRequest();
+                        xmlhttp = new XMLHttpRequest();
 
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
+                        xmlhttp.open("POST", httpRequestString, true);
+                        xmlhttp.setRequestHeader("Content-type", "application/json");
+                        xmlhttp.setRequestHeader("accept", "application/json");
 
-            // Wait for Async response and Handle it in web page
+                        // Wait for Async response and Handle it in web page
 
-            xmlhttp.onreadystatechange = function () {
+                        xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                            if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                                if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for sendShipment call :=> " + responseObject);
+                                    //Parse the JSON Response Object
 
-                } else {
+                                    responseObject = JSON.parse(this.response);
+                                    alert("Received Success Response from Server for sendShipment call :=> " + responseObject);
 
-                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
+                                } else {
 
-            };
+                                    if (bDebug == true) {
+
+                                        alert("Intermediate Success Response While placing sendShipment call :=> Status : " + this.status + " readyState : " + this.readyState);
+                                    }
+                                }
+
+                            } else {
+
+                                alert("Failure to place sendShipment call :=> Status : " + this.status + " readyState : " + this.readyState);
+                            }
+
+                        };
+            */
 
             // Prepare Http Request from Form-data and send the request
 
             var taId_value = document.getElementById("Trade-Id-Input").value;
             var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (lcId_value != null && lcId_value != undefined) {
+
+                queryMap.set("Lc_Id", lcId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" (Trade Agreement Id & lcId)  values are missing while sending the Shipment : ");
+
+            } else {
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "StartShipment");
+            }
+
+            /*
+            // Client Request for HyperLedger Call
 
             obj = { taId: taId_value, lcId: lcId_value };
             params = JSON.stringify(obj);
@@ -143,14 +192,14 @@
             }
             else {
 
-                //alert("Calling acceptTrade with Params :" + params);
+                if (bDebug == true) {
+
+                    alert("Calling sendShipment with Params :" + params);
+                }
                 xmlhttp.send(params);
             }
+            */
         });
-
-        /****************************************************************************************
-        Request Payment : Change the status of Trade Agreement in mongo db by changing it to "PAYMENT REQUESTED"
-        *****************************************************************************************/
 
         /****************************************************************************************
         Request Payment : Place HyperLedger API Call
@@ -158,61 +207,96 @@
 
         $("#Request-Payment-Button").click(function () {
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "requestPayment";
+            /*            var webServerPrefix = "/tfbc/"
+                        var xmlhttp;
+                        var httpRequestString = webServerPrefix + "requestPayment";
 
-            xmlhttp = new XMLHttpRequest();
+                        xmlhttp = new XMLHttpRequest();
 
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
+                        xmlhttp.open("POST", httpRequestString, true);
+                        xmlhttp.setRequestHeader("Content-type", "application/json");
+                        xmlhttp.setRequestHeader("accept", "application/json");
 
-            // Wait for Async response and Handle it in web page
+                        // Wait for Async response and Handle it in web page
 
-            xmlhttp.onreadystatechange = function () {
+                        xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                            if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                                if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for requestPayment call :=> " + responseObject);
+                                    //Parse the JSON Response Object
 
-                } else {
+                                    responseObject = JSON.parse(this.response);
+                                    alert("Received Success Response from Server for requestPayment call :=> " + responseObject);
 
-                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
+                                } else {
 
-            };
+                                    alert("Intermediate Success Response while placing requestPayment call :=> Status : " + this.status + " readyState : " + this.readyState);
+                                }
+
+                            } else {
+
+                                alert("Failure to place requestPayment call :=> Status : " + this.status + " readyState : " + this.readyState);
+                            }
+
+                        };
+
+                        // Prepare Http Request from Form-data and send the request
+
+                        var taId_value = document.getElementById("Trade-Id-Input").value;
+                        var lcId_value = document.getElementById("LC-Id-Input").value;
+
+                        obj = { taId: taId_value, lcId: lcId_value };
+                        params = JSON.stringify(obj);
+
+                        if (taId_value == null || lcId_value == null) {
+
+                            alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
+                        }
+                        else {
+
+                            if (bDebug == true) {
+
+                                alert("Calling requestPayment with Params :" + params);
+                            }
+                            xmlhttp.send(params);
+                        }
+            */
 
             // Prepare Http Request from Form-data and send the request
 
             var taId_value = document.getElementById("Trade-Id-Input").value;
             var lcId_value = document.getElementById("LC-Id-Input").value;
 
-            obj = { taId: taId_value, lcId: lcId_value };
-            params = JSON.stringify(obj);
+            // Mongo DB call for Status Change
 
-            if (taId_value == null || lcId_value == null) {
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (lcId_value != null && lcId_value != undefined) {
+
+                queryMap.set("Lc_Id", lcId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
 
                 alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
-            }
-            else {
 
-                //alert("Calling acceptTrade with Params :" + params);
-                xmlhttp.send(params);
+            } else {
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "RequestPayment");
             }
+
         });
-
-        /****************************************************************************************
-            Login & Logout functionality : Hide and display the Internal content references
-        *****************************************************************************************/
-
-        window.onload = function (event) {
-
-            document.getElementById("Login-Navigation-bar").style.display = "none";
-        }
 
     </script>
 

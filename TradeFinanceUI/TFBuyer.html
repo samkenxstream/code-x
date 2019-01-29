@@ -262,6 +262,8 @@
             Submit the LC Request
         *****************************************************************************************/
 
+        var bDebug = false;
+
         $("#Shipment-Order-Submit").click(function () {
 
             var todaysDate = new Date();
@@ -334,7 +336,10 @@
 
         function processLogoff(event) {
 
-            alert("Logging out from TF Website");
+            if (bDebug == true) {
+
+                alert("Logging out from TF Website");
+            }
 
             document.getElementById("Content-Navigation-bar").style.display = "none";
             document.getElementById("Login-Navigation-bar").style.display = "initial";
@@ -370,14 +375,28 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if ( this.status == 200 ) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
+                        //Parse the JSON Response Object
 
-                    alert(" Request Content: " + responseObject.Request);
-                    alert(" Status Content: " + responseObject.Status);
+                        responseObject = JSON.parse(this.response);
+
+                        if (bDebug == true) {
+
+                            alert(" Request Content: " + responseObject.Request);
+                            alert(" Status Content: " + responseObject.Status);
+                        }
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response for requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
+
 
                 } else {
 
@@ -386,7 +405,11 @@
 
             };
 
-            alert("Saving the LC detais in mongoDB => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Saving the LC detais in mongoDB => httpRequest : " + httpRequestString);
+            }
+
             xmlhttp.send();
 
         }
@@ -411,23 +434,36 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from HyperLedger Server :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate success response while placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
 
             var httpParams = JSON.stringify(lcRequestObject);
 
-            //alert("Calling requestLC with Params" + params);
+            if (bDebug == true) {
+
+                alert("Calling requestLC with Params" + params);
+            }
             xmlhttp.send(httpParams);
 
         }

@@ -174,25 +174,35 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert(responseObject);
+                        //Parse the JSON Response Object
 
-                    alert("Received Success Response from Server for getLC call" + responseObject);
+                        responseObject = JSON.parse(this.response);
+                        alert(responseObject);
 
-                    // Display the response on UI
+                        alert("Received Success Response from Server for getLC call" + responseObject);
 
-                    document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
+                        // Display the response on UI
 
-                    document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = responseObject['data'].amount;
-                    document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = responseObject['data'].bank;
-                    document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
-                    document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
-                    document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = responseObject['data'].expiryDate;
-                    document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = rresponseObject['data'].lcId;
+                        document.getElementById("Loc_Details_Status_Value").innerHTML = "<b>" + responseObject['data'].status + "</b>";
+
+                        document.getElementById("Loc_Details_Loc_Amount_Value").innerHTML = responseObject['data'].amount;
+                        document.getElementById("Loc_Details_Buyer_Bank_Name_Value").innerHTML = responseObject['data'].bank;
+                        document.getElementById("Loc_Details_Buyer_Name_Value").innerHTML = responseObject['data'].buyer;
+                        document.getElementById("Loc_Details_Seller_Name_Value").innerHTML = responseObject['data'].seller;
+                        document.getElementById("Loc_Details_Expiry_Date_Value").innerHTML = responseObject['data'].expiryDate;
+                        document.getElementById("Loc_Details_Loc_Id_Value").innerHTML = rresponseObject['data'].lcId;
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response While Placing getLC call :=> readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
@@ -205,7 +215,10 @@
             obj = { lcId: lcid_value };
             params = JSON.stringify(obj);
 
-            alert("Calling getLC with Params" + params);
+            if (bDebug == true) {
+
+                alert("Calling getLC with Params" + params);
+            }
             xmlhttp.send(params);
 
         });

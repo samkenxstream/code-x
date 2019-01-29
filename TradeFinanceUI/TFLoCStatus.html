@@ -209,17 +209,24 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
+                        //Parse the JSON Response Object
 
-                    if (bDebug == true) {
-                        alert(" All the Trade Details for Trade Id => " + Lc_Id + " : " + responseObject);
+                        responseObject = JSON.parse(this.response);
+                        alert("All the Trade Details for Trade Id => " + Lc_Id + " : " + responseObject);
+
+                        fillTheLCStatusDetailsPage(responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
                     }
-
-                    fillTheLCStatusDetailsPage(responseObject);
 
                 } else {
 
@@ -228,7 +235,10 @@
 
             };
 
-            alert("Retrieving the Lc detais from mongoDB => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Retrieving the Lc detais from mongoDB => httpRequest : " + httpRequestString);
+            }
             xmlhttp.send();
 
         }
@@ -272,12 +282,22 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Failure to place getLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 

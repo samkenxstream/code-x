@@ -266,8 +266,6 @@ input[type=text], input[type=password] {
 
             // Prepare Http Request from Form data for User Registration
 
-            alert("Raising registration request");
-
             var userId_Value = uniqueUserId;
             var userType_Value = document.getElementById("User-Type").value;
             var name_Value = document.getElementById("User-Name").value;
@@ -343,18 +341,30 @@ input[type=text], input[type=password] {
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.responseText);
+                        //Parse the JSON Response Object
 
-                    alert(" Request Content: " + responseObject.Request);
-                    alert(" Status Content: " + responseObject.Status);
+                        responseObject = JSON.parse(this.responseText);
+
+                        if (bDebug == true) {
+
+                            alert(" Request Content: " + responseObject.Request);
+                            alert(" Status Content: " + responseObject.Status);
+                        }
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Received intermediate success (200) response for userRegistration call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    alert("Received response for userRegistration call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Received failure response for userRegistration call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };

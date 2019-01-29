@@ -268,16 +268,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    alert("Full JSON Response before parsing : " + this.responseText);
+                        //Parse the JSON Response Object
 
-                    responseObject = JSON.parse(this.responseText);
+                        alert("Full JSON Response before parsing : " + this.responseText);
 
-                    alert(" Request Content: " + responseObject.Request);
-                    alert(" Status Content: " + responseObject.Status);
+                        responseObject = JSON.parse(this.responseText);
+
+                        alert(" Request Content: " + responseObject.Request);
+                        alert(" Status Content: " + responseObject.Status);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response While Placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
@@ -286,7 +296,10 @@
 
             };
 
-            alert("Saving the trade detais in mongoDB => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Saving the trade detais in mongoDB => httpRequest : " + httpRequestString);
+            }
             xmlhttp.send();
 
         }
@@ -311,23 +324,36 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response While Placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
 
             var httpParams = JSON.stringify(tradeRequestObject);
 
-            //alert("Calling requestTrade with Params" + params);
+            if (bDebug == true) {
+
+                alert("Calling requestTrade with Params" + params);
+            }
             xmlhttp.send(httpParams);
 
         }

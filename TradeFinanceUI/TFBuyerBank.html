@@ -179,7 +179,8 @@
 
         $("#BuyerBank-Generate-LC-Button").click(function () {
 
-            if( bDebug ) {
+            if (bDebug == true) {
+
                 alert("Generate LoC Button Event : Generating LoC PDF Files");
             }
 
@@ -299,16 +300,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if ( this.status == 200 ) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for issueLC call :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Server for issueLC call :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate success response to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -326,7 +337,10 @@
             }
             else {
 
-                //alert("Calling issueLC with Params" + params);
+                if (bDebug == true) {
+
+                    alert("Calling issueLC with Params" + params);
+                }
                 xmlhttp.send(params);
             }
 
@@ -356,16 +370,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for makePayment call :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Server for makePayment call :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -384,7 +408,10 @@
             }
             else {
 
-                //alert("Calling issueLC with Params" + params);
+                if (bDebug == true) {
+
+                    alert("Calling issueLC with Params" + params);
+                }
                 xmlhttp.send(params);
             }
 
@@ -412,20 +439,28 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    var responseString = this.response;
-                    var lcRequestRecords = responseString.split("\n");
-                    var numOfRecords = lcRequestRecords.length-2;
-                    responseSingleObject = JSON.parse(lcRequestRecords[numOfRecords]);
+                        //Parse the JSON Response Object
 
-                    if (bDebug == true) {
-                        alert(" All the LC Records of Current Buyer => " + responseSingleObject);
+                        var responseString = this.response;
+                        var lcRequestRecords = responseString.split("\n");
+                        var numOfRecords = lcRequestRecords.length - 2;
+                        responseSingleObject = JSON.parse(lcRequestRecords[numOfRecords]);
+
+                        alert("Success Response for RetrieveLCDetails : All the LC Records of Current Buyer => " + responseSingleObject);
+
+                        fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
                     }
-
-                    fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords);
 
                 } else {
 
@@ -434,7 +469,10 @@
 
             };
 
-            alert("Retrieving the Lc Requests of Current Buyer => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Retrieving the Lc Requests of Current Buyer => httpRequest : " + httpRequestString);
+            }
             xmlhttp.send();
 
         }
@@ -478,7 +516,7 @@
                 if (bDebug == true) {
 
                     if (responseSingleObject.Amount != undefined && responseSingleObject.Amount != null) {
-                        alert("currentRow Amount = " + responseSingleObject.Amount);
+                        alert("inappropriate amount in current Row : currentRow Amount = " + responseSingleObject.Amount);
                     }
                 }
 

@@ -221,16 +221,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    responseObject = JSON.parse(this.response);
-                    alert("Received Success Response from Server for tradeAccept call :=> " + responseObject);
+                        //Parse the JSON Response Object
+
+                        responseObject = JSON.parse(this.response);
+                        alert("Received Success Response from Server for tradeAccept call :=> " + responseObject);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
-                    //alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
 
             };
@@ -248,7 +258,10 @@
             }
             else {
 
-                //alert("Calling acceptTrade with Params :" + params);
+                if (bDebug == true) {
+
+                    alert("Calling acceptTrade with Params :" + params);
+                }
                 xmlhttp.send(params);
             }
         });
@@ -286,18 +299,26 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if (this.readyState == 4 && this.status == 200) {
+                if (this.status == 200) {
 
-                    //Parse the JSON Response Object
+                    if (this.readyState == 4) {
 
-                    var responseString = this.response;
-                    var tradeRecords = responseString.split("\n");
+                        //Parse the JSON Response Object
 
-                    if (bDebug == true) {
+                        var responseString = this.response;
+                        var tradeRecords = responseString.split("\n");
+
                         alert(" All the Trade Records of Current Buyer => " + tradeRecords);
-                    }
 
-                    fillTheTradeDetailsOfCurrentBuyer(tradeRecords);
+                        fillTheTradeDetailsOfCurrentBuyer(tradeRecords);
+
+                    } else {
+
+                        if (bDebug == true) {
+
+                            alert("Intermediate Success Response while placing RetrieveAllRecords call :=> Status : " + this.status + " readyState : " + this.readyState);
+                        }
+                    }
 
                 } else {
 
@@ -306,7 +327,10 @@
 
             };
 
-            alert("Retrieving the Trade Requests of Current Buyer => httpRequest : " + httpRequestString);
+            if (bDebug == true) {
+
+                alert("Retrieving the Trade Requests of Current Buyer => httpRequest : " + httpRequestString);
+            }
             xmlhttp.send();
 
         }
