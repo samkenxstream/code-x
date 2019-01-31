@@ -289,63 +289,43 @@
         $("#Accept-LC-Button").click(function () {
 
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "acceptLC";
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-                        
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Server for acceptLC call :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response while placing acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place acceptLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
+            /****************************************************************************************
+                acceptLC : Change the LC Status once it needs to be approved by Seller
+            *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
             var lcId_value = document.getElementById("LC-Id-Input").value;
 
-            obj = { lcId: lcId_value };
-            params = JSON.stringify(obj);
+            // Mongo DB call for Status Change
 
-            if (lcId_value == null) {
+            var queryMap = new Map();
+            var queryEmpty = true;
 
-                alert("LC Id value is missing while accepting LC : ");
+            if (lcId_value != null && lcId_value != undefined) {
+
+                queryMap.set("Lc_Id", lcId_value);
+                queryEmpty = false;
             }
-            else {
 
-                if (bDebug == true) {
+            if (queryEmpty == true) {
 
-                    alert("Calling acceptLC with Params :" + params);
-                }
-                xmlhttp.send(params);
+                alert(" LC_Id values are missing while Accepting LC By Seller : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveLCRequest");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptLC");
+
             }
+
         });
 
         $("#Retrieve_LC_Requests").click(function () {

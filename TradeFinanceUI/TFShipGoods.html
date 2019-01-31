@@ -109,45 +109,6 @@
 
         $("#Ship-Goods-Button").click(function () {
 
-            /*          var webServerPrefix = "/tfbc/"
-                        var xmlhttp;
-                        var httpRequestString = webServerPrefix + "sendShipment";
-
-                        xmlhttp = new XMLHttpRequest();
-
-                        xmlhttp.open("POST", httpRequestString, true);
-                        xmlhttp.setRequestHeader("Content-type", "application/json");
-                        xmlhttp.setRequestHeader("accept", "application/json");
-
-                        // Wait for Async response and Handle it in web page
-
-                        xmlhttp.onreadystatechange = function () {
-
-                            if (this.status == 200) {
-
-                                if (this.readyState == 4) {
-
-                                    //Parse the JSON Response Object
-
-                                    responseObject = JSON.parse(this.response);
-                                    alert("Received Success Response from Server for sendShipment call :=> " + responseObject);
-
-                                } else {
-
-                                    if (bDebug == true) {
-
-                                        alert("Intermediate Success Response While placing sendShipment call :=> Status : " + this.status + " readyState : " + this.readyState);
-                                    }
-                                }
-
-                            } else {
-
-                                alert("Failure to place sendShipment call :=> Status : " + this.status + " readyState : " + this.readyState);
-                            }
-
-                        };
-            */
-
             // Prepare Http Request from Form-data and send the request
 
             var taId_value = document.getElementById("Trade-Id-Input").value;
@@ -176,29 +137,18 @@
 
             } else {
 
+                // Status Change in Mongo DB
+
                 var webServerPrefix = "http://127.0.0.1:3500/?";
                 TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "StartShipment");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "sendShipment");
+
             }
 
-            /*
-            // Client Request for HyperLedger Call
-
-            obj = { taId: taId_value, lcId: lcId_value };
-            params = JSON.stringify(obj);
-
-            if (taId_value == null || lcId_value == null) {
-
-                alert(" (Trade Agreement Id & lcId)  values are missing while sending the Shipment : ");
-            }
-            else {
-
-                if (bDebug == true) {
-
-                    alert("Calling sendShipment with Params :" + params);
-                }
-                xmlhttp.send(params);
-            }
-            */
         });
 
         /****************************************************************************************
@@ -207,62 +157,6 @@
 
         $("#Request-Payment-Button").click(function () {
 
-            /*            var webServerPrefix = "/tfbc/"
-                        var xmlhttp;
-                        var httpRequestString = webServerPrefix + "requestPayment";
-
-                        xmlhttp = new XMLHttpRequest();
-
-                        xmlhttp.open("POST", httpRequestString, true);
-                        xmlhttp.setRequestHeader("Content-type", "application/json");
-                        xmlhttp.setRequestHeader("accept", "application/json");
-
-                        // Wait for Async response and Handle it in web page
-
-                        xmlhttp.onreadystatechange = function () {
-
-                            if (this.status == 200) {
-
-                                if (this.readyState == 4) {
-
-                                    //Parse the JSON Response Object
-
-                                    responseObject = JSON.parse(this.response);
-                                    alert("Received Success Response from Server for requestPayment call :=> " + responseObject);
-
-                                } else {
-
-                                    alert("Intermediate Success Response while placing requestPayment call :=> Status : " + this.status + " readyState : " + this.readyState);
-                                }
-
-                            } else {
-
-                                alert("Failure to place requestPayment call :=> Status : " + this.status + " readyState : " + this.readyState);
-                            }
-
-                        };
-
-                        // Prepare Http Request from Form-data and send the request
-
-                        var taId_value = document.getElementById("Trade-Id-Input").value;
-                        var lcId_value = document.getElementById("LC-Id-Input").value;
-
-                        obj = { taId: taId_value, lcId: lcId_value };
-                        params = JSON.stringify(obj);
-
-                        if (taId_value == null || lcId_value == null) {
-
-                            alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
-                        }
-                        else {
-
-                            if (bDebug == true) {
-
-                                alert("Calling requestPayment with Params :" + params);
-                            }
-                            xmlhttp.send(params);
-                        }
-            */
 
             // Prepare Http Request from Form-data and send the request
 
@@ -292,8 +186,16 @@
 
             } else {
 
+                // Status Change in MongoDB
+
                 var webServerPrefix = "http://127.0.0.1:3500/?";
                 TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "RequestPayment");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "requestPayment");
+
             }
 
         });

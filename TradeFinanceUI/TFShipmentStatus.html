@@ -178,62 +178,41 @@
 
         $("#Accept-Shipment-Button").click(function () {
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "receiveShipment";
-
             /****************************************************************************************
                 receiveShipment : Change the shipment status once the goods have been received
             *****************************************************************************************/
 
-            /****************************************************************************************
-                receiveShipment : Place HyperLedger API Call
-            *****************************************************************************************/
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Server for receiveShipment call" + responseObject);
-
-                        document.getElementById("Shipment_Details_Status_Value").innerHTML = responseObject['data'].status;
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response while placing getLC call :=> readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place getLC call :=> Status : " + this.status);
-                }
-
-            };
+            // Prepare Http Request from Form-data and send the request
 
             var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
-            var shipment_status = document.getElementById("Shipment_Details_Status_Value").textContent;
-            obj = { taId: taId_value };
-            params = JSON.stringify(obj);
 
-            if (shipment_status != "SHIPPED") {
-                alert("Goods haven't been shipped yet...please wait for goods to be shippped.shipment_status " + shipment_status);
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
             }
-            else {
-                xmlhttp.send(params);
+
+            if (queryEmpty == true) {
+
+                alert(" Trade Agreement Id values are missing while Accepting Shipment : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "AcceptShipment");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "receiveShipment");
+
             }
 
         });

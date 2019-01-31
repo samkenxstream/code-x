@@ -347,72 +347,54 @@
         }
 
         /****************************************************************************************
-            Make Payment : Change the status of LC in mongo db by changing it to PAYMENT DONE
-        *****************************************************************************************/
-
-        /****************************************************************************************
             Make Payment : Place HyperLedger API Call
         *****************************************************************************************/
 
         $("#Make-Payment-Button").click(function () {
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "makePayment";
 
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Server for makePayment call :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response while placing issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
+            /****************************************************************************************
+                Make Payment : Change the status of LC in both "Mongo DB and HyperLedger"
+            *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("TA-Id-Input").value;
+            var taId_value = document.getElementById("Trade-Id-Input").value;
             var lcId_value = document.getElementById("LC-Id-Input").value;
 
-            obj = { taId: taId_value, lcId: lcId_value };
-            params = JSON.stringify(obj);
+            // Mongo DB call for Status Change
 
-            if (taId_value == null || lcId_value == null) {
+            var queryMap = new Map();
+            var queryEmpty = true;
 
-                alert("one or both of (ta_ID & LC_Id) values are missing while running makePayment : ");
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
             }
-            else {
 
-                if (bDebug == true) {
+            if (lcId_value != null && lcId_value != undefined) {
 
-                    alert("Calling issueLC with Params" + params);
-                }
-                xmlhttp.send(params);
+                queryMap.set("Lc_Id", lcId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" (Trade Agreement Id & lcId)  values are missing while Making the Payment : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "MakePayment");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "makePayment");
+
             }
 
         });

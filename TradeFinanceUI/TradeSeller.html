@@ -207,63 +207,43 @@
 
         $("#Accept-Trade-Button").click(function () {
 
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "acceptTrade";
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Server for tradeAccept call :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response while placing tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place tradeAccept call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
+            /****************************************************************************************
+                acceptTrade : Change the shipment status once trade reaches acceptability
+            *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("Trade-Id-Input").value;
+            var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
 
-            obj = { taId: taId_value };
-            params = JSON.stringify(obj);
+            // Mongo DB call for Status Change
 
-            if (taId_value == null) {
+            var queryMap = new Map();
+            var queryEmpty = true;
 
-                alert("Trade Agreement Id value is missing while accepting Trade : ");
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
             }
-            else {
 
-                if (bDebug == true) {
+            if (queryEmpty == true) {
 
-                    alert("Calling acceptTrade with Params :" + params);
-                }
-                xmlhttp.send(params);
+                alert(" Trade Agreement Id values are missing while Accepting Trade : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveTrade");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptTrade");
+
             }
+
         });
 
 
