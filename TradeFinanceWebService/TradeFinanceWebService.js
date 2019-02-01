@@ -156,13 +156,15 @@ http.createServer(function (req, res) {
     var clientRequestWithParamsMap = ParseWebClientRequest(requestParamsCollection);
     console.log( "Parsed the Web Client Request : " + clientRequestWithParamsMap.get("Client_Request") );
     var webClientRequest = clientRequestWithParamsMap.get("Client_Request");
+    console.log("UserType of Client request after parsing => " + clientRequestWithParamsMap.get("UserType"));
 
 
     // Connect to Mongo DB, Create Database & Collections
 
     // Connect to "User Details" db for "User Registration & Authentication"  
 
-    if (webClientRequest == "UserRegistration" || webClientRequest == "UserAuthentication") {
+    if ( webClientRequest == "UserRegistration" || webClientRequest == "UserAuthentication" ||
+         webClientRequest == "RetrieveUsersBasedOnType") {
 
         var dbConnection_UserDetails_Database;
 
@@ -242,10 +244,29 @@ http.createServer(function (req, res) {
 
                     break;
 
+                case "RetrieveUsersBasedOnType":
+
+                    console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
+                    var userType = clientRequestWithParamsMap.get("UserType");
+
+                    if (retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
+                        userDetails_TableName,
+                        userType,
+                        handleUserDatabaseQueryResults,
+                        res)) {
+
+                        console.log("Web Service: Switch Statement : Successfully Retrieved the required Type Of Users");
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failed to Retrieve the required Type Of Users");
+                    }
+
+                    break;
+
                 default:
 
                     console.error("Inappropriate WebClientRequest : ", webClientRequest);
-
                     break;
             }
         });
@@ -411,6 +432,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -422,6 +444,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -433,6 +456,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -444,6 +468,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -455,6 +480,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -466,6 +492,7 @@ http.createServer(function (req, res) {
                     updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
+                        webClientRequest,
                         statusToBeUpdated,
                         res);
 
@@ -474,7 +501,6 @@ http.createServer(function (req, res) {
                 default:
 
                     console.error("Inappropriate Web Client Request received...exiting");
-
                     break;
 
             }
@@ -485,8 +511,8 @@ http.createServer(function (req, res) {
 
     //  close the db connection
 
-    db.close();
-    console.log("Closed the Db connection successfully");
+    //db.close();
+    //console.log("Closed the Db connection successfully");
 
 }).listen(port);
 
@@ -742,6 +768,164 @@ function buildErrorResponse_ForUserAuthentication(failureMessage, http_Response)
 }
 
 
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * User Records  : Queries and Response Building
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
+
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} UserType : query Key => Type of User for which Records have to be retrieved
+ * @param {any} handleUserDatabaseQueryResults : Response Building Callback function based on Query Results
+ * @param {any} http_Response : Http Response to be built based on Results
+ *
+ */
+
+function retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, handleUserDatabaseQueryResults, http_Response) {
+
+    var query = null;
+    var http_StatuCode;
+
+    console.log("retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
+
+    // Pre Validations
+
+    if (inputUserType == null || inputUserType == undefined) {
+
+        console.error("retrieveUsers_BasedOnType : Invalid UserType Entered");
+        var failureMessage = "retrieveUsers_BasedOnType : Invalid UserType Entered";
+
+        http_StatuCode = 400;
+        buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
+    }
+
+    // Query And Response Building
+
+    query = { UserType: inputUserType };
+
+    dbConnection.collection(collectionName).find(query).toArray(function (err, result) {
+
+        if (err) {
+
+            console.error("retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
+            var failureMessage = "retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
+
+            http_StatuCode = 500;
+            buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
+        }
+
+        console.log("retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
+        console.log(result);
+
+        return handleUserDatabaseQueryResults(result, http_Response, inputUserType);
+
+    });
+}
+
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_StatusCode : Http Status code based on type of Error
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response) {
+
+    // build Error Response and attach it to Http_Response
+
+    var responseObject = null;
+
+    responseObject = { Request: clientRequest, Status: failureMessage };
+    var builtResponse = JSON.stringify(responseObject);
+
+    http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
+    http_Response.end(builtResponse);
+}
+
+/**
+ * 
+ * @param {any} result  : Database Query Result ( List of Records : 1 - n )
+ * @param       http_Response  : Reponse To be built
+ * @param {any} queryInput  : query input value ( UserType Value )
+ *
+ */
+
+function handleUserDatabaseQueryResults(queryResult, http_Response, queryInput) {
+
+    console.log("Callback Function (handleUserDatabaseQueryResults) : Successfully retrieved the records through function (retrieveUsers_BasedOnType) => ");
+    console.log(queryResult);
+
+    var queryResponse_JSON_String = buildUserDBQueryResponse_JSON(queryResult, queryInput);
+
+    http_Response.writeHead(200, { 'Content-Type': 'application/json' });
+    http_Response.end(queryResponse_JSON_String);
+}
+
+
+/**
+ * 
+ * @param {any} queryResult  : query Response received from Mongo DB ( User & Auth DB )
+ * @param {any} queryInput   : query Input Value
+ *
+ */
+
+function buildUserDBQueryResponse_JSON(queryResult, queryInput) {
+
+    var queryResponse_AllRecords_JSON_String = "";
+
+    for (var i = 0; i < queryResult.length; i++) {
+
+        queryResponse_AllRecords_JSON_String += JSON.stringify(buildUserDBRecord_JSON(queryResult[i]));
+        queryResponse_AllRecords_JSON_String += "\n";
+    }
+
+    return queryResponse_AllRecords_JSON_String;
+}
+
+/**
+ * 
+ * @param {any} queryResult : query Result from mongo DB ( User Registration & Auth DB )
+ * 
+ * @returns {any} queryResponse_JSON : User DB Record in JSON format
+ * 
+ */
+
+function buildUserDBRecord_JSON(queryResult) {
+
+    var queryResponse_JSON = null;
+
+    queryResponse_JSON = {
+        "UserType": queryResult.UserType, "Name": queryResult.Name, "Location": queryResult.Location, "Email": queryResult.Email,
+        "Address": queryResult.Address, "UserName": queryResult.UserName, "Password": queryResult.Password
+    };
+
+    return queryResponse_JSON;
+}
+
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * User Registration & Auth Record : CRUD operation Wrappers Module
+ *                       DB Specific User Input/Output processing
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
+
+
 /**
  * 
  * @param {any} dbConnection  : Connection to database 
@@ -990,7 +1174,7 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
  * 
  */
 
-function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, clientRequestWithParamsMap, statusToBeUpdated, http_response) {
+function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated, http_response) {
 
     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
@@ -1004,6 +1188,7 @@ function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, cl
         collectionName,
         query_Object,
         document_Object,
+        webClientRequest,
         http_response);
 
     console.log("Web Service: Switch Statement : Successfully launched the update Record with status Trade_Approved => Trade_Id: " + tradeId + " Lc_Id: " + lcId);
@@ -1020,7 +1205,7 @@ function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, cl
  * 
  */
 
-function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, http_response) {
+function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, webClientRequest, http_response) {
 
     // Find Record & Update
 
@@ -1028,18 +1213,18 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
     console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id);
 
-    if (document_Object.Trade_Id != null) {
+    if (query_Object.Trade_Id != null) {
 
-        query = { Trade_Id: document_Object.Trade_Id };
+        query = { Trade_Id: query_Object.Trade_Id };
 
-    } else if (document_Object.Lc_Id != null) {
+    } else if (query_Object.Lc_Id != null) {
 
-        query = { Lc_Id: document_Object.Lc_Id };
+        query = { Lc_Id: query_Object.Lc_Id };
 
     } else {
 
         var failureMessage = "Wrong Query/missing input data : Couldn't find Record";
-        buildErrorResponse_ForRecordUpdation(failureMessage, http_Response);
+        buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
 
         return;
     }
@@ -1051,7 +1236,7 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
         if (err) {
 
             var failureMessage = "Error while executing the updation on Record";
-            buildErrorResponse_ForRecordUpdation(failureMessage, http_response);
+            buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
             throw err;
         }
 
@@ -1060,18 +1245,18 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
             // Record Not Found : Return Error Response
 
-            console.error("Record Not Found => For Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-            var failureMessage = "Record Updation: Record not found for Trade_Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id;
-            buildErrorResponse_ForRecordUpdation(failureMessage, http_Response);
+            console.error("Record Not Found => For Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id);
+            var failureMessage = "Record Updation: Record not found for Trade_Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id;
+            buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
 
         }
         else {
 
             // Record Updation Successful
 
-            console.log("Record Found, Updated the Record with latest Status => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-            var successMessage = "Record Found, Updated the Record with latest Status => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id;
-            buildSuccessResponse_ForRecordUpdation(successMessage, http_Response);
+            console.log("Record Found, Updated the Record with latest Status => " + " Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id);
+            var successMessage = "Record Found, Updated the Record with latest Status => " + " Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id;
+            buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest, http_response);
         }
 
     });
@@ -1082,21 +1267,21 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 /**
  * 
  * @param {any} failureMessage  : Failure Message Error Content
- * @param {any} http_Response : Http Response thats gets built
+ * @param {any} http_response : Http Response thats gets built
  * 
 */
 
-function buildErrorResponse_ForRecordUpdation(failureMessage, http_Response) {
+function buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response) {
 
     // Build error Response for Record Updation
 
     var recordUpdationResponseObject = null;
 
-    recordUpdationResponseObject = { Request: "UpdateRecord", Status: failureMessage };
+    recordUpdationResponseObject = { Request: webClientRequest, Status: failureMessage };
     var recordUpdationResponse = JSON.stringify(recordUpdationResponseObject);
 
-    http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-    http_Response.end(recordUpdationResponse);
+    http_response.writeHead(400, { 'Content-Type': 'application/json' });
+    http_response.end(recordUpdationResponse);
 }
 
 /**
@@ -1106,17 +1291,17 @@ function buildErrorResponse_ForRecordUpdation(failureMessage, http_Response) {
  * 
 */
 
-function buildSuccessResponse_ForRecordUpdation(successMessage, http_Response) {
+function buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest, http_response) {
 
     // Build success Response for Record Updation
 
     var recordUpdationResponseObject = null;
 
-    recordUpdationResponseObject = { Request: "UpdateRecord", Status: successMessage };
+    recordUpdationResponseObject = { Request: webClientRequest, Status: successMessage };
     var recordUpdationResponse = JSON.stringify(recordUpdationResponseObject);
 
-    http_Response.writeHead(200, { 'Content-Type': 'application/json' });
-    http_Response.end(recordUpdationResponse);
+    http_response.writeHead(200, { 'Content-Type': 'application/json' });
+    http_response.end(recordUpdationResponse);
 }
 
 /**************************************************************************
@@ -1227,7 +1412,7 @@ function removeRecordFromTradeAndLcDatabase(dbConnection, collectionName, Trade_
  **************************************************************************
  **************************************************************************
  * 
- * Trade and LC record CRUD operations Module
+ * Trade and LC record Query & Response Building
  * 
  **************************************************************************
  **************************************************************************
