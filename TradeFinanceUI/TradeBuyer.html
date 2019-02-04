@@ -126,23 +126,11 @@
                     <br />
 
                     <select id="Buyer-Input">
-                        <option value="TiffanyAndCo">Tiffany And Co</option>
-                        <option value="Cartier">Cartier</option>
-                        <option value="Pandora">Pandora</option>
                     </select>
                     <br />
                     <br />
 
                     <select id="Seller-Input">
-                        <option value="RajeshExports">Rajesh Exports Ltd</option>
-                        <option value="AlkaDiamond">Alka Diamond Industries Ltd</option>
-                        <option value="BhaktiGems">Bhakti Gems And Jewellers Ltd</option>
-                        <option value="DeepDiamond">Deep Diamond India Ltd</option>
-                        <option value="Geetanjali Gems">Geetanjali Gems Ltd</option>
-                        <option value="MokshOrnaments">Moksh Ornaments Ltd</option>
-                        <option value="PCJeweller">PC Jeweller Ltd</option>
-                        <option value="SuashishDiamonds">Suashish Diamonds Ltd</option>
-                        <option value="ZodiacJRD">Zodiac JRD MKJ Ltd</option>
                     </select>
                     <br />
                     <br />
@@ -185,6 +173,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./RetrieveUserDetails.js"></script>
 
     <script>
 
@@ -365,6 +354,40 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Fill the Buyer's details in Selection Box
+
+            fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
+
+            // Fill the Seller's details in Selection Box
+
+            fillTheUserDetails_FromMongoDB("Seller", "Seller-Input");
+
+            // Fill the Shipment Details in Selection Box
+
+        }
+
+        /****************************************************************************************
+            Fill the User Details in Selection Box
+        *****************************************************************************************/
+
+        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId) {
+
+            fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, null);
+        }
+
+        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, additionalBoxField_Id) {
+
+            // Build Query
+
+            var queryMap = new Map();
+            queryMap.set("UserType", userTypeValue);
+
+            // Mongo DB call for Retrieving The User Details
+
+            var webServerPrefix = "http://127.0.0.1:3500/?";
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", selectionBoxId, additionalBoxField_Id);
+
         }
 
     </script>

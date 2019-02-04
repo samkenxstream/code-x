@@ -144,52 +144,25 @@
                     <br />
 
                     <select id="Buyer-Input">
-                        <option value="TiffanyAndCo">Tiffany And Co</option>
-                        <option value="Cartier">Cartier</option>
-                        <option value="Pandora">Pandora</option>
+                        <option value="Buyer-Value">Select Buyer</option>
                     </select>
                     <br />
                     <br />
 
                     <select id="Seller-Input">
-                        <option value="RajeshExports">Rajesh Exports Ltd</option>
-                        <option value="AlkaDiamond">Alka Diamond Industries Ltd</option>
-                        <option value="BhaktiGems">Bhakti Gems And Jewellers Ltd</option>
-                        <option value="DeepDiamond">Deep Diamond India Ltd</option>
-                        <option value="Geetanjali Gems">Geetanjali Gems Ltd</option>
-                        <option value="MokshOrnaments">Moksh Ornaments Ltd</option>
-                        <option value="PCJeweller">PC Jeweller Ltd</option>
-                        <option value="SuashishDiamonds">Suashish Diamonds Ltd</option>
-                        <option value="ZodiacJRD">Zodiac JRD MKJ Ltd</option>
+                        <option value="Seller-Value">Select Seller</option>
                     </select>
                     <br />
                     <br />
 
                     <select id="Seller-Id-Input">
-                        <option value="RajeshExports">ABCD-1234</option>
-                        <option value="AlkaDiamond">ABCD-2345</option>
-                        <option value="BhaktiGems">ABCD-3456</option>
-                        <option value="DeepDiamond">ABCD-4567</option>
-                        <option value="Geetanjali Gems">ABCD-5678</option>
-                        <option value="MokshOrnaments">ABCD-5679</option>
-                        <option value="PCJeweller">ABCD-5610</option>
-                        <option value="SuashishDiamonds">ABCD-5628</option>
-                        <option value="ZodiacJRD">ABCD-5634</option>
+                        <option value="Seller-Id-Value">Select Seller Id</option>
                     </select>
                     <br />
                     <br />
 
                     <select id="Bank-Input">
-                        <option value="Deutsche">Deutsche Bank</option>
-                        <option value="VarenGold">VarenGold Bank</option>
-                        <option value="HDFC">HDFC Bank</option>
-                        <option value="ICICI">ICICI Bank</option>
-                        <option value="Yes">Yes Bank</option>
-                        <option value="Banca Credito Italiano">Banca Credito Italiano</option>
-                        <option value="Banca Monte Dei Paschi Di Siena">Banca Monte Dei Paschi Di Siena</option>
-                        <option value="American Express">American Express</option>
-                        <option value="ANZ">ANZ</option>
-                        <option value="Bank Of America">Bank Of America</option>
+                        <option value="Bank-Value">Select Bank</option>
                     </select>
                     <br />
                     <br />
@@ -255,6 +228,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./RetrieveUserDetails.js"></script>
 
     <script>
 
@@ -330,8 +304,8 @@
         }
 
         /****************************************************************************************
-            User Logoff : Logoff from current session 
-                        : Redirect to Home Page 
+            User Logoff : Logoff from current session
+                        : Redirect to Home Page
         *****************************************************************************************/
 
         function processLogoff(event) {
@@ -375,7 +349,7 @@
 
             xmlhttp.onreadystatechange = function () {
 
-                if ( this.status == 200 ) {
+                if (this.status == 200) {
 
                     if (this.readyState == 4) {
 
@@ -475,6 +449,44 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Fill the Buyer's details in Selection Box
+
+            fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
+
+            // Fill the Seller's details in Selection Box
+
+            fillTheUserDetails_FromMongoDB("Seller", "Seller-Input", "Seller-Id-Input");
+
+            // Fill the Bank details in Selection Box
+
+            fillTheUserDetails_FromMongoDB("Bank", "Bank-Input");
+
+            // Fill the Shipment Details in Selection Box
+
+        }
+
+        /****************************************************************************************
+            Fill the User Details in Selection Box
+        *****************************************************************************************/
+
+        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId) {
+
+            fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, null);
+        }
+
+        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, additionalBoxField_Id) {
+
+            // Build Query
+
+            var queryMap = new Map();
+            queryMap.set("UserType", userTypeValue);
+
+            // Mongo DB call for Retrieving The User Details
+
+            var webServerPrefix = "http://127.0.0.1:3500/?";
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", selectionBoxId, additionalBoxField_Id);
+
         }
 
     </script>
