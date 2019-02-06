@@ -126,29 +126,21 @@
                     <br />
 
                     <select id="Buyer-Input">
+                        <option value="BuyerSelection">Select Buyer</option>
                     </select>
                     <br />
                     <br />
 
-                    <select id="Seller-Input">
+                    <select onchange='processSellerInputChange(event);' id="Seller-Input">
+                        <option value="SellerSelection">Select Seller</option>
                     </select>
                     <br />
                     <br />
-
 
                     <select id="Shipment-Input">
-                        <option value="Diamonds">Cut And Polished Diamonds</option>
-                        <option value="GoldJewel">Gold Jewellery</option>
-                        <option value="GoldCoins">Gold medallions and coins</option>
-                        <option value="GemStones">Coloured Gemstones</option>
-                        <option value="SilverJewel">Silver Jewellery</option>
-                        <option value="Pearls">Pearls and Synthetic Stones</option>
-                        <option value="RoughDiamonds">Rough Diamonds</option>
-                        <option value="Others">Others</option>
                     </select>
                     <br />
                     <br />
-
 
                     <input id="ShipmentCount" type="text">
                     <br />
@@ -358,12 +350,12 @@
             // Fill the Buyer's details in Selection Box
 
             fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
+            document.getElementById("Buyer-Input").autofocus = true;
 
             // Fill the Seller's details in Selection Box
 
             fillTheUserDetails_FromMongoDB("Seller", "Seller-Input");
-
-            // Fill the Shipment Details in Selection Box
+            document.getElementById("Seller-Input").autofocus = true;
 
         }
 
@@ -386,7 +378,27 @@
             // Mongo DB call for Retrieving The User Details
 
             var webServerPrefix = "http://127.0.0.1:3500/?";
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", selectionBoxId, additionalBoxField_Id);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", selectionBoxId, additionalBoxField_Id, null);
+
+        }
+
+        /****************************************************************************************
+            Fill the Details of Shiptment Based on Seller Input Selection
+        *****************************************************************************************/
+
+        function processSellerInputChange(event) {
+
+            // Build Query
+
+            var queryMap = new Map();
+            queryMap.set("UserType", "Seller");
+
+            var changedSellerInputValue = document.getElementById("Seller-Input").value;
+
+            // Mongo DB call for Retrieving The Shipment Details
+
+            var webServerPrefix = "http://127.0.0.1:3500/?";
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", "Shipment-Input", null, changedSellerInputValue);
 
         }
 

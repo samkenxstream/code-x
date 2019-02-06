@@ -179,8 +179,13 @@ input[type=text], input[type=password] {
 
                 <label class="SignUp-Label" for="Name"><b>Name</b></label>
                 <input type="text" placeholder="Enter Name" name="Name" required id="User-Name">
+
+                <label class="SignUp-Label" for="Shipment"><b>Shipment ( Goods / Services )</b></label>
+                <input type="text" placeholder="Enter Shipment" name="Shipment" required id="User-Shipment">
+
                 <label class="SignUp-Label" for="Location"><b>Location</b></label>
                 <input type="text" placeholder="Enter Location" name="Location" required id="User-Location">
+
                 <label class="SignUp-Label" for="Email"><b>Email</b></label>
                 <input type="text" placeholder="Enter Email" name="email" required id="User-Email">
 
@@ -269,12 +274,15 @@ input[type=text], input[type=password] {
             var userId_Value = uniqueUserId;
             var userType_Value = document.getElementById("User-Type").value;
             var name_Value = document.getElementById("User-Name").value;
+            var shipment_Value = document.getElementById("User-Shipment").value;
             var location_Value = document.getElementById("User-Location").value;
             var email_Value = document.getElementById("User-Email").value;
             var address_Value = document.getElementById("User-Address").value;
             var userName_Value = document.getElementById("User-UserName").value;
             var password_Value = document.getElementById("User-Password").value;
             var repeatPassword_Value = document.getElementById("User-RepeatPassword").value;
+
+            // Validations for "required / necessary" values
 
             if (userId_Value == null || userType_Value == null || name_Value == null || location_Value == null
                 || email_Value == null || userName_Value == null || password_Value == null || repeatPassword_Value == null) {
@@ -283,11 +291,23 @@ input[type=text], input[type=password] {
                 return;
             }
 
+            if (userType_Value == "Seller") {
+
+                if (shipment_Value == null || shipment_Value == undefined) {
+
+                    alert("Shipment Value field must be entered for Seller User Type");
+                    return;
+                }
+
+            }
+
             if (password_Value != repeatPassword_Value) {
 
                 alert("Passwords did not confirm with each other : please try again");
                 return;
             }
+
+            // Default values for empty but required fields
 
             if (address_Value == null || address_Value == undefined) {
                 address_Value = "Default_Address";
@@ -295,8 +315,8 @@ input[type=text], input[type=password] {
 
             // Save the details in mongoDb
 
-            var userRegistration_Keys = ["UserType", "User_Id", "Name", "Location", "Email", "Address", "UserName", "Password"];
-            var userRegistration_Values = [userType_Value, userId_Value, name_Value, location_Value, email_Value, address_Value, userName_Value, password_Value];
+            var userRegistration_Keys = ["UserType", "User_Id", "Name", "Shipment", "Location", "Email", "Address", "UserName", "Password"];
+            var userRegistration_Values = [userType_Value, userId_Value, name_Value, shipment_Value, location_Value, email_Value, address_Value, userName_Value, password_Value];
             var userRegistrationRecord = new Map();
 
             for (var index = 0; index < userRegistration_Keys.length; index++) {

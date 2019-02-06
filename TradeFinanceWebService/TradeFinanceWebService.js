@@ -13,9 +13,7 @@
  * 
  *************************************************************************/
 
-
 'use strict';
-
 
 /*************************************************************************
  * 
@@ -91,6 +89,7 @@ var lc_Object = {
 var userData_Object = {
     UserType: "",
     Name: "",
+    Shipment: "",
     Location: "",
     Email: "",
     Address: "",
@@ -567,6 +566,7 @@ function prepareUserRegistrationObject(recordObjectMap) {
 
     userData_Object._id = recordObjectMap.get("User_Id");
     userData_Object.Name = recordObjectMap.get("Name");
+    userData_Object.Shipment = recordObjectMap.get("Shipment");
     userData_Object.Location = recordObjectMap.get("Location");
     userData_Object.Email = recordObjectMap.get("Email");
     userData_Object.Address = recordObjectMap.get("Address");
@@ -622,7 +622,6 @@ function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recor
         }
     }
 
-
     // Prepare "User Registration" Object and add them to UserDetails Database
 
     console.log("addUserRegistrationRecordToDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.length);
@@ -638,6 +637,9 @@ function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recor
         console.log("currentDocument_Object.UserType => " + currentDocument_Object.UserType );
     }
 
+    // Remove URL Spaces before adding the Record to User Details Database
+
+    currentDocument_Object = removeUrlSpacesFromObjectValues(currentDocument_Object);
     addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, currentDocument_Object, http_Response);
 
     return true;
@@ -905,9 +907,11 @@ function buildUserDBRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
 
+    queryResult = removeUrlSpacesFromObjectValues(queryResult);
+
     queryResponse_JSON = {
-        "UserType": queryResult.UserType, "Name": queryResult.Name, "Location": queryResult.Location, "Email": queryResult.Email,
-        "Address": queryResult.Address, "UserName": queryResult.UserName, "Password": queryResult.Password
+        "UserType": queryResult.UserType, "Name": queryResult.Name, "Shipment": queryResult.Shipment, "Location": queryResult.Location,
+        "Email": queryResult.Email, "Address": queryResult.Address, "UserName": queryResult.UserName, "Password": queryResult.Password
     };
 
     return queryResponse_JSON;
@@ -1082,15 +1086,22 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
         console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
 
+        // Remove spaces from trade_object values before adding to MongoDB
+
+        trade_Object = removeUrlSpacesFromObjectValues(trade_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
             trade_Object);
 
     } else {
+
         prepareLcDocumentObject(recordObjectMap);
 
         console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
 
+        // Remove spaces from lc_Object values before adding to MongoDB
+
+        lc_Object = removeUrlSpacesFromObjectValues(lc_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
             lc_Object);
@@ -1559,6 +1570,8 @@ function buildTradeRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
 
+    queryResult = removeUrlSpacesFromObjectValues(queryResult);
+
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller, "Shipment": queryResult.Shipment,
         "ShipmentCount": queryResult.ShipmentCount, "Amount": queryResult.Amount, "Current_Status": queryResult.Current_Status
@@ -1574,11 +1587,13 @@ function buildTradeRecord_JSON(queryResult) {
  * 
  * @returns {any} queryResponse_JSON : LC Record in JSON format
  * 
- */
+*/
 
 function buildLcRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
+
+    queryResult = removeUrlSpacesFromObjectValues(queryResult);
 
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Lc_Id": queryResult.Lc_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller,
@@ -1588,5 +1603,33 @@ function buildLcRecord_JSON(queryResult) {
     };
 
     return queryResponse_JSON;
+}
+
+
+/**
+ * 
+ * @param {any} queryResult : query Result from mongo DB
+ * 
+ * @returns     queryResult_WithoutURLSpaces : queryResult with all values minus URL spaces
+ * 
+*/
+
+function removeUrlSpacesFromObjectValues(queryResult) {
+
+    // Modify the Values to remove URL Spaces
+
+    var keys = Object.keys(queryResult);
+    var values = Object.values(queryResult);
+
+    for (var i = 0; i < values.length; i++) {
+
+        var currentValue = String(values[i]);
+        var regExpr = /%20/gi;
+        currentValue = currentValue.replace(regExpr, " ");
+
+        queryResult[keys[i]] = currentValue;
+    }
+
+    return queryResult;
 }
 

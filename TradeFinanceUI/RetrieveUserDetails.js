@@ -7,7 +7,7 @@ var RetrieveUserDetails_Module = (function () {
     Retrieve the User-Details Records As per Input User Type ( Buyer, Seller, Bank )
     *****************************************************************************************/
 
-    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, selectionBoxId, additionalBoxField_Id) {
+    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, selectionBoxId, additionalBoxField_Id, changedSellerInputValue) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -54,7 +54,14 @@ var RetrieveUserDetails_Module = (function () {
 
                     alert("Success Response for RetrieveUserDetails : Last UserDetails Record => " + responseSingleObject);
 
-                    fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxId, additionalBoxField_Id);
+                    if (changedSellerInputValue == null || changedSellerInputValue == undefined) {
+
+                        fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxId, additionalBoxField_Id);
+
+                    } else {
+
+                        fillTheShipmentDetailsInSelectionBox(userDetailRecords, selectionBoxId, changedSellerInputValue);
+                    }
 
                 } else {
 
@@ -88,7 +95,7 @@ var RetrieveUserDetails_Module = (function () {
 
         // For all the User Details of corresponding UserType
 
-        for (var i = 0; i < userDetailRecords.length; i++) {
+        for (var i = 0; i < userDetailRecords.length-1; i++) {
 
             responseSingleObject = JSON.parse(userDetailRecords[i]);
 
@@ -125,6 +132,50 @@ var RetrieveUserDetails_Module = (function () {
                 additionalFieldBox.add(currentIdElementToBeAdded);
 
             }
+        }
+    }
+
+    /***********************************************************************************************************
+    Helper Methods : fillTheShipmentDetailsInSelectionBox
+    ************************************************************************************************************/
+
+    function fillTheShipmentDetailsInSelectionBox(userDetailRecords, selectionBoxId, changedSellerInputValue) {
+
+        document.getElementById(selectionBoxId).innerHTML = null;
+
+        // For all the User Details of corresponding UserType
+
+        for (var i = 0; i < userDetailRecords.length-1; i++) {
+
+            responseSingleObject = JSON.parse(userDetailRecords[i]);
+
+            var selectionBox = document.getElementById(selectionBoxId);
+
+            // Log error if userName doesn't exist
+
+            if (responseSingleObject.Name == undefined && responseSingleObject.Name == null) {
+
+                alert("inappropriate Name in current record of UserDetails = " + responseSingleObject.Name);
+
+            } else {
+
+                if (responseSingleObject.Name == changedSellerInputValue) {
+
+                    var currentShipmentValue = responseSingleObject.Shipment;
+                    alert("currentShipmentValue = " + currentShipmentValue);
+                    var regExpr = /%20/gi;
+                    currentShipmentValue = currentShipmentValue.replace(regExpr, " ");
+
+                    // Add Option with Shipment Value to the Selection Box
+
+                    var currentElementToBeAdded = document.createElement("option");
+                    currentElementToBeAdded.text = currentShipmentValue;
+
+                    selectionBox.add(currentElementToBeAdded);
+
+                }
+            }
+
         }
     }
 
