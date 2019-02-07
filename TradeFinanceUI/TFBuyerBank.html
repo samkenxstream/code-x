@@ -67,7 +67,7 @@
 
             <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
 
-            <div class="Retrieve-Shipment-Order-Details-Container" style="width: 80%">
+            <div class="Make-Payment-Details-Container" style="width: 80%">
 
                 <br />
                 <label id="Label_buffer" style="padding-right: 5%; padding-left: 18%">TA-Id</label>
@@ -78,66 +78,69 @@
                 <input id="LC-Id-Input" type="text">
                 <br /><br /><br />
 
-                <label id="Label_buffer" style="padding-right: 6%"></label>
-                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipment Details</button>
-
-                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <label id="Label_buffer" style="padding-left: 18% ; padding-right: 6%"></label>
                 <button id="Make-Payment-Button" class="Make-Payment-To-Seller">MakePayment</button>
                 <br />
                 <br />
 
             </div>
 
-            <div class="Current-Shipment-Order-Details" style="width: 80%">
+            <p id="buffer1_1" style="padding-bottom : 1px"> </p>
 
-                    <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+            <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
 
-                        <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
 
-                            <th class="Shipment-Details-TableHeader">taId</th>
-                            <th class="Shipment-Details-TableHeader">lcId</th>
-                            <th class="Shipment-Details-TableHeader">Buyer</th>
-                            <th class="Shipment-Details-TableHeader">Bank</th>
-                            <th class="Shipment-Details-TableHeader">Seller</th>
-                            <th class="Shipment-Details-TableHeader">Shipment</th>
-                            <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                            <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                            <th class="Shipment-Details-TableHeader">Amount</th>
-                            <th class="Shipment-Details-TableHeader">Select</th>
+                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
 
-                        </tr>
+                    <option value="LCStatusSelection">Select LC Status</option>
+                    <option value="LCRequested">LC_Requested</option>
+                    <option value="LCGenerated">LC_Generated</option>
+                    <option value="LCApproved">LC_Approved</option>
 
-                        <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+                </select>
 
-                        <tr class="Shipment-Details-TableRow-Content">
-
-                            <td id="Shipment-1-taId" class="Shipment-Details-Content">TA_1000</td>
-                            <td id="Shipment-1-lcId" class="Shipment-Details-Content">LC_1000</td>
-                            <td id="Shipment-1-Buyer" class="Shipment-Details-Content">Dealer</td>
-                            <td id="Shipment-1-Bank" class="Shipment-Details-Content">HDFC</td>
-                            <td id="Shipment-1-Seller" class="Shipment-Details-Content">BMW</td>
-                            <td id="Shipment-1-Shipment" class="Shipment-Details-Content">BMW X5</td>
-                            <td id="Shipment-1-Shipment-Count" class="Shipment-Details-Content">10</td>
-                            <td id="Shipment-1-Expiry-Date" class="Shipment-Details-Content">2/28/2019</td>
-                            <td id="Shipment-1-Credit-Amount" class="Shipment-Details-Content">100000</td>
-                            <td id="Shipment-1-LC-Select" class="Shipment-Details-Content"><input type="checkbox" class="Shipment-Details-Content-Checkbox" /></td>
-
-                        </tr>
-
-                    </table>
-
-                </div>
-
-                <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
-
-                    <br />
-                    <br />
-                    <label id="Label_buffer" style="padding-right: 15%"></label>
-                    <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
-
-                </div>
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipment Details</button>
 
             </div>
+
+            <div class="Current-Shipment-Order-Details" style="width: 80%">
+
+                <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+
+                    <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+
+                        <th class="Shipment-Details-TableHeader">taId</th>
+                        <th class="Shipment-Details-TableHeader">lcId</th>
+                        <th class="Shipment-Details-TableHeader">Buyer</th>
+                        <th class="Shipment-Details-TableHeader">Bank</th>
+                        <th class="Shipment-Details-TableHeader">Seller</th>
+                        <th class="Shipment-Details-TableHeader">Shipment</th>
+                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                        <th class="Shipment-Details-TableHeader">Amount</th>
+                        <th class="Shipment-Details-TableHeader">Select</th>
+
+                    </tr>
+
+                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+                    <!-- tr id="Shipment_Details_TableRow_Content" class="Shipment-Details-TableRow-Content"></tr-->
+
+                </table>
+
+            </div>
+
+            <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+
+            </div>
+
+        </div>
 
         </div>
 
@@ -160,14 +163,24 @@
             // Retrieve the Lc Details from mongoDb
 
             var Client_Request = "RetrieveAllRecords";
-            retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request);
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
+
+            removeAllTheExistingRowsFromTable("Buyer_Bank_Shipment_Order_Details");
+
+            if (bDebug == true) {
+
+                alert("Existing Rows are removed from the Table");
+            }
+
+            retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status);
 
             /****************************************************************************************
                 getLC : Place HyperLedger API Call
                         ( Currently no API Exists to get all LC Requests of current buyer )
             *****************************************************************************************/
 
-            var API_Name = "getLC";
+            //var API_Name = "getLC";
             //httpRequestToHyperLedgerServer(lcId_value, API_Name);
 
         });
@@ -404,9 +417,9 @@
             Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row  
         ************************************************************************************************************/
 
-        function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request) {
+        function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status) {
 
-            var webServerPrefix = "http://127.0.0.1:3500/?"
+            var webServerPrefix = "http://127.0.0.1:3500/?";
             var xmlhttp;
             var httpRequestString = webServerPrefix;
 
@@ -432,9 +445,9 @@
                         var numOfRecords = lcRequestRecords.length - 2;
                         responseSingleObject = JSON.parse(lcRequestRecords[numOfRecords]);
 
-                        alert("Success Response for RetrieveLCDetails : All the LC Records of Current Buyer => " + responseSingleObject);
+                        alert("Success Response for RetrieveLCDetails");
 
-                        fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords);
+                        fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, Requested_LC_Status);
 
                     } else {
 
@@ -460,18 +473,42 @@
         }
 
         /***********************************************************************************************************
-        fillTheLCRequestDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
+            fillTheLCRequestDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
         ************************************************************************************************************/
 
-        function fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords) {
+        function fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, requested_LC_Status) {
 
-            for (var i = 0; i < lcRequestRecords.length; i++) {
+            if (bDebug == true) {
+
+                alert("fillTheLCRequestDetailsOfCurrentBuyer : Requested_LC_Status : => " + requested_LC_Status);
+            }
+
+            var shipmentDetailsTable = document.getElementById("Buyer_Bank_Shipment_Order_Details");
+
+            if (bDebug == true) {
+
+                alert("fillTheLCRequestDetailsOfCurrentBuyer : totalNumberOfLCRecords Returned : => " + lcRequestRecords.length);
+            }
+
+            var currentRowNumber = 1;
+
+            // Account for the non existing last Record  ( due to insertion of new line character at the server end )
+
+            for (var i = 0; i < lcRequestRecords.length-1; i++) {
 
                 responseSingleObject = JSON.parse(lcRequestRecords[i]);
                 
-                var shipmentDetailsTable = document.getElementById("Buyer_Bank_Shipment_Order_Details");
-                var currentRow = shipmentDetailsTable.insertRow(i + 1);
+                // Filter the Shipment Details as per the requested LC Status
 
+                if (requested_LC_Status != responseSingleObject.Current_Status) {
+
+                    continue;
+                }
+
+                // Add the content to the Table after filtering out records with unexpected status
+
+                var currentRow = shipmentDetailsTable.insertRow(currentRowNumber);
+                currentRowNumber++;
                 var currentRowElementsArray = [];
 
                 // Add Cells in the Row
@@ -513,6 +550,36 @@
 
                 var filteredTradeAmountValue = filterTradeAmount(responseSingleObject.Amount);
                 fillTableData_CurrentRowElement(currentRowElementsArray, 8, filteredTradeAmountValue);
+            }
+
+            if (bDebug == true) {
+
+                alert("fillTheLCRequestDetailsOfCurrentBuyer : total Number Of Rows inserted : => " + currentRowNumber-1);
+            }
+        }
+
+        /***********************************************************************************************************
+            removeAllTheExistingRowsFromTable : delete the existing rows from Table
+        ************************************************************************************************************/
+
+        function removeAllTheExistingRowsFromTable(tableId) {
+
+            var tableElement_NumOfRows = document.getElementById(tableId).rows.length;
+
+            if (bDebug == true) {
+
+                alert("removeAllTheExistingRowsFromTable : Number Of Rows To Be Deleted => " + tableElement_NumOfRows);
+            }
+
+            while( tableElement_NumOfRows > 1 ) {
+
+                if (bDebug == true) {
+
+                    alert( "removeAllTheExistingRowsFromTable : deleting the last row of Total Number of Rows => " + tableElement_NumOfRows );
+                }
+
+                document.getElementById(tableId).deleteRow(tableElement_NumOfRows-1);
+                tableElement_NumOfRows = document.getElementById(tableId).rows.length;
             }
         }
 
