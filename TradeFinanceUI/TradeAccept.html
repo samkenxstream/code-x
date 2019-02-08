@@ -1,0 +1,215 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>TradeFinance Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+</head>
+
+<body>
+
+    <script src="./UserAuthentication.js"></script>
+
+    <style>
+
+        /* {box-sizing: border-box} */
+
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /* Style the tab */
+
+        .tab {
+            float: left;
+            /*border: 1px solid #ccc;*/
+            background-color: #f1f1f1;
+            width: 30%;
+        }
+
+            /* Style the buttons inside the tab */
+            .tab button {
+                display: block;
+                background-color: inherit;
+                color: black;
+                padding: 22px 16px;
+                width: 100%;
+                /* border: none; */
+                outline: none;
+                text-align: left;
+                cursor: pointer;
+                transition: 0.3s;
+                font-size: 17px;
+            }
+
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                    background-color: #ddd;
+                }
+
+                /* Create an active/current "tab button" class */
+                .tab button.active {
+                    background-color: #ccc;
+                }
+
+        /* Style the tab content */
+        .tabcontent {
+            float: left;
+            padding: 0px 12px;
+            /*border: 1px solid #ccc;*/
+            width: 80%;
+            border-left: none;
+        }
+
+        .NavigationBar1 {
+            float: left;
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 22px;
+            color: #818181;
+            padding-top: 50px;
+        }
+    </style>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar" id="Navigation-bar">
+
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TradeBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 100%">
+
+        <div class="LeftBrowserBox" style="width: 12%">
+
+            <div class="NavigationBar1">
+
+                <a class="SellerTrade" href="./TradeSeller.html">ShowTrade</a>
+                <a class="AcceptTrade" href="./TradeAccept.html">AcceptTrade</a>
+                <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
+                <a class="AcceptLC" href="./TFSellerLCAccept.html">AcceptLC</a>
+                <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
+
+            </div>
+
+        </div>
+
+        <div class="RightBrowserBox" style="width: 85%; float: left">
+
+            <h1 class="Shipment-Order-Details-Header">Trade Details</h1>
+
+            <div class="Accept-Trade-Details" style="clear: left">
+
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-left: 6%; padding-right: 6%">TradeId</label>
+                <input id="Trade-Id-Input" type="text">
+                <br /><br /><br />
+
+                <label id="Label_buffer" style="padding-left: 6%; padding-right: 6%"></label>
+                <button id="Accept-Trade-Button" class="Accept-Trade-Class">Accept Trade</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./TradeAndLC-StatusUpdate.js"></script>
+
+    <script>
+
+        /****************************************************************************************
+
+        Accept Trade : Change the status of Trade Agreement in mongo db by changing it to "Trade Accepted"
+        Accept Trade : Place HyperLedger API Call
+
+        *****************************************************************************************/
+
+        var bDebug = false;
+
+        $("#Accept-Trade-Button").click(function () {
+
+            /****************************************************************************************
+                acceptTrade : Change the shipment status once trade reaches acceptability
+            *****************************************************************************************/
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" Trade Agreement Id values are missing while Accepting Trade : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                var webServerPrefix = "http://127.0.0.1:3500/?";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveTrade");
+
+                // Status Change in HyperLedger
+
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptTrade");
+
+            }
+
+        });
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+

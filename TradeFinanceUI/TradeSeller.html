@@ -113,7 +113,9 @@
             <div class="NavigationBar1">
 
                 <a class="SellerTrade" href="./TradeSeller.html">ShowTrade</a>
+                <a class="AcceptTrade" href="./TradeAccept.html">AcceptTrade</a>
                 <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
+                <a class="AcceptLC" href="./TFSellerLCAccept.html">AcceptLC</a>
                 <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
 
             </div>
@@ -124,145 +126,92 @@
 
             <h1 class="Shipment-Order-Details-Header">Trade Details</h1>
 
-            <div id="London" class="tabcontent">
-
-                <table id="Seller_Page_Trade_Details" class="Seller-Page-Trade-Details">
-
-                    <tr class="Shipment-Details-TableRow-Header">
-
-                        <th class="Shipment-Details-TableHeader">TradeId</th>
-                        <th class="Shipment-Details-TableHeader">Buyer</th>
-                        <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">Shipment</th>
-                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                        <th class="Shipment-Details-TableHeader">Amount</th>
-                        <th class="Shipment-Details-TableHeader">Status</th>
-                        <th class="Shipment-Details-TableHeader">Select</th>
-                    </tr>
-
-                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
-
-                    <tr class="Shipment-Details-TableRow-Content">
-
-                        <td class="Shipment-Details-Content">Trade_1</td>
-                        <td class="Shipment-Details-Content">BMW Dealer</td>
-                        <td class="Shipment-Details-Content">BMW</td>
-                        <td class="Shipment-Details-Content">BMW X5</td>
-                        <td class="Shipment-Details-Content">10</td>
-                        <td class="Shipment-Details-Content">100000</td>
-                        <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                        <td class="Shipment-Details-Content"><button onclick="myFunction()"></button></td>
-                    </tr>
-
-                </table>
-
+            <div id="buffer_vertical">
+                <p id="Label_buffer" style="padding-bottom: 1%; clear: left"></p>
             </div>
 
-            <div class="Retrieve-Trade-Details" style="clear: left">
+            <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
 
-                <br /><br /><br />
-                <label id="Label_buffer" style="padding-left: 6%; padding-right: 6%">TradeId</label>
-                <input id="Trade-Id-Input" type="text">
-                <br /><br /><br />
+                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
+
+                <select style="padding-right: 2%; padding-left: 2%" id="Select-Trade-Status">
+
+                    <option value="TradeStatusSelection">Select Trade Status</option>
+                    <option value="TradeRequested">Trade_Requested</option>
+                    <option value="TradeApproved">Trade_Approved</option>
+                    <option value="TradeShipped">Trade_Shipped</option>
+
+                </select>
 
                 <label id="Label_buffer" style="padding-right: 6%"></label>
-                <button id="Accept-Trade-Button" class="Accept-Trade-Class">Accept Trade</button>
-
-                <label id="Label_buffer" style="padding-right: 12%"></label>
-                <button id="Retrieve_Shipments" class="Retrieve-Shipments">Retrieve Shipments</button>
+                <button id="Retrieve-Trade-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
 
             </div>
+
+            <div id="buffer_vertical">
+                <p id="Label_buffer" style="padding-bottom: 1%; clear: left"></p>
+            </div>
+
+            <table id="Seller_Page_Trade_Details" class="Seller-Page-Trade-Details">
+
+                <tr class="Shipment-Details-TableRow-Header">
+
+                    <th class="Shipment-Details-TableHeader">TradeId</th>
+                    <th class="Shipment-Details-TableHeader">Buyer</th>
+                    <th class="Shipment-Details-TableHeader">Seller</th>
+                    <th class="Shipment-Details-TableHeader">Shipment</th>
+                    <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                    <th class="Shipment-Details-TableHeader">Amount</th>
+                    <th class="Shipment-Details-TableHeader">Status</th>
+                    <th class="Shipment-Details-TableHeader">Select</th>
+                </tr>
+
+                <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+
+            </table>
 
         </div>
 
     </div>
 
-
-    <script>
-        function myFunction() {
-            var x = document.getElementById("myDIV");
-            if (x.innerHTML === "Pending") {
-                x.innerHTML = "Approved";
-            }
-        }
-    </script>
-
-    <script>
-
-    </script>
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./HTMLElements-HelperUtil.js"></script>
 
     <script>
-
-        /****************************************************************************************
-        Accept Trade : Change the status of Trade Agreement in mongo db by changing it to "Trade Accepted"
-        *****************************************************************************************/
-
-        /****************************************************************************************
-        Accept Trade : Place HyperLedger API Call
-        *****************************************************************************************/
 
         var bDebug = false;
 
-        $("#Accept-Trade-Button").click(function () {
+        /****************************************************************************************
+            RetrieveTradeDetails : Retrieve the Trade details of current seller from mongo db
+        *****************************************************************************************/
 
-            /****************************************************************************************
-                acceptTrade : Change the shipment status once trade reaches acceptability
-            *****************************************************************************************/
-
-            // Prepare Http Request from Form-data and send the request
-
-            var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
-
-            // Mongo DB call for Status Change
-
-            var queryMap = new Map();
-            var queryEmpty = true;
-
-            if (taId_value != null && taId_value != undefined) {
-
-                queryMap.set("Trade_Id", taId_value);
-                queryEmpty = false;
-            }
-
-            if (queryEmpty == true) {
-
-                alert(" Trade Agreement Id values are missing while Accepting Trade : ");
-
-            } else {
-
-                // Status Change in MongoDB
-
-                var webServerPrefix = "http://127.0.0.1:3500/?";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveTrade");
-
-                // Status Change in HyperLedger
-
-                var webServerPrefix = "/tfbc/";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptTrade");
-
-            }
-
-        });
-
-
-        $("#Retrieve_Shipments").click(function () {
-
-            /****************************************************************************************
-                RetrieveTradeDetails : Retrieve the Trade details of current buyer from mongo db
-            *****************************************************************************************/
+        $("#Retrieve-Trade-Details-Button").click(function () {
 
             var Client_Request = "RetrieveAllRecords";
-            retrieveShipmentRecordsOfBuyer_FromMongoDB(Client_Request);
+
+            // Get the Selected Option & remove the existing rows
+
+            var TradeStatusOptions = document.getElementById('Select-Trade-Status').options;
+            var Requested_Trade_Status = TradeStatusOptions[document.getElementById('Select-Trade-Status').selectedIndex].textContent;
+
+            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Seller_Page_Trade_Details");
+
+            if (bDebug == true) {
+
+                alert("Existing Rows are removed from the Table");
+            }
+
+            // Retrieve the Trades as per selected Trade Status
+
+            retrieveTradeRecordsOfSeller_FromMongoDB(Client_Request, Requested_Trade_Status);
 
         });
 
         /****************************************************************************************************************************
-        Retrieve Shipment Details of Buyer : Retrieve Shipment Details from MongoDB that haven't reached LC stage
+        Retrieve Trade Details Corresponding to Seller : Retrieve Shipment ( Trade ) Details from MongoDB that haven't reached LC stage
         *****************************************************************************************************************************/
 
-        function retrieveShipmentRecordsOfBuyer_FromMongoDB(Client_Request) {
+        function retrieveTradeRecordsOfSeller_FromMongoDB(Client_Request, Requested_Trade_Status) {
 
             var webServerPrefix = "http://127.0.0.1:3500/?"
             var xmlhttp;
@@ -288,9 +237,12 @@
                         var responseString = this.response;
                         var tradeRecords = responseString.split("\n");
 
-                        alert(" All the Trade Records of Current Buyer => " + tradeRecords);
+                        if (bDebug == true) {
 
-                        fillTheTradeDetailsOfCurrentBuyer(tradeRecords);
+                            alert(" All the Trade Records of Current Buyer => " + tradeRecords);
+                        }
+
+                        fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status);
 
                     } else {
 
@@ -316,23 +268,31 @@
         }
 
         /***********************************************************************************************************
-        fillTheTradeDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
+        fillTheTradeDetailsOfCurrentSeller : Fill the Trade details of current seller in the Table
         ************************************************************************************************************/
 
-        function fillTheTradeDetailsOfCurrentBuyer(tradeRecords) {
+        function fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status) {
 
-            for (var i = 0, currentRowIndex = 0; i < tradeRecords.length; i++) {
+            var shipmentDetailsTable = document.getElementById("Seller_Page_Trade_Details");
+
+            for (var i = 0, currentRowIndex = 0; i < tradeRecords.length-1; i++) {
 
                 responseSingleObject = JSON.parse(tradeRecords[i]);
+
+                // Exclude Trades ( Shipments ) that have reached LC Stage
 
                 if (responseSingleObject.Lc_Id != undefined && responseSingleObject.Lc_Id != null) {
                     continue;
                 }
 
-                var shipmentDetailsTable = document.getElementById("Seller_Page_Trade_Details");
+                // Filter out Trades based on Trade Status
+
+                if (responseSingleObject.Current_Status != Requested_Trade_Status) {
+                    continue;
+                }
 
                 var currentRow = shipmentDetailsTable.insertRow(currentRowIndex + 1);
-                currentRowIndex += 1;
+                currentRowIndex++;
 
                 var currentRowElementsArray = [];
 

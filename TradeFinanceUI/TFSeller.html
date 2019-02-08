@@ -34,30 +34,30 @@
             width: 30%;
         }
 
-        /* Style the buttons inside the tab */
-        .tab button {
-            display: block;
-            background-color: inherit;
-            color: black;
-            padding: 22px 16px;
-            width: 100%;
-            /* border: none; */
-            outline: none;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 17px;
-        }
+            /* Style the buttons inside the tab */
+            .tab button {
+                display: block;
+                background-color: inherit;
+                color: black;
+                padding: 22px 16px;
+                width: 100%;
+                /* border: none; */
+                outline: none;
+                text-align: left;
+                cursor: pointer;
+                transition: 0.3s;
+                font-size: 17px;
+            }
 
-        /* Change background color of buttons on hover */
-        .tab button:hover {
-            background-color: #ddd;
-        }
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                    background-color: #ddd;
+                }
 
-        /* Create an active/current "tab button" class */
-        .tab button.active {
-            background-color: #ccc;
-        }
+                /* Create an active/current "tab button" class */
+                .tab button.active {
+                    background-color: #ccc;
+                }
 
         /* Style the tab content */
         .tabcontent {
@@ -76,7 +76,6 @@
             color: #818181;
             padding-top: 50px;
         }
-
     </style>
 
     <script src="./UserAuthentication.js"></script>
@@ -114,7 +113,9 @@
             <div class="NavigationBar1">
 
                 <a class="SellerTrade" href="./TradeSeller.html">ShowTrade</a>
+                <a class="AcceptTrade" href="./TradeAccept.html">AcceptTrade</a>
                 <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
+                <a class="AcceptLC" href="./TFSellerLCAccept.html">AcceptLC</a>
                 <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
 
             </div>
@@ -122,211 +123,67 @@
 
         <div class="RightBrowserBox" style="width: 85%; float: left">
 
-
             <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
 
-            <div class="tab">
-                <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">Buyer1</button>
-                <button class="tablinks" onclick="openCity(event, 'Paris')">Buyer2</button>
-                <button class="tablinks" onclick="openCity(event, 'Tokyo')">Buyer3</button>
+            <div id="buffer_vertical">
+                <p id="Label_buffer" style="padding-bottom: 1%; clear: left"></p>
             </div>
 
-            <div id="London" class="tabcontent">
+            <div class="Retrieve-LC-Details" style="clear: left">
 
-                <table id="Seller_LC_Request_Details" class="Seller-LC-Request-Details">
+                <label id="Label_buffer" style="padding-right: 6%"></label>
 
-                    <tr class="Shipment-Details-TableRow-Header">
+                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
 
-                        <th class="Shipment-Details-TableHeader">taId</th>
-                        <th class="Shipment-Details-TableHeader">lcId</th>
-                        <th class="Shipment-Details-TableHeader">Buyer</th>
-                        <th class="Shipment-Details-TableHeader">Bank</th>
-                        <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">Shipment</th>
-                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                        <th class="Shipment-Details-TableHeader">Amount</th>
-                        <th class="Shipment-Details-TableHeader">Status</th>
-                        <th class="Shipment-Details-TableHeader">LC</th>
-                        <th class="Shipment-Details-TableHeader">Select</th>
-                    </tr>
+                    <option value="LCStatusSelection">Select LC Status</option>
+                    <option value="LCRequested">LC_Requested</option>
+                    <option value="LCGenerated">LC_Generated</option>
+                    <option value="LCApproved">LC_Approved</option>
 
-                    <!-- ToDo : Dynamically add the Shipment order details : New rows -->
+                </select>
 
-                    <tr class="Shipment-Details-TableRow-Content">
-
-                        <td class="Shipment-Details-Content">TA_2500</td>
-                        <td class="Shipment-Details-Content">LC_2500</td>
-                        <td class="Shipment-Details-Content">Dealer</td>
-                        <td class="Shipment-Details-Content">HDFC</td>
-                        <td class="Shipment-Details-Content">BMW</td>
-                        <td class="Shipment-Details-Content">BMW X5</td>
-                        <td class="Shipment-Details-Content">10</td>
-                        <td class="Shipment-Details-Content">2/28/2019</td>
-                        <td class="Shipment-Details-Content">100000</td>
-                        <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                        <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LC</a></td>
-                        <td class="Shipment-Details-Content"><button onclick="myFunction()">Approve</button></td>
-                    </tr>
-
-                </table>
-
-                <div class="Retrieve-LC-Details" style="clear: left">
-
-                    <br /><br /><br />
-                    <label id="Label_buffer" style="padding-right: 6%; padding-left: 6%">LC_Id</label>
-                    <input id="LC-Id-Input" type="text">
-                    <br /><br /><br />
-
-                    <label id="Label_buffer" style="padding-right: 6%"></label>
-                    <button id="Accept-LC-Button" class="Accept-LC-Class">Accept LC</button>
-
-                    <label id="Label_buffer" style="padding-right: 6%"></label>
-                    <button id="Retrieve_LC_Requests" class="Retrieve-LC-Requests">Retrieve LC Requests</button>
-
-                </div>
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Retrieve_LC_Requests" class="Retrieve-LC-Requests">Retrieve LC Requests</button>
 
             </div>
 
-        </div>
-
-        <!-- Dynamically generate content for all the Tabs with Just Template Rendering ( Having Accept LC Input Request ) -->
-
-        <div id="Paris" class="tabcontent">
+            <div id="buffer_vertical">
+                <p id="Label_buffer" style="padding-bottom: 1%; clear: left"></p>
+            </div>
 
             <table id="Seller_LC_Request_Details" class="Seller-LC-Request-Details">
 
                 <tr class="Shipment-Details-TableRow-Header">
 
-                    <th class="Shipment-Details-TableHeader">ShipmentOrderId</th>
+                    <th class="Shipment-Details-TableHeader">taId</th>
+                    <th class="Shipment-Details-TableHeader">lcId</th>
                     <th class="Shipment-Details-TableHeader">Buyer</th>
+                    <th class="Shipment-Details-TableHeader">Bank</th>
                     <th class="Shipment-Details-TableHeader">Seller</th>
-                    <th class="Shipment-Details-TableHeader">BuyerBank</th>
-                    <th class="Shipment-Details-TableHeader">SellerBank</th>
                     <th class="Shipment-Details-TableHeader">Shipment</th>
                     <th class="Shipment-Details-TableHeader">ShipmentCount</th>
                     <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                    <th class="Shipment-Details-TableHeader">LocAmount(In tokens)</th>
+                    <th class="Shipment-Details-TableHeader">Amount</th>
                     <th class="Shipment-Details-TableHeader">Status</th>
-                    <th class="Shipment-Details-TableHeader">LOC</th>
+                    <th class="Shipment-Details-TableHeader">LC</th>
                     <th class="Shipment-Details-TableHeader">Select</th>
-                </tr>
-
-                <!-- ToDo : Dynamically add the Shipment order details : New rows -->
-
-                <tr class="Shipment-Details-TableRow-Content">
-
-                    <td class="Shipment-Details-Content">LC2</td>
-                    <td class="Shipment-Details-Content">Dealer</td>
-                    <td class="Shipment-Details-Content">BENZ</td>
-                    <td class="Shipment-Details-Content">ICICI</td>
-                    <td class="Shipment-Details-Content">HSBC</td>
-                    <td class="Shipment-Details-Content">BENZ X5</td>
-                    <td class="Shipment-Details-Content">20</td>
-                    <td class="Shipment-Details-Content">07/20/2020</td>
-                    <td class="Shipment-Details-Content">100000</td>
-                    <td class="Shipment-Details-Content"><div id="myDIV">Pending</div></td>
-                    <td class="Shipment-Details-Content"><a href="https://drive.google.com/open?id=1xDaAqEXsb34v74T1j2vYwq7dxmu7ZqWV">LOC</a></td>
-                    <td class="Shipment-Details-Content"><button onclick="myFunction()">Approve</button></td>
                 </tr>
 
             </table>
 
         </div>
 
-        <div id="Tokyo" class="tabcontent">
-            <h3>Buyer3</h3>
-            <p>Tokyo is the capital of Japan.</p>
-        </div>
-
     </div>
 
-    <script>
-        function myFunction() {
-            var x = document.getElementById("myDIV");
-            if (x.innerHTML === "Pending") {
-                x.innerHTML = "Approved";
-            }
-        }
-    </script>
-
-    <script>
-        function openCity(evt, cityName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(cityName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-
-        // Get the element with id="defaultOpen" and click on it
-        document.getElementById("defaultOpen").click();
-
-    </script>
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./TradeAndLC-StatusUpdate.js"></script>
+    <script src="./HTMLElements-HelperUtil.js"></script>
 
     <script>
 
-        /* To Do : Write Generic function for placing all the "web client calls" & Load it via client side js script */
+        /* To-Do : Write Generic function for placing all the "web client calls" & Load it via client side js script */
 
         var bDebug = false;
-
-        /****************************************************************************************
-        Accept LC : Change the status of LC in mongo db by changing it to "LC Accepted"
-        *****************************************************************************************/
-
-        /****************************************************************************************
-        Accept LC : Place HyperLedger API Call
-        *****************************************************************************************/
-
-        $("#Accept-LC-Button").click(function () {
-
-
-            /****************************************************************************************
-                acceptLC : Change the LC Status once it needs to be approved by Seller
-            *****************************************************************************************/
-
-            // Prepare Http Request from Form-data and send the request
-
-            var lcId_value = document.getElementById("LC-Id-Input").value;
-
-            // Mongo DB call for Status Change
-
-            var queryMap = new Map();
-            var queryEmpty = true;
-
-            if (lcId_value != null && lcId_value != undefined) {
-
-                queryMap.set("Lc_Id", lcId_value);
-                queryEmpty = false;
-            }
-
-            if (queryEmpty == true) {
-
-                alert(" LC_Id values are missing while Accepting LC By Seller : ");
-
-            } else {
-
-                // Status Change in MongoDB
-
-                var webServerPrefix = "http://127.0.0.1:3500/?";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveLCRequest");
-
-                // Status Change in HyperLedger
-
-                var webServerPrefix = "/tfbc/";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptLC");
-
-            }
-
-        });
 
         $("#Retrieve_LC_Requests").click(function () {
 
@@ -335,7 +192,22 @@
             **************************************************************************************************/
 
             var Client_Request = "RetrieveAllRecords";
-            retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request);
+
+            // Get the Selected Option & remove the existing rows
+
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
+
+            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Seller_LC_Request_Details");
+
+            if (bDebug == true) {
+
+                alert("Existing Rows are removed from the Table");
+            }
+
+            // Retrieve the Trades as per selected Trade Status
+
+            retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request, Requested_LC_Status);
 
         });
 
@@ -343,7 +215,7 @@
         Retrieve LCRequest Details for current Seller : Retrieve LCRequest Details from MongoDB for current Seller
         *****************************************************************************************************************************/
 
-        function retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request) {
+        function retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request, Requested_LC_Status) {
 
             var webServerPrefix = "http://127.0.0.1:3500/?"
             var xmlhttp;
@@ -369,9 +241,12 @@
                         var responseString = this.response;
                         var lcRequests = responseString.split("\n");
 
-                        alert("All the lcRequests of Current Buyer => " + lcRequests);
+                        if (bDebug == true) {
 
-                        fillTheLcRequestDetailsOfCurrentSeller(lcRequests);
+                            alert("All the lcRequests of Current Buyer => " + lcRequests);
+                        }
+
+                        fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status);
 
                     } else {
 
@@ -396,24 +271,24 @@
 
         }
 
-        /***********************************************************************************************************
-        fillTheLcRequestDetailsOfCurrentSeller : Fill the LC Request details of current seller in the Table
-        ************************************************************************************************************/
+        /****************************************************************************************************************************
+        fillTheLcRequestDetailsOfCurrentSeller : Fill the LC Request details of current seller in the Table as per input LC Status
+        *****************************************************************************************************************************/
 
-        function fillTheLcRequestDetailsOfCurrentSeller(lcRequests) {
+        function fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status) {
 
-            for (var i = 0, currentRowIndex = 0; i < lcRequests.length; i++) {
+            var shipmentDetailsTable = document.getElementById("Seller_LC_Request_Details");
+
+            for (var i = 0, currentRowIndex = 0; i < lcRequests.length-1; i++) {
 
                 responseSingleObject = JSON.parse(lcRequests[i]);
 
-                if (responseSingleObject.Current_Status != "LC_Requested") {
+                if (responseSingleObject.Current_Status != Requested_LC_Status) {
                     continue;
                 }
 
-                var shipmentDetailsTable = document.getElementById("Seller_LC_Request_Details");
-
                 var currentRow = shipmentDetailsTable.insertRow(currentRowIndex + 1);
-                currentRowIndex += 1;
+                currentRowIndex++;
 
                 var currentRowElementsArray = [];
 
