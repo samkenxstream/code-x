@@ -40,10 +40,10 @@ var RetrieveUserDetails_Module = (function () {
 
                     if (bDebug == true) {
 
+                        alert("Successfully Retrieved the User Details Records through API : " + Client_Request);
                         alert(" Response Content: " + responseObject);
                     }
 
-                    alert("Successfully Retrieved the User Details Records through API : " + Client_Request);
 
                     //Parse the JSON Response Object
 
@@ -52,7 +52,10 @@ var RetrieveUserDetails_Module = (function () {
                     var numOfRecords = userDetailRecords.length - 2;
                     responseSingleObject = JSON.parse(userDetailRecords[numOfRecords]);
 
-                    alert("Success Response for RetrieveUserDetails : Last UserDetails Record => " + responseSingleObject);
+                    if (bDebug == true) {
+
+                        alert("Success Response for RetrieveUserDetails : Last UserDetails Record => " + responseSingleObject);
+                    }
 
                     if (changedSellerInputValue == null || changedSellerInputValue == undefined) {
 

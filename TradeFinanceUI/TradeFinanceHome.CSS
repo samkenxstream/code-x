@@ -138,6 +138,16 @@
     border : 2px solid;
 }
 
+.NavigationBar1 {
+
+    float: left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
 .ContentBrowser {
 
     float : left;

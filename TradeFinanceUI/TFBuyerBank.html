@@ -58,88 +58,78 @@
 
     <div class="container" style="width: 100%">
 
-        <div class="LeftBrowserBox" style="width: 10%">
-        </div>
+            <div class="LeftBrowserBox" style="width: 12%">
 
-        <div class="ContentBrowser" style="width: 85%">
+                <div class="NavigationBar1">
 
-            <p id="buffer1" style="padding-bottom : 10px"> </p>
+                    <a class="LCDetails" href="./TFBuyerBank.html">LC Details</a>
+                    <a class="MakePayment" href="./TFBuyerBank-MakePayment.html">Make Payment</a>
 
-            <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
-
-            <div class="Make-Payment-Details-Container" style="width: 80%">
-
-                <br />
-                <label id="Label_buffer" style="padding-right: 5%; padding-left: 18%">TA-Id</label>
-                <input id="TA-Id-Input" type="text">
-
-                <br /><br />
-                <label id="Label_buffer" style="padding-right: 5%; padding-left: 18%">LC-Id</label>
-                <input id="LC-Id-Input" type="text">
-                <br /><br /><br />
-
-                <label id="Label_buffer" style="padding-left: 18% ; padding-right: 6%"></label>
-                <button id="Make-Payment-Button" class="Make-Payment-To-Seller">MakePayment</button>
-                <br />
-                <br />
+                </div>
 
             </div>
 
-            <p id="buffer1_1" style="padding-bottom : 1px"> </p>
+            <div class="ContentBrowser" style="width: 85%">
 
-            <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
+                <p id="buffer1" style="padding-bottom : 10px"> </p>
 
-                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
+                <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
 
-                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
+                <p id="buffer1_1" style="padding-bottom : 1px"> </p>
 
-                    <option value="LCStatusSelection">Select LC Status</option>
-                    <option value="LCRequested">LC_Requested</option>
-                    <option value="LCGenerated">LC_Generated</option>
-                    <option value="LCApproved">LC_Approved</option>
+                <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
 
-                </select>
+                    <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
 
-                <label id="Label_buffer" style="padding-right: 6%"></label>
-                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
+                    <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
 
-            </div>
+                        <option value="LCStatusSelection">Select LC Status</option>
+                        <option value="LCRequested">LC_Requested</option>
+                        <option value="LCGenerated">LC_Generated</option>
+                        <option value="LCApproved">LC_Approved</option>
 
-            <div class="Current-Shipment-Order-Details" style="width: 80%">
+                    </select>
 
-                <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+                    <label id="Label_buffer" style="padding-right: 6%"></label>
+                    <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
 
-                    <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+                </div>
 
-                        <th class="Shipment-Details-TableHeader">taId</th>
-                        <th class="Shipment-Details-TableHeader">lcId</th>
-                        <th class="Shipment-Details-TableHeader">Buyer</th>
-                        <th class="Shipment-Details-TableHeader">Bank</th>
-                        <th class="Shipment-Details-TableHeader">Seller</th>
-                        <th class="Shipment-Details-TableHeader">Shipment</th>
-                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                        <th class="Shipment-Details-TableHeader">Amount</th>
-                        <th class="Shipment-Details-TableHeader">Select</th>
+                <div class="Current-Shipment-Order-Details" style="width: 80%">
 
-                    </tr>
+                    <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
 
-                </table>
+                        <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
 
-            </div>
+                            <th class="Shipment-Details-TableHeader">taId</th>
+                            <th class="Shipment-Details-TableHeader">lcId</th>
+                            <th class="Shipment-Details-TableHeader">Buyer</th>
+                            <th class="Shipment-Details-TableHeader">Bank</th>
+                            <th class="Shipment-Details-TableHeader">Seller</th>
+                            <th class="Shipment-Details-TableHeader">Shipment</th>
+                            <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                            <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                            <th class="Shipment-Details-TableHeader">Amount</th>
+                            <th class="Shipment-Details-TableHeader">Select</th>
 
-            <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
+                        </tr>
 
-                <br />
-                <br />
-                <label id="Label_buffer" style="padding-right: 15%"></label>
-                <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+                    </table>
+
+                </div>
+
+                <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
+
+                    <br />
+                    <br />
+                    <label id="Label_buffer" style="padding-right: 15%"></label>
+                    <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+
+                </div>
 
             </div>
 
         </div>
-
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./HTMLElements-HelperUtil.js"></script>
@@ -215,9 +205,6 @@
             var shipmentLocSelectBox = document.getElementById('Shipment-1-LC-Select').nodeValue;
 
             // Generate Pdf Doc
-            // To Do: Completely Dynamic Content based on Form factor dimensions and fit to the exact width of the window
-
-            // Date
 
             var todaysDate = new Date();
             var todaysMonth = parseInt(todaysDate.getMonth().toString());
@@ -356,60 +343,6 @@
             }
 
         }
-
-        /****************************************************************************************
-            Make Payment : Place HyperLedger API Call
-        *****************************************************************************************/
-
-        $("#Make-Payment-Button").click(function () {
-
-
-            /****************************************************************************************
-                Make Payment : Change the status of LC in both "Mongo DB and HyperLedger"
-            *****************************************************************************************/
-
-            // Prepare Http Request from Form-data and send the request
-
-            var taId_value = document.getElementById("Trade-Id-Input").value;
-            var lcId_value = document.getElementById("LC-Id-Input").value;
-
-            // Mongo DB call for Status Change
-
-            var queryMap = new Map();
-            var queryEmpty = true;
-
-            if (taId_value != null && taId_value != undefined) {
-
-                queryMap.set("Trade_Id", taId_value);
-                queryEmpty = false;
-            }
-
-            if (lcId_value != null && lcId_value != undefined) {
-
-                queryMap.set("Lc_Id", lcId_value);
-                queryEmpty = false;
-            }
-
-            if (queryEmpty == true) {
-
-                alert(" (Trade Agreement Id & lcId)  values are missing while Making the Payment : ");
-
-            } else {
-
-                // Status Change in MongoDB
-
-                var webServerPrefix = "http://127.0.0.1:3500/?";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "MakePayment");
-
-                // Status Change in HyperLedger
-
-                var webServerPrefix = "/tfbc/";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "makePayment");
-
-            }
-
-        });
-
 
         /***********************************************************************************************************
             Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row
