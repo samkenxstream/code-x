@@ -368,8 +368,10 @@
 
             // Mongo DB call for Retrieving The User Details
 
+            var updateDynamicFieldsArray = [selectionBoxId];
+
             var webServerPrefix = "http://127.0.0.1:3500/?";
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", selectionBoxId, additionalBoxField_Id, null);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, additionalBoxField_Id, null);
 
         }
 
@@ -388,8 +390,10 @@
 
             // Mongo DB call for Retrieving The Shipment Details
 
+            var updateDynamicFieldsArray = ["Shipment-Input"];
+
             var webServerPrefix = "http://127.0.0.1:3500/?";
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", "Shipment-Input", null, changedSellerInputValue);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, null, changedSellerInputValue);
 
         }
 

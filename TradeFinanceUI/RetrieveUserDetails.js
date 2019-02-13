@@ -7,7 +7,7 @@ var RetrieveUserDetails_Module = (function () {
     Retrieve the User-Details Records As per Input User Type ( Buyer, Seller, Bank )
     *****************************************************************************************/
 
-    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, selectionBoxId, additionalBoxField_Id, changedSellerInputValue) {
+    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, selectionBoxIdArray, additionalBoxField_Id, changedSellerInputValue) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -59,11 +59,11 @@ var RetrieveUserDetails_Module = (function () {
 
                     if (changedSellerInputValue == null || changedSellerInputValue == undefined) {
 
-                        fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxId, additionalBoxField_Id);
+                        fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxIdArray[0], additionalBoxField_Id);
 
                     } else {
 
-                        fillTheShipmentDetailsInSelectionBox(userDetailRecords, selectionBoxId, changedSellerInputValue);
+                        fillTheDynamicFieldsBasedOnChangedInput(userDetailRecords, selectionBoxIdArray, changedSellerInputValue);
                     }
 
                 } else {
@@ -139,12 +139,15 @@ var RetrieveUserDetails_Module = (function () {
     }
 
     /***********************************************************************************************************
-    Helper Methods : fillTheShipmentDetailsInSelectionBox
+    Helper Methods : fillTheDynamicFieldsBasedOnChangedInput
     ************************************************************************************************************/
 
-    function fillTheShipmentDetailsInSelectionBox(userDetailRecords, selectionBoxId, changedSellerInputValue) {
+    function fillTheDynamicFieldsBasedOnChangedInput(userDetailRecords, selectionBoxIdArray, changedSellerInputValue) {
 
-        document.getElementById(selectionBoxId).innerHTML = null;
+        for (var i = 0; i < selectionBoxIdArray.length; i++) {
+
+            document.getElementById(selectionBoxIdArray[i]).innerHTML = null;
+        }
 
         // For all the User Details of corresponding UserType
 
@@ -152,7 +155,13 @@ var RetrieveUserDetails_Module = (function () {
 
             responseSingleObject = JSON.parse(userDetailRecords[i]);
 
-            var selectionBox = document.getElementById(selectionBoxId);
+            var shipmentSelectionBox = document.getElementById(selectionBoxIdArray[0]);
+
+            var sellerIdSelectionBox = null;
+            if (selectionBoxIdArray.length > 1) {
+
+                sellerIdSelectionBox = document.getElementById(selectionBoxIdArray[1]);
+            }
 
             // Log error if userName doesn't exist
 
@@ -164,22 +173,47 @@ var RetrieveUserDetails_Module = (function () {
 
                 if (responseSingleObject.Name == changedSellerInputValue) {
 
+                    if (bDebug == true) {
+
+                        alert("currentShipmentValue = " + currentShipmentValue);
+                    }
+
+                    // Shipment Value Addition without Spaces
+
                     var currentShipmentValue = responseSingleObject.Shipment;
-                    alert("currentShipmentValue = " + currentShipmentValue);
-                    var regExpr = /%20/gi;
-                    currentShipmentValue = currentShipmentValue.replace(regExpr, " ");
+                    var currentSellerIdValue = responseSingleObject.UserName;
 
-                    // Add Option with Shipment Value to the Selection Box
+                    addOptionToSelectionBox(shipmentSelectionBox, currentShipmentValue);
 
-                    var currentElementToBeAdded = document.createElement("option");
-                    currentElementToBeAdded.text = currentShipmentValue;
+                    if (selectionBoxIdArray.length > 1) {
 
-                    selectionBox.add(currentElementToBeAdded);
-
+                        addOptionToSelectionBox(sellerIdSelectionBox, currentSellerIdValue);
+                    }
                 }
             }
-
         }
+    }
+
+    /***********************************************************************************************************
+        Helper Methods : addOptionToSelectionBox
+    ************************************************************************************************************/
+
+    function addOptionToSelectionBox(selectionBox, currentOptionValue) {
+
+        if (currentOptionValue == null || currentOptionValue == undefined) {
+
+            return;
+        }
+
+        var regExpr = /%20/gi;
+        currentOptionValue = currentOptionValue.replace(regExpr, " ");
+
+        // Add Option with input OptionValue to the Selection Box
+
+        var currentElementToBeAdded = document.createElement("option");
+        currentElementToBeAdded.text = currentOptionValue;
+
+        selectionBox.add(currentElementToBeAdded);
     }
 
     /****************************************************************************************
@@ -189,7 +223,6 @@ var RetrieveUserDetails_Module = (function () {
     return {
 
         retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB
-
     };
 
 })();
