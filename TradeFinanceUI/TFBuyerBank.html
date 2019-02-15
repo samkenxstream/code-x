@@ -182,12 +182,75 @@
 
             if (bDebug == true) {
 
-                alert("Generate LoC Button Event : Generating LoC PDF Files");
+                alert("Generate LoC Button Event : Generating LC PDF Files");
             }
 
-            // Create LC : PDF File
+            // Get the shipment details of All the Selections in Table Rows
 
-            var pdfDoc = new jsPDF();
+            var tableElementRows = document.getElementById("Buyer_Bank_Shipment_Order_Details").rows;
+            var tableElementRowsLength = document.getElementById("Buyer_Bank_Shipment_Order_Details").rows.length;
+
+            if (bDebug == true) {
+
+                alert("tableElementRows : " + tableElementRows);
+                alert("tableElementRowsLength : " + tableElementRowsLength);
+            }
+
+            for (var i = 0; i < tableElementRowsLength; i++) {
+
+                var currentRowCells = tableElementRows[i].cells;
+                var shipmentLcSelectBoxValue = false;
+                
+                if (bDebug == true) {
+
+                    alert("currentRow.SelectionCell : " + currentRowCells[9]);
+                    alert("shipmentId : " + currentRowCells[0].textContent);
+                    alert("currentRow.SelectionCell.Child : " + currentRowCells[9].childNodes[0]);
+                    alert("currentRow.SelectionCell.Child Node Type : " + currentRowCells[9].childNodes[0].type);
+                    alert("currentRow.SelectionBox.Child Node Value : " + currentRowCells[9].childNodes[0].checked);
+                }
+
+                if (currentRowCells[9].childNodes[0] != null) {
+
+                    shipmentLcSelectBoxValue = currentRowCells[9].childNodes[0].checked;
+                }
+
+                if (shipmentLcSelectBoxValue == true) {
+
+                    if (bDebug == true) {
+
+                        alert("shipmentId : " + currentRowCells[0].textContent);
+                    }
+
+                    var shipmentId = currentRowCells[0].textContent;
+                    var shipmentLcId = currentRowCells[1].textContent;
+                    var shipmentBuyer = currentRowCells[2].textContent;
+                    var shipmentBank = currentRowCells[3].textContent;
+                    var shipmentSeller = currentRowCells[4].textContent;
+                    var shipmentShipment = currentRowCells[5].textContent;
+                    var shipmentCount = currentRowCells[6].textContent;
+                    var shipmentExpiryDate = currentRowCells[7].textContent;
+                    var shipmentCreditAmount = currentRowCells[8].textContent;
+
+                    // Create PDF File with the Selected Input Content
+
+                    generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBuyer, shipmentBank, shipmentSeller,
+                        shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount);
+                }
+            }
+        });
+
+        /****************************************************************************************
+            Generate "Letter of Credit PDF files" for selected Shipment orders
+        *****************************************************************************************/
+
+        /*
+        $("#BuyerBank-Generate-LC-Button").click(function () {
+
+            if (bDebug == true) {
+
+                alert("Generate LoC Button Event : Generating LoC PDF Files");
+            }
 
             // Retrieve the details of the Shipment Order
             // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
@@ -203,6 +266,20 @@
             var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
             var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
             var shipmentLocSelectBox = document.getElementById('Shipment-1-LC-Select').nodeValue;
+
+        */
+
+
+        /****************************************************************************************
+            Generate Single LC based on Selected Input
+        *****************************************************************************************/
+
+        function generateLCFileBasedOnSelectedInput( shipmentId, shipmentLcId, shipmentBuyer, shipmentBuyerBank, shipmentSeller,
+            shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount ) {
+
+            // Create LC : PDF File
+
+            var pdfDoc = new jsPDF();
 
             // Generate Pdf Doc
 
@@ -265,14 +342,15 @@
 
             // Generate LC
 
-            var fileName = "LoC-Shipment-" + shipmentId + ".pdf"
+            var fileName = "LoC-Shipment-" + shipmentId + shipmentLcId + ".pdf";
             pdfDoc.save(fileName);
 
             // Issue LC
 
-            issueLC();
-
-        });
+            /*
+            issueLC(lcIdString);
+            */
+        }
 
         /****************************************************************************************
             Issue LC : Change the status of LC in mongo db by changing it to LC Issued
@@ -282,7 +360,7 @@
             Issue LC : Place HyperLedger API Call
         *****************************************************************************************/
 
-        function issueLC() {
+        function issueLC(lcId_value) {
 
             var webServerPrefix = "/tfbc/"
             var xmlhttp;
@@ -324,8 +402,6 @@
 
             // Prepare Http Request from Form-data and send the request
 
-            var lcId_value = document.getElementById("LC-Id-Input").value;
-
             obj = { lcId: lcId_value };
             params = JSON.stringify(obj);
 
@@ -341,8 +417,8 @@
                 }
                 xmlhttp.send(params);
             }
-
         }
+
 
         /***********************************************************************************************************
             Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row
@@ -450,8 +526,12 @@
 
                     if (j == 9) {
 
-                        currentRowElement = document.createElement('input');
-                        currentRowElement.type = "checkbox";
+                        currentRowElement = document.createElement('td');
+
+                        currentRowElementChild = document.createElement('input');
+                        currentRowElementChild.type = "checkbox";
+
+                        currentRowElement.appendChild(currentRowElementChild);
 
                     } else {
 
