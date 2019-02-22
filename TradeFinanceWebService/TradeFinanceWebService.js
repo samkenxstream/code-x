@@ -26,6 +26,8 @@
 var http = require('http');
 var url = require('url');
 var cryptoModule = require('crypto');
+var fileSystemModule = require('fs');
+var jsPdfModule = require('jspdf');
 
 var port = process.env.PORT || 3500;
 
@@ -493,6 +495,15 @@ http.createServer(function (req, res) {
                         clientRequestWithParamsMap,
                         webClientRequest,
                         statusToBeUpdated,
+                        res);
+
+                    break;
+
+                case "GenerateLC":
+
+                    generateLCAndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
                         res);
 
                     break;
@@ -1631,5 +1642,191 @@ function removeUrlSpacesFromObjectValues(queryResult) {
     }
 
     return queryResult;
+}
+
+
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
+ * 
+ * Trade and LC record Query & Response Building
+ * 
+ **************************************************************************
+ **************************************************************************
+ */
+
+/**
+ * 
+ * @param { any } clientRequestWithParamsMap: input Map consisting of LC Details("Trade_Id, Lc_Id")
+ * @param { any } http_response: Http Response to be built based on LC Generation and Upload to file Server
+ *
+*/
+
+function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_response) {
+
+    // ToDo : Generate LC based on Input Details
+
+    var fileName = "LoC-Shipment-" + clientRequestWithParamsMap.get("taId") + clientRequestWithParamsMap.get("lcId") + ".pdf";
+
+    //pdfDoc.save(fileName);
+
+    var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap.get("taId"),
+        clientRequestWithParamsMap.get("lcId"),
+        clientRequestWithParamsMap.get("buyer"),
+        clientRequestWithParamsMap.get("bank"),
+        clientRequestWithParamsMap.get("seller"),
+        clientRequestWithParamsMap.get("shipment"),
+        clientRequestWithParamsMap.get("count"),
+        clientRequestWithParamsMap.get("expiryDate"),
+        clientRequestWithParamsMap.get("creditAmount") );
+
+    var dstFile = "./LCFiles/" + fileName;
+
+    fileSystemModule.writeFileSync(dstFile, fileData, (err) => {
+
+        if (err) {
+
+            console.error("Error while writing data to pdf file : Error => " + err);
+            var failureMessage = "generateLCAndUploadItToFileServer : Error while writing data to pdf file => " + err;
+
+            var http_StatusCode = 400;
+            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
+
+            return;
+        }
+
+        console.log("generateLCAndUploadItToFileServer => Successfully wrote the data to PDF File");
+
+        var successMessage = "generateLCAndUploadItToFileServer : Successfully wrote the data to PDF File";
+        buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
+
+    });
+
+    // ToDo : Copy the File from downloads location to File Server Location
+
+    /*
+    console.log("generateLCAndUploadItToFileServer => : Moving the file to File Server Location => LCFiles");
+
+    var srcFile = "C:/Users/Administrator/Downloads/RetrieveText.txt";
+    var dstFile = "./LCFiles/RetrieveText.txt";
+
+    fileSystemModule.copyFile( srcFile, dstFile, (err) => {
+
+        if (err) {
+
+            console.error("Error while moving the LC File to Destination : Error => " + err);
+            var failureMessage = "generateLCAndUploadItToFileServer : Error while moving the LC File to Destination => " + err;
+
+            var http_StatusCode = 400;
+            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
+
+            return;
+        }
+
+        console.log("generateLCAndUploadItToFileServer => Successfully moved the file to File Server Location :");
+
+        var successMessage = "generateLCAndUploadItToFileServer : Successfully moved the file to File Server Location";
+        buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
+
+    });
+    */
+
+}
+
+/****************************************************************************************
+    Generate Single LC based on Selected Input
+*****************************************************************************************/
+
+function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBuyer, shipmentBuyerBank, shipmentSeller,
+    shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount) {
+
+    // Create LC : PDF File
+
+    var pdfDoc = new jsPdfModule();
+
+    // Generate Pdf Doc
+
+    var todaysDate = new Date();
+    var todaysMonth = parseInt(todaysDate.getMonth().toString());
+    todaysMonth += 1;
+    var todaysYear = parseInt(todaysDate.getYear().toString());
+    todaysYear += 1900;
+
+    var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
+    pdfDoc.text(135, 30, dateString);
+
+    // Place
+
+    var placeString = "Place : " + "Hyderabad, India";
+    pdfDoc.text(135, 40, placeString);
+
+    // To Section Details
+
+    pdfDoc.text(15, 60, "To : ");
+    pdfDoc.text(15, 70, shipmentSeller + ",");
+
+    // Subject Section Details
+
+    var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentShipment + "), Id : (" + shipmentId + ")";
+    pdfDoc.text(25, 95, LCSubjectLine);
+
+    // Letter content Paragraph 1
+
+    var LCContentLine1 = shipmentBuyerBank + " here by certifies that, payment for the amount of " + shipmentCreditAmount;
+    var LCContentLine2 = "will be processed by " + shipmentBuyerBank + " on behalf of " + shipmentBuyer + ", as soon as";
+    var LCContentLine3 = shipmentShipment + "(" + shipmentCount + ")" + " are delivered on or before " + shipmentExpiryDate + ".";
+
+    pdfDoc.text(30, 120, LCContentLine1);
+    pdfDoc.text(15, 130, LCContentLine2);
+    pdfDoc.text(15, 140, LCContentLine3);
+
+    // Subject Section Details
+
+    var LCContentLine4 = "LC would expire with immediate effect on " + shipmentExpiryDate + " , if promised";
+    var LCContentLine5 = "items : " + shipmentShipment + "(" + shipmentCount + ")" + " are not delivered by then.";
+
+    pdfDoc.text(30, 155, LCContentLine4);
+    pdfDoc.text(15, 165, LCContentLine5);
+
+    // Closure : Addressing by Author
+
+    var LCAddressingSignOffByAuthor = "Thanks & Regards,";
+    pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
+    pdfDoc.text(135, 200, shipmentBuyer);
+
+    var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+    var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+
+    var tradeIdString = "Trade Id : " + generateUniqueTradeId;
+    var lcIdString = "LC Id : " + generateUniqueLCId;
+
+    pdfDoc.text(25, 220, tradeIdString);
+    pdfDoc.text(25, 230, lcIdString);
+
+    // Generate Data Output for pdfDoc
+
+    var dataOutput = pdfDoc.output();
+    return dataOutput;
+}
+
+/**
+ * 
+ * @param {any} successMessage  : Success Message Content
+ * @param {any} webClientRequest  : Client Request Name
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function buildSuccessResponse_ForLCGeneration(successMessage, webClientRequest, http_response) {
+
+    // Build success Response for Record Updation
+
+    var lcGenerationResponseObject = null;
+
+    lcGenerationResponseObject = { Request: webClientRequest, Status: successMessage };
+    var lcGenerationResponse = JSON.stringify(lcGenerationResponseObject);
+
+    http_response.writeHead(200, { 'Content-Type': 'application/json' });
+    http_response.end(lcGenerationResponse);
 }
 

@@ -711,6 +711,36 @@ span.psw {
     border: 1px solid thick brown;
 }
 
+.File-Input-For-Lc-Upload {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 18px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 20px;
+    border: 1px solid thick brown;
+    background-color: saddlebrown;
+}
+
+.Upload-LC-Files-Button {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Upload-LC-Files-Details-Container {
+    clear: left;
+    padding-bottom: 20px;
+    padding-top: 45px;
+}
+
 .Make-Payment-To-Seller {
     clear: left;
     font-family: Times New Roman;

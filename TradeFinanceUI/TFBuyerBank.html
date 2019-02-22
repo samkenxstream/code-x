@@ -58,81 +58,95 @@
 
     <div class="container" style="width: 100%">
 
-            <div class="LeftBrowserBox" style="width: 12%">
+        <div class="LeftBrowserBox" style="width: 12%">
 
-                <div class="NavigationBar1">
+            <div class="NavigationBar1">
 
-                    <a class="LCDetails" href="./TFBuyerBank.html">LC Details</a>
-                    <a class="MakePayment" href="./TFBuyerBank-MakePayment.html">Make Payment</a>
-
-                </div>
-
-            </div>
-
-            <div class="ContentBrowser" style="width: 85%">
-
-                <p id="buffer1" style="padding-bottom : 10px"> </p>
-
-                <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
-
-                <p id="buffer1_1" style="padding-bottom : 1px"> </p>
-
-                <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
-
-                    <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
-
-                    <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
-
-                        <option value="LCStatusSelection">Select LC Status</option>
-                        <option value="LCRequested">LC_Requested</option>
-                        <option value="LCGenerated">LC_Generated</option>
-                        <option value="LCApproved">LC_Approved</option>
-
-                    </select>
-
-                    <label id="Label_buffer" style="padding-right: 6%"></label>
-                    <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
-
-                </div>
-
-                <div class="Current-Shipment-Order-Details" style="width: 80%">
-
-                    <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
-
-                        <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
-
-                            <th class="Shipment-Details-TableHeader">taId</th>
-                            <th class="Shipment-Details-TableHeader">lcId</th>
-                            <th class="Shipment-Details-TableHeader">Buyer</th>
-                            <th class="Shipment-Details-TableHeader">Bank</th>
-                            <th class="Shipment-Details-TableHeader">Seller</th>
-                            <th class="Shipment-Details-TableHeader">Shipment</th>
-                            <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                            <th class="Shipment-Details-TableHeader">ExpiryDate</th>
-                            <th class="Shipment-Details-TableHeader">Amount</th>
-                            <th class="Shipment-Details-TableHeader">Select</th>
-
-                        </tr>
-
-                    </table>
-
-                </div>
-
-                <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
-
-                    <br />
-                    <br />
-                    <label id="Label_buffer" style="padding-right: 15%"></label>
-                    <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
-
-                </div>
+                <a class="LCDetails" href="./TFBuyerBank.html">LC Details</a>
+                <a class="MakePayment" href="./TFBuyerBank-MakePayment.html">Make Payment</a>
 
             </div>
 
         </div>
 
+        <div class="ContentBrowser" style="width: 85%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+
+            <h1 class="Shipment-Order-Details-Header">Shipment Order Details</h1>
+
+            <p id="buffer1_1" style="padding-bottom : 1px"> </p>
+
+            <div class="Retrieve-Shipment-Details-Container" style="width: 80%">
+
+                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
+
+                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
+
+                    <option value="LCStatusSelection">Select LC Status</option>
+                    <option value="LCRequested">LC_Requested</option>
+                    <option value="LCGenerated">LC_Generated</option>
+                    <option value="LCApproved">LC_Approved</option>
+
+                </select>
+
+                <label id="Label_buffer" style="padding-right: 6%"></label>
+                <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
+
+            </div>
+
+            <div class="Upload-LC-Files-Details-Container" style="width: 80%">
+
+                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 10%"></label>
+                <label id="Label_Upload_LC_Files" style="font-weight:bold; background-color:white; padding-left: 1%; padding-right:1%; padding-top: 1%; padding-bottom: 1%">Select LC Files</label>
+                <label id="Label_buffer" style="padding-right:6.5%"></label>
+                <input type="file" id="File_Input_For_Lc_Upload" class="File-Input-For-Lc-Upload" name="Upload-LC-Files">
+
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-right: 25%"></label>
+                <button id="Upload_LC_Files_Button" class="Upload-LC-Files-Button">Upload LC Files</button>
+
+            </div>
+
+            <div class="Current-Shipment-Order-Details" style="width: 80%">
+
+                <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+
+                    <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+
+                        <th class="Shipment-Details-TableHeader">taId</th>
+                        <th class="Shipment-Details-TableHeader">lcId</th>
+                        <th class="Shipment-Details-TableHeader">Buyer</th>
+                        <th class="Shipment-Details-TableHeader">Bank</th>
+                        <th class="Shipment-Details-TableHeader">Seller</th>
+                        <th class="Shipment-Details-TableHeader">Shipment</th>
+                        <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                        <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                        <th class="Shipment-Details-TableHeader">Amount</th>
+                        <th class="Shipment-Details-TableHeader">Select</th>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div id="BuyerBank_Generate_LC" class="BuyerBank-Generate-LC">
+
+                <br />
+                <br />
+                <label id="Label_buffer" style="padding-right: 15%"></label>
+                <button id="BuyerBank-Generate-LC-Button" class="Generate-LC-Button">Generate Letter Of Credit</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./HTMLElements-HelperUtil.js"></script>
+    <script src="./GenerateLCDetails.js"></script>
 
     <script>
 
@@ -175,6 +189,59 @@
 
 
         /****************************************************************************************
+            Upload the Selected LC Files to the Server Data Location
+        *****************************************************************************************/
+
+        $("#Upload_LC_Files_Button").click(function () {
+
+            // Retrieve the Lc Details from mongoDb
+
+            /*
+            var formDataLCFiles = new FormData();
+            //var allLCFiles = document.querySelector("input[type='file'][multiple]");
+            var allLCFiles = document.getElementById("File_Input_For_Lc_Upload");
+
+            for (var i = 0; i < allLCFiles.length; i++) {
+
+                formDataLCFiles.append('AllLCFiles',allLCFiles.files[i]);
+            }
+
+            //var url = "http://127.0.0.1:8080/LocalWeb/TradeFinance/TradeFinanceWebServer/TradeFinanceWebService/TradeFinanaceWebClient";
+            //var url = "https://drive.google.com/drive/my-drive";
+
+            var url = 'http://localhost:3000/Identities';
+
+            var simpleFileData = allLCFiles.files[0];
+            var simpleObject = { "name": "trade-finanace-web-client", "version": "0.0.0" };
+            var simpleTextData = "Simple Random Blob";
+
+            var addObject = { id: 2 };
+
+            fetch(url, {
+
+                method: 'POST',
+                mode: 'no-cors',
+                //credentials: 'include',
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(addObject)
+            })
+            .then(response => response.json())
+            .then(response => console.log("Success Response Content = " + response))
+            .catch(errorResponse => console.error("Error Response :=> " + errorResponse));
+            */
+
+            // Retrieve the Lc Details from mongoDb
+
+            GenerateLCModule.generateLCOnServerSide("GenerateLC", null);
+
+        });
+
+
+        /****************************************************************************************
             Generate "Letter of Credit PDF files" for selected Shipment orders
         *****************************************************************************************/
 
@@ -200,7 +267,7 @@
 
                 var currentRowCells = tableElementRows[i].cells;
                 var shipmentLcSelectBoxValue = false;
-                
+
                 if (bDebug == true) {
 
                     alert("currentRow.SelectionCell : " + currentRowCells[9]);
@@ -232,50 +299,36 @@
                     var shipmentExpiryDate = currentRowCells[7].textContent;
                     var shipmentCreditAmount = currentRowCells[8].textContent;
 
-                    // Create PDF File with the Selected Input Content
+                    // Create PDF File with the Selected Input Content : Client Side
 
                     generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBuyer, shipmentBank, shipmentSeller,
                         shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount);
+
+                    // Create PDF File with the Selected Input Content : Client Side
+
+                    var shipmentDetailsMap = new Map();
+
+                    shipmentDetailsMap.set("taId", shipmentId);
+                    shipmentDetailsMap.set("lcId", shipmentLcId);
+                    shipmentDetailsMap.set("buyer", shipmentBuyer);
+                    shipmentDetailsMap.set("bank", shipmentBank);
+                    shipmentDetailsMap.set("seller", shipmentSeller);
+                    shipmentDetailsMap.set("shipment", shipmentShipment);
+                    shipmentDetailsMap.set("count", shipmentCount);
+                    shipmentDetailsMap.set("expiryDate", shipmentExpiryDate);
+                    shipmentDetailsMap.set("creditAmount", shipmentCreditAmount);
+
+                    GenerateLCModule.generateLCOnServerSide("GenerateLC", shipmentDetailsMap);
                 }
             }
         });
 
         /****************************************************************************************
-            Generate "Letter of Credit PDF files" for selected Shipment orders
-        *****************************************************************************************/
-
-        /*
-        $("#BuyerBank-Generate-LC-Button").click(function () {
-
-            if (bDebug == true) {
-
-                alert("Generate LoC Button Event : Generating LoC PDF Files");
-            }
-
-            // Retrieve the details of the Shipment Order
-            // To do : Capture Document Element Id Dynamically ( generated based on Shipment Serial Number display )
-            // Map & Functions ( dynamic content retrievals & Generation of LC )
-
-            var shipmentId = document.getElementById('Shipment-1-taId').textContent;
-            var shipmentLcId = document.getElementById('Shipment-1-lcId').textContent;
-            var shipmentBuyer = document.getElementById('Shipment-1-Buyer').textContent;
-            var shipmentBuyerBank = document.getElementById('Shipment-1-Bank').textContent;
-            var shipmentSeller = document.getElementById('Shipment-1-Seller').textContent;
-            var shipmentShipment = document.getElementById('Shipment-1-Shipment').textContent;
-            var shipmentCount = document.getElementById('Shipment-1-Shipment-Count').textContent;
-            var shipmentExpiryDate = document.getElementById('Shipment-1-Expiry-Date').textContent;
-            var shipmentCreditAmount = document.getElementById('Shipment-1-Credit-Amount').textContent;
-            var shipmentLocSelectBox = document.getElementById('Shipment-1-LC-Select').nodeValue;
-
-        */
-
-
-        /****************************************************************************************
             Generate Single LC based on Selected Input
         *****************************************************************************************/
 
-        function generateLCFileBasedOnSelectedInput( shipmentId, shipmentLcId, shipmentBuyer, shipmentBuyerBank, shipmentSeller,
-            shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount ) {
+        function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBuyer, shipmentBuyerBank, shipmentSeller,
+            shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount) {
 
             // Create LC : PDF File
 
