@@ -21,6 +21,18 @@
  * 
  *************************************************************************/
 
+// Include jsPDF Module for LC File Generation On Server Side
+// Define globals as per JSPDF Inclusion Usage/Syntax
+
+global.window = {
+    document: {
+        createElementNS: () => { return {} }
+    }
+};
+global.navigator = {};
+global.btoa = () => { };
+
+
 // Generic Variables Global
 
 var http = require('http');
@@ -29,9 +41,13 @@ var cryptoModule = require('crypto');
 var fileSystemModule = require('fs');
 var jsPdfModule = require('jspdf');
 
+
+// Define globals as per JSPDF Inclusion Usage/Syntax
+
 var port = process.env.PORT || 3500;
 
-// MongoDB Connection Variables  
+
+// MongoDB Connection Variables
 
 var mongoDbConnection = require('mongodb');
 var mongoClient = mongoDbConnection.MongoClient;
@@ -501,9 +517,7 @@ http.createServer(function (req, res) {
 
                 case "GenerateLC":
 
-                    generateLCAndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
+                    generateLCAndUploadItToFileServer( clientRequestWithParamsMap,
                         res);
 
                     break;
@@ -523,6 +537,10 @@ http.createServer(function (req, res) {
 
     //db.close();
     //console.log("Closed the Db connection successfully");
+
+    delete global.window;
+    delete global.navigator;
+    delete global.btoa;
 
 }).listen(port);
 
@@ -1682,7 +1700,11 @@ function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_resp
 
     var dstFile = "./LCFiles/" + fileName;
 
-    fileSystemModule.writeFileSync(dstFile, fileData, (err) => {
+    console.log("generateLCAndUploadItToFileServer.fs.writeFile => Writing LC Data to PDF File : " + dstFile);
+
+    fileSystemModule.writeFile(dstFile, fileData, (err) => {
+
+        console.log("generateLCAndUploadItToFileServer.fs.writeFile => in call back function code");
 
         if (err) {
 
