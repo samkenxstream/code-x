@@ -164,7 +164,7 @@
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
+            var taId_value = document.getElementById("Trade-Id-Input").value;
 
             // Mongo DB call for Status Change
 
@@ -190,8 +190,10 @@
 
                 // Status Change in HyperLedger
 
+                /*
                 var webServerPrefix = "/tfbc/";
                 TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptTrade");
+                */
 
             }
 

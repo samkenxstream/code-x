@@ -57,7 +57,10 @@ var TradeAndLC_StatusUpdateModule = (function () {
 
             } else {
 
-                alert("Failure to place changeTradeAndLCStatus call :=> Status : " + this.status + " readyState : " + this.readyState);
+                if (bDebug == true) {
+
+                    alert("Failure to place changeTradeAndLCStatus call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
             }
 
         };

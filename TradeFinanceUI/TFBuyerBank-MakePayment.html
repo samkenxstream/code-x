@@ -99,6 +99,7 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/HTMLElements-HelperUtil.js"></script>
+    <script src="./JavaScript/TradeAndLC-StatusUpdate.js"></script>
 
     <script>
 
@@ -110,14 +111,13 @@
 
         $("#Make-Payment-Button").click(function () {
 
-
             /****************************************************************************************
                 Make Payment : Change the status of LC in both "Mongo DB and HyperLedger"
             *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("Trade-Id-Input").value;
+            var taId_value = document.getElementById("TA-Id-Input").value;
             var lcId_value = document.getElementById("LC-Id-Input").value;
 
             // Mongo DB call for Status Change
@@ -150,8 +150,10 @@
 
                 // Status Change in HyperLedger
 
+                /*
                 var webServerPrefix = "/tfbc/";
                 TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "makePayment");
+                */
 
             }
 
