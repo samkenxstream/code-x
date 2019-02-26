@@ -1667,7 +1667,7 @@ function removeUrlSpacesFromObjectValues(queryResult) {
  **************************************************************************
  **************************************************************************
  * 
- * Trade and LC record Query & Response Building
+ * LC Generation and Corresponding Helper Functions
  * 
  **************************************************************************
  **************************************************************************
@@ -1688,7 +1688,9 @@ function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_resp
 
     //pdfDoc.save(fileName);
 
-    var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap.get("taId"),
+    var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap );
+
+    /*var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap.get("taId"),
         clientRequestWithParamsMap.get("lcId"),
         clientRequestWithParamsMap.get("buyer"),
         clientRequestWithParamsMap.get("bank"),
@@ -1696,7 +1698,7 @@ function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_resp
         clientRequestWithParamsMap.get("shipment"),
         clientRequestWithParamsMap.get("count"),
         clientRequestWithParamsMap.get("expiryDate"),
-        clientRequestWithParamsMap.get("creditAmount") );
+        clientRequestWithParamsMap.get("creditAmount") );*/
 
     var dstFile = "./LCFiles/" + fileName;
 
@@ -1756,15 +1758,16 @@ function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_resp
 }
 
 /****************************************************************************************
-    Generate Single LC based on Selected Input
+    Generate Single LC based on Selected Input Details
 *****************************************************************************************/
 
-function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBuyer, shipmentBuyerBank, shipmentSeller,
-    shipmentShipment, shipmentCount, shipmentExpiryDate, shipmentCreditAmount) {
+function generateLCFileBasedOnSelectedInput(clientRequestWithParamsMap) {
 
     // Create LC : PDF File
 
     var pdfDoc = new jsPdfModule();
+
+    clientRequestWithParamsMap = removeUrlSpacesFromMapValues(clientRequestWithParamsMap);
 
     // Generate Pdf Doc
 
@@ -1785,18 +1788,18 @@ function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBu
     // To Section Details
 
     pdfDoc.text(15, 60, "To : ");
-    pdfDoc.text(15, 70, shipmentSeller + ",");
+    pdfDoc.text(15, 70, clientRequestWithParamsMap.get("seller") + ",");
 
     // Subject Section Details
 
-    var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentShipment + "), Id : (" + shipmentId + ")";
+    var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + clientRequestWithParamsMap.get("shipment") + "), Id : (" + clientRequestWithParamsMap.get("taId") + ")";
     pdfDoc.text(25, 95, LCSubjectLine);
 
     // Letter content Paragraph 1
 
-    var LCContentLine1 = shipmentBuyerBank + " here by certifies that, payment for the amount of " + shipmentCreditAmount;
-    var LCContentLine2 = "will be processed by " + shipmentBuyerBank + " on behalf of " + shipmentBuyer + ", as soon as";
-    var LCContentLine3 = shipmentShipment + "(" + shipmentCount + ")" + " are delivered on or before " + shipmentExpiryDate + ".";
+    var LCContentLine1 = clientRequestWithParamsMap.get("bank") + " here by certifies that, payment for the amount of " + clientRequestWithParamsMap.get("creditAmount");
+    var LCContentLine2 = "will be processed by " + clientRequestWithParamsMap.get("bank") + " on behalf of " + clientRequestWithParamsMap.get("buyer") + ", as soon as";
+    var LCContentLine3 = clientRequestWithParamsMap.get("shipment") + "(" + clientRequestWithParamsMap.get("count") + ")" + " are delivered on or before " + clientRequestWithParamsMap.get("expiryDate") + ".";
 
     pdfDoc.text(30, 120, LCContentLine1);
     pdfDoc.text(15, 130, LCContentLine2);
@@ -1804,8 +1807,8 @@ function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBu
 
     // Subject Section Details
 
-    var LCContentLine4 = "LC would expire with immediate effect on " + shipmentExpiryDate + " , if promised";
-    var LCContentLine5 = "items : " + shipmentShipment + "(" + shipmentCount + ")" + " are not delivered by then.";
+    var LCContentLine4 = "LC would expire with immediate effect on " + clientRequestWithParamsMap.get("expiryDate") + " , if promised";
+    var LCContentLine5 = "items : " + clientRequestWithParamsMap.get("shipment") + "(" + clientRequestWithParamsMap.get("count") + ")" + " are not delivered by then.";
 
     pdfDoc.text(30, 155, LCContentLine4);
     pdfDoc.text(15, 165, LCContentLine5);
@@ -1814,7 +1817,7 @@ function generateLCFileBasedOnSelectedInput(shipmentId, shipmentLcId, shipmentBu
 
     var LCAddressingSignOffByAuthor = "Thanks & Regards,";
     pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
-    pdfDoc.text(135, 200, shipmentBuyer);
+    pdfDoc.text(135, 200, clientRequestWithParamsMap.get("buyer"));
 
     var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
     var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
@@ -1850,5 +1853,32 @@ function buildSuccessResponse_ForLCGeneration(successMessage, webClientRequest, 
 
     http_response.writeHead(200, { 'Content-Type': 'application/json' });
     http_response.end(lcGenerationResponse);
+}
+
+
+/**
+ * 
+ * @param {any} inputMap : any map whose values need to be replaced without url space literals
+ * 
+ * @returns     map_WithoutURLSpaces : output Map with all values minus URL spaces
+ * 
+*/
+
+function removeUrlSpacesFromMapValues(inputMap) {
+
+    // Modify the Values to remove URL Spaces
+
+    var keys = inputMap.keys();
+
+    for (var currentKey of keys) {
+
+        var currentValue = inputMap.get(currentKey);
+        var regExpr = /%20/gi;
+        currentValue = currentValue.replace(regExpr, " ");
+
+        inputMap.set(currentKey, currentValue);
+    }
+
+    return inputMap;
 }
 
