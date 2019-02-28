@@ -1,0 +1,170 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+ <title>TradeFinance Smart Contract</title>
+
+ <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+ <style type="text/css">
+
+    body {
+     background-color:#F0F0F0;
+     padding-top: 1em;
+     font-family: �Raleway�,�Source Sans Pro�, �Arial�;
+    }
+    .NavigationBar1 {
+
+    float : left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
+ </style>
+
+</head>
+
+
+<body>
+
+    <script src="./JavaScript/UserAuthentication.js"></script>
+
+    <div class="header" style="color: #302827; width: 95%">
+
+        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+        <div class="NavigationBar" id="Navigation-bar">
+
+            <div class="Login_NavigationBar" id="Login-Navigation-bar">
+
+                <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
+                <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
+
+            </div>
+
+            <div class="Content_NavigationBar" id="Content-Navigation-bar">
+
+                <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Buyer-Bank" onclick='processNavigationBar_ToBuyerBank(event);' href="./TFBuyerBank.html">Buyer-Bank</a>
+                <a class="Seller" onclick='processNavigationBar_ToSeller(event);' href="./TFSeller.html">Seller</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contract-US</a>
+                <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container" style="width: 95%">
+        <div class="LeftBrowserBox" style="width: 15%">
+            <div class="NavigationBar1">
+                <a class="BuyerTrade" style="clear: left" href="./TradeBuyer.html">RequestTrade</a>
+                <br />
+                <a class="BuyerLC" style="clear: left" href="./TFBuyer.html">RequestLC</a>
+                <br />
+                <a class="Seller" style="clear: left" href="./TFLoCStatus.html">LC-Status</a>
+                <br />
+                <a class="ShipmentStatus" style="clear: left" href="./TFShipmentStatus.html">ShipmentStatus</a>
+                <br />
+                <a class="AcceptShipment" style="clear: left" href="./TFAcceptShipment.html">AcceptShipment</a>
+            </div>
+        </div>
+
+        <div class="ContentBrowser" style="width: 80%">
+
+            <p id="buffer1" style="padding-bottom : 10px"> </p>
+            <h1 class="Shipment-Status">Shipment-Status</h1>
+
+            <div class="Retrieve-TA-Details">
+
+                <br />
+                <label id="Label_buffer" style="padding-left: 6%; padding-right: 6%">TA-Id</label>
+                <input id="TA-Id-Input" type="text">
+                <br /><br /> <br />
+
+                <label id="Label_buffer" style="padding-right: 12%"></label>
+                <button id="Accept-Shipment-Button" class="Accept-Shipment-Class">Accept Shipment</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScript/TradeAndLC-StatusUpdate.js"></script>
+
+    <script>
+
+        var bDebug = false;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
+        $("#Accept-Shipment-Button").click(function () {
+
+            /****************************************************************************************
+                receiveShipment : Change the shipment status once the goods have been received
+            *****************************************************************************************/
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("TA-Id-Input").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" Trade Agreement Id values are missing while Accepting Shipment : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "AcceptShipment");
+
+                // Status Change in HyperLedger
+
+                /*
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "receiveShipment");
+                */
+
+            }
+
+        });
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            document.getElementById("Login-Navigation-bar").style.display = "none";
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+

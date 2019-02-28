@@ -69,6 +69,8 @@
                 <a class="Seller" style="clear: left" href="./TFLoCStatus.html">LC-Status</a>
                 <br />
                 <a class="ShipmentStatus" style="clear: left" href="./TFShipmentStatus.html">ShipmentStatus</a>
+                <br />
+                <a class="AcceptShipment" style="clear: left" href="./TFAcceptShipment.html">AcceptShipment</a>
             </div>
         </div>
 
@@ -127,8 +129,7 @@
                     <br />
                     <br />
 
-                    <select id="Shipment-Input">
-                    </select>
+                    <select id="Shipment-Input"></select>
                     <br />
                     <br />
 
@@ -156,6 +157,8 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/RetrieveUserDetails.js"></script>
+    <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
 
     <script>
 
@@ -194,8 +197,9 @@
 
             var Client_Request = "RequestTrade";
 
-            saveTradeDetailsInMongoDB(tradeRequestRecord, Client_Request);
+            TradeAndLC_DatabaseUpdateModule.updateTradeDetailsInMongoDB(tradeRequestRecord, Client_Request);
 
+            /*
             // HyperLedger API Call
 
             var tradeRequestObject = {
@@ -205,130 +209,11 @@
 
             var API_Name = "requestTrade";
 
-            //httpRequestToHyperLedgerServer(tradeRequestObject, API_Name);
+            HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeRequestObject, API_Name);
+            */
 
         });
 
-
-        /****************************************************************************************
-            Request Trade : Store the details in mongo db for later consumption
-        *****************************************************************************************/
-
-        function saveTradeDetailsInMongoDB(tradeRequestRecord, Client_Request) {
-
-            var webServerPrefix = "http://127.0.0.1:3500/?"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix;
-
-            xmlhttp = new XMLHttpRequest();
-            httpRequestString += "Client_Request=" + Client_Request;
-
-            var tradeRequestKeys = tradeRequestRecord.keys();
-
-            for (var currentKey of tradeRequestKeys) {
-
-                httpRequestString += "&"
-                httpRequestString += currentKey + "=" + tradeRequestRecord.get(currentKey);
-            }
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            //xmlhttp.setRequestHeader("accept", "text/html");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        alert("Full JSON Response before parsing : " + this.responseText);
-
-                        responseObject = JSON.parse(this.responseText);
-
-                        alert(" Request Content: " + responseObject.Request);
-                        alert(" Status Content: " + responseObject.Status);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response While Placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to receive response for requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            if (bDebug == true) {
-
-                alert("Saving the trade detais in mongoDB => httpRequest : " + httpRequestString);
-            }
-            xmlhttp.send();
-
-        }
-
-        /****************************************************************************************
-            Request Trade : Place HyperLedger API Call
-        *****************************************************************************************/
-
-        function httpRequestToHyperLedgerServer(tradeRequestObject, API_Name) {
-
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + API_Name;
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response While Placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            var httpParams = JSON.stringify(tradeRequestObject);
-
-            if (bDebug == true) {
-
-                alert("Calling requestTrade with Params" + params);
-            }
-            xmlhttp.send(httpParams);
-
-        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references

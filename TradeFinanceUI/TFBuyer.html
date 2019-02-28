@@ -76,6 +76,8 @@
                 <a class="Seller" style="clear: left" href="./TFLoCStatus.html">LC-Status</a>
                 <br />
                 <a class="ShipmentStatus" style="clear: left" href="./TFShipmentStatus.html">ShipmentStatus</a>
+                <br />
+                <a class="AcceptShipment" style="clear: left" href="./TFAcceptShipment.html">AcceptShipment</a>
             </div>
 
         </div>
@@ -167,8 +169,7 @@
                     <br />
                     <br />
 
-                    <select id="Shipment-Input">
-                    </select>
+                    <select id="Shipment-Input"></select>
                     <br />
                     <br />
 
@@ -221,6 +222,8 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/RetrieveUserDetails.js"></script>
+    <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
 
     <script>
 
@@ -268,11 +271,11 @@
             }
 
             var Client_Request = "RequestLC";
-
-            saveLC_DetailsInMongoDB(lcRequestRecord, Client_Request);
+            TradeAndLC_DatabaseUpdateModule.updateLCDetailsInMongoDB(lcRequestRecord, Client_Request);
 
             // HyperLedger API Call
 
+            /*
             lcRequestObject = {
                 taId: taid_value, lcId: lcId_value, expiryDate: expiryDate_value, buyer: buyer_value, bank: bank_value,
                 seller: seller_value, amount: amount_value, goods: shipment_value, goodsCount: shipmentCount_value,
@@ -281,7 +284,8 @@
 
             var API_Name = "requestLC";
 
-            //httpRequestToHyperLedgerServer(lcRequestObject, API_Name);
+            HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(lcRequestObject, API_Name);
+            */
 
         });
 
@@ -296,147 +300,10 @@
         }
 
         /****************************************************************************************
-            User Logoff : Logoff from current session
-                        : Redirect to Home Page
-        *****************************************************************************************/
-
-        function processLogoff(event) {
-
-            if (bDebug == true) {
-
-                alert("Logging out from TF Website");
-            }
-
-            document.getElementById("Content-Navigation-bar").style.display = "none";
-            document.getElementById("Login-Navigation-bar").style.display = "initial";
-            document.location.replace("./TradeFinanceHome.html");
-        }
-
-        /****************************************************************************************
-            Request LC : Store the details in mongo db for later consumption
-        *****************************************************************************************/
-
-        function saveLC_DetailsInMongoDB(lcRequestRecord, Client_Request) {
-
-            var webServerPrefix = "http://127.0.0.1:3500/?"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix;
-
-            xmlhttp = new XMLHttpRequest();
-            httpRequestString += "Client_Request=" + Client_Request;
-
-            var lcRequestKeys = lcRequestRecord.keys();
-
-            for (var currentKey of lcRequestKeys) {
-
-                httpRequestString += "&"
-                httpRequestString += currentKey + "=" + lcRequestRecord.get(currentKey);
-            }
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-
-                        if (bDebug == true) {
-
-                            alert(" Request Content: " + responseObject.Request);
-                            alert(" Status Content: " + responseObject.Status);
-                        }
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response for requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-
-                } else {
-
-                    alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            if (bDebug == true) {
-
-                alert("Saving the LC detais in mongoDB => httpRequest : " + httpRequestString);
-            }
-
-            xmlhttp.send();
-
-        }
-
-        /****************************************************************************************
-        Request LC : Place HyperLedger API Call
-        *****************************************************************************************/
-
-        function httpRequestToHyperLedgerServer(lcRequestObject, API_Name) {
-
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + API_Name;
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from HyperLedger Server :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate success response while placing requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            var httpParams = JSON.stringify(lcRequestObject);
-
-            if (bDebug == true) {
-
-                alert("Calling requestLC with Params" + params);
-            }
-            xmlhttp.send(httpParams);
-
-        }
-
-        /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
         *****************************************************************************************/
+
+        var webServerPrefix = "http://127.0.0.1:3500/?";
 
         window.onload = function (event) {
 
@@ -478,7 +345,6 @@
 
             var updateDynamicFieldsArray = [selectionBoxId];
 
-            var webServerPrefix = "http://127.0.0.1:3500/?";
             RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, additionalBoxField_Id, null);
 
         }
@@ -498,11 +364,8 @@
 
             // Mongo DB call for Retrieving The Shipment Details
 
-            var webServerPrefix = "http://127.0.0.1:3500/?";
-
             var updateDynamicFieldsArray = ["Shipment-Input", "Seller-Id-Input"];
 
-            //RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", "Shipment-Input", null, changedSellerInputValue);
             RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, null, changedSellerInputValue);
         }
 
