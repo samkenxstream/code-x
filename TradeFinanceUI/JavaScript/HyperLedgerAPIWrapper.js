@@ -32,6 +32,8 @@ var HyperLedgerAPIWrapperModule = (function () {
                     responseObject = JSON.parse(this.response);
                     alert("Received Success Response from Hyper Ledger Server :=> " + responseObject);
 
+                    return responseObject;
+
                 } else {
 
                     if (bDebug == true) {
