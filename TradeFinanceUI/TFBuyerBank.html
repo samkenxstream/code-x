@@ -147,6 +147,8 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/HTMLElements-HelperUtil.js"></script>
     <script src="./JavaScript/GenerateLCDetails.js"></script>
+    <script src="./JavaScript/RetrieveAndFillLCDetails-Bank.js"></script>
+    <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
 
     <script>
 
@@ -175,7 +177,7 @@
                 alert("Existing Rows are removed from the Table");
             }
 
-            retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status);
+            RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status);
 
             /****************************************************************************************
                 getLC : Place HyperLedger API Call
@@ -317,11 +319,24 @@
 
                     // Create PDF File with the Selected Input Content : Client Side
 
-                    generateLCFileBasedOnSelectedInput(shipmentDetailsMap);
+                    GenerateLCModule.generateLCOnClientSide(shipmentDetailsMap);
 
                     // Create PDF File with the Selected Input Content : Server Side
 
                     GenerateLCModule.generateLCOnServerSide("GenerateLC", shipmentDetailsMap);
+
+                    /****************************************************************************************
+                        issueLC : Place HyperLedger API Call to change the LC Status after LC Generation
+                    *****************************************************************************************/
+                    /*
+                    var API_Name = "issueLC";
+                    var lcDetailsRequestObject = { lcId: shipmentLcId };
+
+                    if (shipmentLcId != null && shipmentLcId != undefined) {
+
+                        var LCStatusObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(lcDetailsRequestObject, API_Name);
+                    }
+                    */
                 }
             }
 
@@ -330,344 +345,6 @@
             HTMLElementsUtilModule.toggleSelectionBoxesInTable("Buyer_Bank_Shipment_Order_Details");
 
         });
-
-        /****************************************************************************************
-            Generate Single LC based on Selected Input
-        *****************************************************************************************/
-
-        function generateLCFileBasedOnSelectedInput(shipmentDetailsMap) {
-
-            // Create LC : PDF File
-
-            var pdfDoc = new jsPDF();
-
-            // Generate Pdf Doc
-
-            var todaysDate = new Date();
-            var todaysMonth = parseInt(todaysDate.getMonth().toString());
-            todaysMonth += 1;
-            var todaysYear = parseInt(todaysDate.getYear().toString());
-            todaysYear += 1900;
-
-            var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
-            pdfDoc.text(135, 30, dateString);
-
-            // Place
-
-            var placeString = "Place : " + "Hyderabad, India";
-            pdfDoc.text(135, 40, placeString);
-
-            // To Section Details
-
-            pdfDoc.text(15, 60, "To : ");
-            pdfDoc.text(15, 70, shipmentDetailsMap.get("seller") + ",");
-
-            // Subject Section Details
-
-            var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + shipmentDetailsMap.get("shipment") + "), Id : (" + shipmentDetailsMap.get("taId") + ")";
-            pdfDoc.text(25, 95, LCSubjectLine);
-
-            // Letter content Paragraph 1
-
-            var LCContentLine1 = shipmentDetailsMap.get("bank") + " here by certifies that, payment for the amount of " + shipmentDetailsMap.get("creditAmount");
-            var LCContentLine2 = "will be processed by " + shipmentDetailsMap.get("bank") + " on behalf of " + shipmentDetailsMap.get("buyer")  + ", as soon as";
-            var LCContentLine3 = shipmentDetailsMap.get("shipment") + "(" + shipmentDetailsMap.get("count") + ")" + " are delivered on or before " + shipmentDetailsMap.get("expiryDate") + ".";
-
-            pdfDoc.text(30, 120, LCContentLine1);
-            pdfDoc.text(15, 130, LCContentLine2);
-            pdfDoc.text(15, 140, LCContentLine3);
-
-            // Subject Section Details
-
-            var LCContentLine4 = "LC would expire with immediate effect on " + shipmentDetailsMap.get("expiryDate") + " , if promised";
-            var LCContentLine5 = "items : " + shipmentDetailsMap.get("shipment") + "(" + shipmentDetailsMap.get("count") + ")" + " are not delivered by then.";
-
-            pdfDoc.text(30, 155, LCContentLine4);
-            pdfDoc.text(15, 165, LCContentLine5);
-
-            // Closure : Addressing by Author
-
-            var LCAddressingSignOffByAuthor = "Thanks & Regards,";
-            pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
-            pdfDoc.text(135, 200, shipmentDetailsMap.get("buyer"));
-
-            var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-            var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-
-            var tradeIdString = "Trade Id : " + generateUniqueTradeId;
-            var lcIdString = "LC Id : " + generateUniqueLCId;
-
-            pdfDoc.text(25, 220, tradeIdString);
-            pdfDoc.text(25, 230, lcIdString);
-
-            // Generate LC
-
-            var fileName = "LoC-Shipment-" + shipmentDetailsMap.get("taId") + shipmentDetailsMap.get("lcId") + ".pdf";
-            pdfDoc.save(fileName);
-
-            // Issue LC
-
-            /*
-            issueLC(lcIdString);
-            */
-        }
-
-        /****************************************************************************************
-            Issue LC : Place HyperLedger API Call
-        *****************************************************************************************/
-
-        function issueLC(lcId_value) {
-
-            var webServerPrefix = "/tfbc/"
-            var xmlhttp;
-            var httpRequestString = webServerPrefix + "issueLC";
-
-            xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/json");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        responseObject = JSON.parse(this.response);
-                        alert("Received Success Response from Server for issueLC call :=> " + responseObject);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate success response to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place issueLC call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            // Prepare Http Request from Form-data and send the request
-
-            obj = { lcId: lcId_value };
-            params = JSON.stringify(obj);
-
-            if (lcId_value == null) {
-
-                alert("LC Id value is missing while issuing LC : ");
-            }
-            else {
-
-                if (bDebug == true) {
-
-                    alert("Calling issueLC with Params" + params);
-                }
-                xmlhttp.send(params);
-            }
-        }
-
-
-        /***********************************************************************************************************
-            Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row
-        ************************************************************************************************************/
-
-        function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status) {
-
-            var webServerPrefix = "http://127.0.0.1:3500/?";
-            var xmlhttp;
-            var httpRequestString = webServerPrefix;
-
-            xmlhttp = new XMLHttpRequest();
-            httpRequestString += "Client_Request=" + Client_Request;
-
-            xmlhttp.open("POST", httpRequestString, true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.setRequestHeader("accept", "application/json");
-
-            // Wait for Async response and Handle it in web page
-
-            xmlhttp.onreadystatechange = function () {
-
-                if (this.status == 200) {
-
-                    if (this.readyState == 4) {
-
-                        //Parse the JSON Response Object
-
-                        var responseString = this.response;
-                        var lcRequestRecords = responseString.split("\n");
-                        var numOfRecords = lcRequestRecords.length - 2;
-                        responseSingleObject = JSON.parse(lcRequestRecords[numOfRecords]);
-
-                        alert("Success Response for RetrieveLCDetails");
-
-                        fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, Requested_LC_Status);
-
-                    } else {
-
-                        if (bDebug == true) {
-
-                            alert("Intermediate Success Response while placing RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
-                        }
-                    }
-
-                } else {
-
-                    alert("Failure to place RetrieveLCDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
-                }
-
-            };
-
-            if (bDebug == true) {
-
-                alert("Retrieving the Lc Requests of Current Buyer => httpRequest : " + httpRequestString);
-            }
-            xmlhttp.send();
-
-        }
-
-        /***********************************************************************************************************
-            fillTheLCRequestDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
-        ************************************************************************************************************/
-
-        function fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, requested_LC_Status) {
-
-            if (bDebug == true) {
-
-                alert("fillTheLCRequestDetailsOfCurrentBuyer : Requested_LC_Status : => " + requested_LC_Status);
-            }
-
-            var shipmentDetailsTable = document.getElementById("Buyer_Bank_Shipment_Order_Details");
-
-            if (bDebug == true) {
-
-                alert("fillTheLCRequestDetailsOfCurrentBuyer : totalNumberOfLCRecords Returned : => " + lcRequestRecords.length);
-            }
-
-            var currentRowNumber = 1;
-
-            // Account for the non existing last Record  ( due to insertion of new line character at the server end )
-
-            for (var i = 0; i < lcRequestRecords.length - 1; i++) {
-
-                responseSingleObject = JSON.parse(lcRequestRecords[i]);
-
-                // Filter the Shipment Details as per the requested LC Status
-
-                if (requested_LC_Status != responseSingleObject.Current_Status) {
-
-                    continue;
-                }
-
-                // Add the content to the Table after filtering out records with unexpected status
-
-                var currentRow = shipmentDetailsTable.insertRow(currentRowNumber);
-                currentRowNumber++;
-                var currentRowElementsArray = [];
-
-                // Add Cells in the Row
-
-                for (var j = 0; j < 10; j++) {
-
-                    var currentRowElement;
-
-                    if (j == 9) {
-
-                        currentRowElement = document.createElement('td');
-
-                        currentRowElementChild = document.createElement('input');
-                        currentRowElementChild.type = "checkbox";
-
-                        currentRowElement.appendChild(currentRowElementChild);
-
-                    } else {
-
-                        currentRowElement = document.createElement('td');
-
-                    }
-
-                    currentRow.appendChild(currentRowElement);
-                    currentRowElementsArray.push(currentRowElement);
-                }
-
-                if (bDebug == true) {
-
-                    if (responseSingleObject.Amount != undefined && responseSingleObject.Amount != null) {
-                        alert("inappropriate amount in current Row : currentRow Amount = " + responseSingleObject.Amount);
-                    }
-                }
-
-                fillTableData_CurrentRowElement(currentRowElementsArray, 0, responseSingleObject.Trade_Id);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 1, responseSingleObject.Lc_Id);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 2, responseSingleObject.Buyer);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 3, responseSingleObject.Bank);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 4, responseSingleObject.Seller);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 5, responseSingleObject.Shipment);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 6, responseSingleObject.ShipmentCount);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 7, responseSingleObject.Expiry_Date);
-
-                var filteredTradeAmountValue = filterTradeAmount(responseSingleObject.Amount);
-                fillTableData_CurrentRowElement(currentRowElementsArray, 8, filteredTradeAmountValue);
-            }
-
-            if (bDebug == true) {
-
-                alert("fillTheLCRequestDetailsOfCurrentBuyer : total Number Of Rows inserted : => " + currentRowNumber - 1);
-            }
-        }
-
-        /***********************************************************************************************************
-        filterTradeAmount : Filter to make sure only numericals exist in the Amount field
-        ************************************************************************************************************/
-
-        function filterTradeAmount(currentElement) {
-
-            var newStr = new String(currentElement);
-            var i = 0;
-
-            for (; i < newStr.length; i++) {
-
-                if (newStr.charAt(i) > '9' || newStr.charAt(i) < '0') {
-                    break;
-                }
-            }
-
-            return newStr.substring(0, i);
-        }
-
-        /***********************************************************************************************************
-        fillTableData_CurrentRowElement : Fills the current Element in Table Cell
-        ************************************************************************************************************/
-
-        function fillTableData_CurrentRowElement(currentRowElementsArray, currentIndex, currentElement) {
-
-            if (currentElement != undefined && currentElement != null) {
-
-                currentRowElementsArray[currentIndex].innerHTML = currentElement;
-
-            } else {
-
-                currentRowElementsArray[currentIndex].innerHTML = "-NA-";
-
-            }
-
-            currentRowElementsArray[currentIndex].style.color = "#422319";
-            currentRowElementsArray[currentIndex].style.backgroundColor = "#E7D8D9";
-            currentRowElementsArray[currentIndex].style.paddingTop = "10px";
-            currentRowElementsArray[currentIndex].style.paddingRight = "10px";
-            currentRowElementsArray[currentIndex].style.paddingBottom = "10px";
-            currentRowElementsArray[currentIndex].style.paddingLeft = "10px";
-
-        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
