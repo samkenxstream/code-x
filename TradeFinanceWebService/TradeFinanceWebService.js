@@ -5,7 +5,6 @@
  * To Do List:
  * =================
  * 
- * Modularize the service code
  * Move the globals to local params & return values
  * Decrypt the Client Requests after moving to HTTPS mode
  * Check for Uniqueness of UserName before Registration
@@ -21,25 +20,15 @@
  * 
  *************************************************************************/
 
-// Include jsPDF Module for LC File Generation On Server Side
-// Define globals as per JSPDF Inclusion Usage/Syntax
-
-global.window = {
-    document: {
-        createElementNS: () => { return {} }
-    }
-};
-global.navigator = {};
-global.btoa = () => { };
-
-
 // Generic Variables Global
 
 var http = require('http');
 var url = require('url');
-var cryptoModule = require('crypto');
-var fileSystemModule = require('fs');
-var jsPdfModule = require('jspdf');
+var generateLCModule = require('./GenerateLC');
+var mongoDbCrudModule = require('./MongoDbCRUD');
+var UserAuthenticationModule = require('./UserAuthentication');
+var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
+var UserRecordsQueryAndUpdatesModule = require('./UserRecordsQueryAndUpdates');
 
 
 // Define globals as per JSPDF Inclusion Usage/Syntax
@@ -79,7 +68,9 @@ var lcDetailsRequiredFields = ["Trade_Id", "Lc_Id", "Buyer", "Seller", "Seller_I
 var userRegistrationData_RequiredFields = ["UserType", "User_Id", "Name", "Location", "Email", "Address", "UserName", "Password"];
 
 
-var trade_Object = {
+/*
+*
+ var trade_Object = {
     Trade_Id: "",
     Buyer: "",
     Seller: "",
@@ -104,24 +95,10 @@ var lc_Object = {
     Current_Status: ""
 };
 
-var userData_Object = {
-    UserType: "",
-    Name: "",
-    Shipment: "",
-    Location: "",
-    Email: "",
-    Address: "",
-    UserName: "",
-    Password: "",
-    _id: "",
-};
+*/
 
-var credentialsData_Object = {
-    UserName: "",
-    Password: ""
-};
 
-var randomSeed_ForPasswordHash = "RandomHashSeed";
+// Global variables
 
 var bDebug = true;
 
@@ -226,7 +203,7 @@ http.createServer(function (req, res) {
 
                     console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(UserName) : ", clientRequestWithParamsMap.get("UserName") );
 
-                    if (addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
+                    if (UserAuthenticationModule.addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
                         userDetails_TableName,
                         clientRequestWithParamsMap,
                         userRegistrationData_RequiredFields,
@@ -247,7 +224,7 @@ http.createServer(function (req, res) {
 
                 case "UserAuthentication":
 
-                    if (validateUserCredentials(dbConnection_UserDetails_Database,
+                    if (UserAuthenticationModule.validateUserCredentials(dbConnection_UserDetails_Database,
                         userDetails_TableName,
                         clientRequestWithParamsMap,
                         res)) {
@@ -266,10 +243,10 @@ http.createServer(function (req, res) {
                     console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
                     var userType = clientRequestWithParamsMap.get("UserType");
 
-                    if (retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
+                    if (UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
                         userDetails_TableName,
                         userType,
-                        handleUserDatabaseQueryResults,
+                        UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
                         res)) {
 
                         console.log("Web Service: Switch Statement : Successfully Retrieved the required Type Of Users");
@@ -333,7 +310,7 @@ http.createServer(function (req, res) {
 
                 case "RequestTrade":
 
-                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                    if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         tradeDetailsRequiredFields,
@@ -358,7 +335,7 @@ http.createServer(function (req, res) {
 
                 case "RequestLC":
 
-                    if (addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                    if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         lcDetailsRequiredFields,
@@ -383,11 +360,11 @@ http.createServer(function (req, res) {
 
                 case "RetrieveAllRecords":
 
-                    retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         null,
                         null,
-                        handleQueryResults,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
                         req,
                         res);
 
@@ -406,11 +383,11 @@ http.createServer(function (req, res) {
                 case "RetrieveTradeDetails":
 
                     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
-                    var queriedTradeDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    var queriedTradeDetails = mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         tradeId,
                         null,
-                        handleQueryResults,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
                         req,
                         res);
 
@@ -426,11 +403,11 @@ http.createServer(function (req, res) {
                 case "RetrieveLCDetails":
 
                     var lcId = clientRequestWithParamsMap.get("Lc_Id");
-                    var queriedLcDetails = retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    var queriedLcDetails = mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         null,
                         lcId,
-                        handleQueryResults,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
                         req,
                         res);
 
@@ -446,7 +423,7 @@ http.createServer(function (req, res) {
                 case "ApproveTrade":
 
                     var statusToBeUpdated = "Trade_Approved";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -458,7 +435,7 @@ http.createServer(function (req, res) {
                 case "ApproveLCRequest":
 
                     var statusToBeUpdated = "LC_Approved";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -470,7 +447,7 @@ http.createServer(function (req, res) {
                 case "StartShipment":
     
                     var statusToBeUpdated = "Trade_Shipped";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -482,7 +459,7 @@ http.createServer(function (req, res) {
                 case "AcceptShipment":
     
                     var statusToBeUpdated = "Shipment_Accepted";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -494,7 +471,7 @@ http.createServer(function (req, res) {
                 case "RequestPayment":
     
                     var statusToBeUpdated = "Payment_Requested";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -506,7 +483,7 @@ http.createServer(function (req, res) {
                 case "MakePayment":
     
                     var statusToBeUpdated = "Payment_Made";
-                    updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         webClientRequest,
@@ -517,7 +494,7 @@ http.createServer(function (req, res) {
 
                 case "GenerateLC":
 
-                    generateLCAndUploadItToFileServer( clientRequestWithParamsMap,
+                    generateLCModule.generateLCAndUploadItToFileServer( clientRequestWithParamsMap,
                         res);
 
                     break;
@@ -569,234 +546,7 @@ function ParseWebClientRequest(clientRequestCollection) {
 }
 
 
-/**************************************************************************
- **************************************************************************
- **************************************************************************
- * 
- * User Registration & Authentication Module 
- * 
- **************************************************************************
- **************************************************************************
- */
 
-
-/**
- * 
- * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
- * 
- */
-
-function prepareUserRegistrationObject(recordObjectMap) {
-
-    console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(UserName) : " + recordObjectMap.get("UserName"));
-
-    userData_Object.UserType = recordObjectMap.get("UserType");
-    console.log("prepareUserRegistrationObject : After Assignment => userData_Object.UserType : " + userData_Object.UserType );
-
-    userData_Object._id = recordObjectMap.get("User_Id");
-    userData_Object.Name = recordObjectMap.get("Name");
-    userData_Object.Shipment = recordObjectMap.get("Shipment");
-    userData_Object.Location = recordObjectMap.get("Location");
-    userData_Object.Email = recordObjectMap.get("Email");
-    userData_Object.Address = recordObjectMap.get("Address");
-    userData_Object.UserName = recordObjectMap.get("UserName");
-
-    // Store Password in by generating Hash
-
-    var tempLocalParam_Password = recordObjectMap.get("Password");
-    var passwordHash = cryptoModule.createHash('md5').update(tempLocalParam_Password).digest('hex');
-
-    userData_Object.Password = passwordHash;
-
-    return userData_Object;
-}
-
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
- * @param {any} requiredDetailsCollection : required keys for record addition ( User Registration Record )
- * @param {any} http_Response : Http Response thats gets built
- *
- */
-
-// ToDo : Store the Hash of the Password instead of PlainText 
-
-function addUserRegistrationRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
-
-    var userRegistrationResponseObject = null;
-
-    console.log("addUserRegistrationRecordToDatabase : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id") );
-
-    // Check if all the required fields are present before adding the record
-
-    for (var i = 0; i < requiredDetailsCollection.length; i++) {
-
-        var currentKey = requiredDetailsCollection[i];
-
-        if (recordObjectMap.get(currentKey) == null || recordObjectMap.get(currentKey) == undefined) {
-
-            console.error("addUserRegistrationRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
-
-            var failureMessage = "Failure: Required Key doesn't exist => " + currentKey;
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
-
-            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
-
-            return false;
-        }
-    }
-
-    // Prepare "User Registration" Object and add them to UserDetails Database
-
-    console.log("addUserRegistrationRecordToDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.length);
-    var currentDocument_Object = prepareUserRegistrationObject(recordObjectMap);
-
-    console.log("addUserRegistrationRecordToDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + currentDocument_Object.length);
-
-    // Check the userData_Object after value assignment
-
-    if (bDebug == true) {
-
-        console.log("userData_Object values after converting from Map => ");
-        console.log("currentDocument_Object.UserType => " + currentDocument_Object.UserType );
-    }
-
-    // Remove URL Spaces before adding the Record to User Details Database
-
-    currentDocument_Object = removeUrlSpacesFromObjectValues(currentDocument_Object);
-    addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, currentDocument_Object, http_Response);
-
-    return true;
-}
-
-
-/**
- * 
- * @param {any} recordObjectMap  : Map of <K,V> Pairs from Client Request
- * 
- */
-
-function prepareUserCredentialsObject(recordObjectMap) {
-
-    credentialsData_Object.UserName = recordObjectMap.get("UserName");
-    credentialsData_Object.Password = recordObjectMap.get("Password");
-}
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any} document_Object : Document object to be added ( Record, Row in Table )
- * @param {any} http_Response : Http Response thats gets built
- * 
-*/
-
-function validateUserCredentials(dbConnection, collectionName, recordObjectMap, http_Response) {
-
-    var userAuthenticationResponseObject = null;
-
-    // Prepare Credentials Data Object
-
-    prepareUserCredentialsObject(recordObjectMap);
-    var document_Object = credentialsData_Object;
-
-    // Check if the request has UserName & Password Details
-
-    if (document_Object.UserName == null || document_Object.UserName == undefined ||
-        document_Object.Password == null || document_Object.Password == undefined) {
-
-        console.log("validateUserCredentials : Missing credential Details ( UserName || Password )");
-        var failureMessage = "Failure: Blank UserName || Password in input Request";
-
-        buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
-    }
-
-    // DB Query
-
-    var query = { UserName: document_Object.UserName };
-    console.log("validateUserCredentials => collectionName :" + collectionName + ", UserName :" + document_Object.UserName);
-
-    // Validate Credentials and Build Response
-
-    dbConnection.collection(collectionName).findOne(query, function (err, result) {
-
-        if (err) {
-
-            console.log("validateUserCredentials : Error while querying DB for User Credentials");
-            var failureMessage = "Failure: Error while querying DB for User Credentials";
-
-            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
-
-            throw err;
-        }
-
-        var recordPresent = (result) ? "true" : "false";
-
-        // Add User Registration Record, If not already registered
-
-        if (recordPresent == "false") {
-
-            console.log("validateUserCredentials : UserName was not registered : " + document_Object.UserName);
-            var failureMessage = "validateUserCredentials : UserName was not registered : " + document_Object.UserName;
-
-            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
-
-        } else {
-
-            // User Exists. Validate the Password ( ToDo: Generate Hash and validate against the existing Password Hash)
-
-            console.log("validateUserCredentials : User Exists. Validate the Credentials for User : " + document_Object.UserName);
-
-            var inputPasswordHash = cryptoModule.createHash('md5').update(document_Object.Password).digest('hex');
-            console.log("validateUserCredentials : generated Hash for input password : " + inputPasswordHash);
-
-            if (result.Password != inputPasswordHash) {
-
-                console.log("validateUserCredentials : Passwords did not Match for UserName : " + document_Object.UserName);
-                var failureMessage = "validateUserCredentials : Passwords did not Match for UserName : " + document_Object.UserName;
-
-                buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
-
-            } else {
-
-                http_Response.writeHead(200, { 'Content-Type': 'application/json' });
-
-                userAuthenticationResponseObject = { Request: "UserAuthentication", Status: "Authentication Successful" };
-                var userAuthenticationResponse = JSON.stringify(userAuthenticationResponseObject);
-
-                http_Response.end(userAuthenticationResponse);
-            }
-        }
-
-    });
-
-}
-
-
-/**
- * 
- * @param {any} failureMessage  : Failure Message Error Content
- * @param {any} http_Response : Http Response thats gets built
- * 
-*/
-
-function buildErrorResponse_ForUserAuthentication(failureMessage, http_Response) {
-
-    // Check if the request has UserName & Password Details
-
-    var userCredsValidationResponseObject = null;
-
-    userCredsValidationResponseObject = { Request: "UserAuthentication", Status: failureMessage };
-    var userAuthenticationResponse = JSON.stringify(userCredsValidationResponseObject);
-
-    http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-    http_Response.end(userAuthenticationResponse);
-}
 
 
 /**************************************************************************
@@ -815,24 +565,25 @@ function buildErrorResponse_ForUserAuthentication(failureMessage, http_Response)
  * @param {any} dbConnection  : Connection to database 
  * @param {any} collectionName  : Name of Table ( Collection )
  * @param {any} UserType : query Key => Type of User for which Records have to be retrieved
- * @param {any} handleUserDatabaseQueryResults : Response Building Callback function based on Query Results
+ * @param {any} UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults : Response Building Callback function based on Query Results
  * @param {any} http_Response : Http Response to be built based on Results
  *
  */
 
-function retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, handleUserDatabaseQueryResults, http_Response) {
+/*/
+function UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults, http_Response) {
 
     var query = null;
     var http_StatuCode;
 
-    console.log("retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
+    console.log("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
 
     // Pre Validations
 
     if (inputUserType == null || inputUserType == undefined) {
 
-        console.error("retrieveUsers_BasedOnType : Invalid UserType Entered");
-        var failureMessage = "retrieveUsers_BasedOnType : Invalid UserType Entered";
+        console.error("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Invalid UserType Entered");
+        var failureMessage = "UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Invalid UserType Entered";
 
         http_StatuCode = 400;
         buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
@@ -846,17 +597,17 @@ function retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, 
 
         if (err) {
 
-            console.error("retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
-            var failureMessage = "retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
+            console.error("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
+            var failureMessage = "UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
 
             http_StatuCode = 500;
             buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
         }
 
-        console.log("retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
+        console.log("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
         console.log(result);
 
-        return handleUserDatabaseQueryResults(result, http_Response, inputUserType);
+        return UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults(result, http_Response, inputUserType);
 
     });
 }
@@ -871,6 +622,7 @@ function retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, 
  * 
 */
 
+/*/
 function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response) {
 
     // build Error Response and attach it to Http_Response
@@ -892,9 +644,10 @@ function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCo
  *
  */
 
-function handleUserDatabaseQueryResults(queryResult, http_Response, queryInput) {
+/*/
+function UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults(queryResult, http_Response, queryInput) {
 
-    console.log("Callback Function (handleUserDatabaseQueryResults) : Successfully retrieved the records through function (retrieveUsers_BasedOnType) => ");
+    console.log("Callback Function (UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults) : Successfully retrieved the records through function (UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType) => ");
     console.log(queryResult);
 
     var queryResponse_JSON_String = buildUserDBQueryResponse_JSON(queryResult, queryInput);
@@ -911,6 +664,7 @@ function handleUserDatabaseQueryResults(queryResult, http_Response, queryInput) 
  *
  */
 
+/*/
 function buildUserDBQueryResponse_JSON(queryResult, queryInput) {
 
     var queryResponse_AllRecords_JSON_String = "";
@@ -932,6 +686,7 @@ function buildUserDBQueryResponse_JSON(queryResult, queryInput) {
  * 
  */
 
+/*/
 function buildUserDBRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
@@ -947,87 +702,7 @@ function buildUserDBRecord_JSON(queryResult) {
 }
 
 
-/**************************************************************************
- **************************************************************************
- **************************************************************************
- * 
- * User Registration & Auth Record : CRUD operation Wrappers Module
- *                       DB Specific User Input/Output processing
- * 
- **************************************************************************
- **************************************************************************
- */
 
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any} document_Object : Document object to be added ( Record, Row in Table )
- * @param {any} http_Response : Http Response thats gets built
- * 
- */
-
-function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, document_Object, http_Response) {
-
-    // Throw Error if User already Exists ; Add Record Otherwise
-
-    var query = { UserName: document_Object.UserName };
-    console.log("addRecordToUserDetailsDatabase_IfNotExists => collectionName :" + collectionName + ", UserName :" + document_Object.UserName);
-
-    var userRegistrationResponseObject = null;
-
-    // Build Response
-
-    dbConnection.collection(collectionName).findOne(query, function (err, result) {
-
-        if (err) {
-
-            console.log("addRecordToUserDetailsDatabase_IfNotExists : Error while querying for document to be inserted");
-
-            var failureMessage = "Failure: Unknown failure during User Registration";
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
-
-            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
-
-            throw err;
-        }
-
-        var recordPresent = (result) ? "true" : "false";
-
-        // Add User Registration Record, If not already registered
-
-        if (recordPresent == "false") {
-
-            console.log("addRecordToUserDetailsDatabase_IfNotExists : Record Not Found, Adding New Record => " + " UserName : " + document_Object.UserName);
-            directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
-
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: "Registration Successful"};
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
-
-            http_Response.writeHead(200, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
-
-        } else {
-
-            // User Already Exists, Send Error Response
-
-            console.log("User Already Registered => UserName : " + document_Object.UserName);
-
-            var failureMessage = "Failure: User ( " + document_Object.Name + " ) was already registered";
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
-
-            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
-
-        }
-
-    });
-
-}
 
 
 /**************************************************************************
@@ -1048,8 +723,10 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
  * 
  */
 
+/*/
 function prepareTradeDocumentObject(recordObjectMap) {
 
+    trade_Object._id = recordObjectMap.get("Trade_Id");
     trade_Object.Trade_Id = recordObjectMap.get("Trade_Id");
     trade_Object.Buyer = recordObjectMap.get("Buyer");
     trade_Object.Seller = recordObjectMap.get("Seller");
@@ -1058,6 +735,7 @@ function prepareTradeDocumentObject(recordObjectMap) {
     trade_Object.Amount = recordObjectMap.get("Amount");
     trade_Object.Current_Status = "Trade_Requested";
 }
+/*/
 
 /**
  * 
@@ -1065,8 +743,10 @@ function prepareTradeDocumentObject(recordObjectMap) {
  * 
  */
 
+/*/
 function prepareLcDocumentObject(recordObjectMap) {
 
+    lc_Object._id = recordObjectMap.get("Lc_Id");
     lc_Object.Trade_Id = recordObjectMap.get("Trade_Id");
     lc_Object.Lc_Id = recordObjectMap.get("Lc_Id");
     lc_Object.Buyer = recordObjectMap.get("Buyer");
@@ -1080,6 +760,7 @@ function prepareLcDocumentObject(recordObjectMap) {
     lc_Object.Request_Location = recordObjectMap.get("Request_Location");
     lc_Object.Current_Status = "LC_Requested";
 }
+/*/
 
 
 /**
@@ -1092,7 +773,8 @@ function prepareLcDocumentObject(recordObjectMap) {
  * 
  */
 
-function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest) {
+/*/
+function TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest) {
 
     // Check if all the required fields are present before adding the record
 
@@ -1102,7 +784,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
         if (recordObjectMap.get(currentKey) == null) {
 
-            console.error("addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
+            console.error("TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
             return false;
         }
     }
@@ -1113,7 +795,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
         prepareTradeDocumentObject(recordObjectMap);
 
-        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
+        console.log("TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
 
         // Remove spaces from trade_object values before adding to MongoDB
 
@@ -1126,7 +808,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
         prepareLcDocumentObject(recordObjectMap);
 
-        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
+        console.log("TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
 
         // Remove spaces from lc_Object values before adding to MongoDB
 
@@ -1138,6 +820,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
 
     return true;
 }
+/*/
 
 
 /**
@@ -1148,6 +831,7 @@ function addTradeAndLcRecordToDatabase(dbConnection, collectionName, recordObjec
  * 
  */
 
+/*/
 function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Object) {
 
     // Update if Present ; Add Otherwise
@@ -1181,14 +865,14 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
                 // Record Addition
 
                 console.log("Record Not Found, Adding New Record => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-                directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
+                mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
             }
             else {
 
                 // Record Updation
 
                 console.log("Record Found, Updating the existing Record => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-                directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query);
+                mongoDbCrudModule.directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query);
             }
 
         });
@@ -1198,10 +882,11 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
         // Record Addition
 
         console.log("Both Trade_Id and Lc_Id are null in input Object, Adding New Record without primary keys");
-        directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
+        mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
     }
 
 }
+/*/
 
 
 /**
@@ -1214,7 +899,8 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
  * 
  */
 
-function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated, http_response) {
+/*/
+function TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated, http_response) {
 
     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
@@ -1235,6 +921,8 @@ function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, cl
 
     return;
 }
+/*/
+
 
 /**
  * 
@@ -1245,6 +933,7 @@ function updateRecordStatusInTradeAndLcDatabase(dbConnection, collectionName, cl
  * 
  */
 
+/*/
 function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, webClientRequest, http_response) {
 
     // Find Record & Update
@@ -1302,6 +991,7 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
     });
 
 }
+/*/
 
 
 /**
@@ -1311,6 +1001,7 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
  * 
 */
 
+/*/
 function buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response) {
 
     // Build error Response for Record Updation
@@ -1323,6 +1014,7 @@ function buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, 
     http_response.writeHead(400, { 'Content-Type': 'application/json' });
     http_response.end(recordUpdationResponse);
 }
+/*/
 
 /**
  * 
@@ -1331,6 +1023,7 @@ function buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, 
  * 
 */
 
+/*/
 function buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest, http_response) {
 
     // Build success Response for Record Updation
@@ -1344,204 +1037,6 @@ function buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest
     http_response.end(recordUpdationResponse);
 }
 
-/**************************************************************************
- **************************************************************************
- **************************************************************************
- * 
- * Module to handle => Direct CRUD Operations with MongoDB.
- * 
- **************************************************************************
- **************************************************************************
- */
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any} document_Object : Document object to be added ( Record, Row in Table )
- * 
- */
-
-function directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object) {
-
-    // Record Addition
-
-    dbConnection.collection(collectionName).insertOne(document_Object, function (err, result) {
-
-        if (err) {
-            console.log("Error while adding the Record to Database collection => " + collectionName);
-            throw err;
-        }
-        console.log("Successfully added the record to the Collection : " + collectionName);
-        console.log(result);
-
-    });
-}
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any} document_Object : Document object to be updated ( Record, Row in Table )
- * 
- */
-
-function directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query) {
-
-    // Record Updation
-
-    console.log("Added Query to Update operation : ");
-
-    var newUpdateObject = { $set: document_Object };
-    var udpateSert = {upsert: true};
-    dbConnection.collection(collectionName).updateOne(query, newUpdateObject, udpateSert, function (err, result) {
-
-        if (err) {
-            console.log("Error while updating the Record to tradeAndLc Database collection");
-            throw err;
-        }
-        console.log("Successfully updated the record in the Trade and LC Table : " + document_Object.Trade_Id);
-        console.log(result);
-
-    });
-}
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any[Optional]} Lc_Id : query Key => Letter of Credit Id
- * @param {any[Optional]} Trade_Id : query Key => Trade Id
- *
- */
-
-function removeRecordFromTradeAndLcDatabase(dbConnection, collectionName, Trade_Identifier, Lc_Identifier) {
-
-    var query = null;
-
-    console.log("removeRecordFromTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + Trade_Identifier + " Lc_Identifier :" + Lc_Identifier);
-
-    if (Trade_Identifier != null) {
-
-        query = { Trade_Id: Trade_Identifier };
-    }
-    else if (Lc_Identifier != null) {
-
-        query = { Lc_Id: Lc_Identifier };
-    } else {
-
-        return;
-    }
-
-    // Record Deletion
-
-    dbConnection.collection(collectionName).deleteMany(query, function (err, result) {
-
-        if (err) {
-            console.log("Error while deleting the Record from tradeAndLc Database collection");
-            throw err;
-        }
-        console.log("Successfully deleted the record from the TradeAndLC Table : ");
-        console.log(result);
-
-    });
-
-}
-
-/**************************************************************************
- **************************************************************************
- **************************************************************************
- * 
- * Trade and LC record Query & Response Building
- * 
- **************************************************************************
- **************************************************************************
- */
-
-/**
- * 
- * @param {any} dbConnection  : Connection to database 
- * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any[Optional]} Lc_Id : query Key => Letter of Credit Id
- * @param {any[Optional]} Trade_Id : query Key => Trade Id
- *
- */
-
-function retrieveRecordFromTradeAndLcDatabase(dbConnection, collectionName, Trade_Identifier, Lc_Identifier, handleQueryResults, req, res) {
-
-    // Record Retrieval based on "Lc_Id | Trade_Id | *(All Records)"
-
-    var query = null;
-    var queryType = "AllRecords";
-
-    console.log("retrieveRecordFromTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + Trade_Identifier + " Lc_Identifier :" + Lc_Identifier);
-
-    if (Trade_Identifier != null) {
-
-        query = { Trade_Id: Trade_Identifier };
-        queryType = "SingleTradeRecord";
-    }
-    else if (Lc_Identifier != null) {
-
-        query = { Lc_Id: Lc_Identifier };
-        queryType = "SingleLcRecord";
-    }
-
-    if (query) {
-
-        dbConnection.collection(collectionName).findOne(query, function (err, result) {
-
-            if (err) {
-                console.log("Error while querying the Record from tradeAndLc Database => " + " Trade Id : " + Trade_Identifier + " LC Id : " + Lc_Identifier);
-                throw err;
-            }
-
-            console.log("retrieveRecordFromTradeAndLcDatabase => Query for single Record => returned Answer : ");
-            console.log(result);
-            return handleQueryResults(null, result, req, res, queryType);
-        });
-
-    } else {
-
-        dbConnection.collection(collectionName).find({}).toArray( function (err, result) {
-
-            if (err) {
-                console.log("Error while querying all the Records from tradeAndLc Database");
-                throw err;
-            }
-
-            console.log("Successfully retrieved all the records through function (retrieveRecordFromTradeAndLcDatabase) => ");
-            console.log(result);
-            return handleQueryResults( null, result, req, res, queryType);
-        });
-    }
-}
-
-/**
- * 
- * @param {any} err  : Error returned to callback function
- * @param {any} result  : Database Query Result ( List of Records : 1 - n )
- * @param       req  : Web Client Request
- * @param       res  : Reponse To be built
- * @param {any} queryType  : Type of Query Result ( SingleTradeRecord, SingleLcRecord, AllRecords ) to be processed
- *
- */
-
-function handleQueryResults(err, queryResult, req, res, queryType) {
-
-    if (err) {
-        console.log("Error in executing Retrieval Query : ");
-        throw err;
-    }
-
-    console.log("Callback Function (handleQueryResults) : Successfully retrieved the records through function (retrieveRecordFromTradeAndLcDatabase) => ");
-    console.log(queryResult);
-
-    var queryResponse_JSON_String = buildQueryResponse_JSON(queryResult, queryType);
-    res.end(queryResponse_JSON_String);
-
-}
-
 
 /**
  * 
@@ -1550,6 +1045,7 @@ function handleQueryResults(err, queryResult, req, res, queryType) {
  *
  */
 
+/*/
 function buildQueryResponse_JSON(queryResult, queryType) {
 
     var queryResponse_JSON = null;
@@ -1595,6 +1091,7 @@ function buildQueryResponse_JSON(queryResult, queryType) {
  * 
  */
 
+/*/
 function buildTradeRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
@@ -1618,6 +1115,7 @@ function buildTradeRecord_JSON(queryResult) {
  * 
 */
 
+/*/
 function buildLcRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
@@ -1643,6 +1141,7 @@ function buildLcRecord_JSON(queryResult) {
  * 
 */
 
+/*/
 function removeUrlSpacesFromObjectValues(queryResult) {
 
     // Modify the Values to remove URL Spaces
@@ -1661,224 +1160,4 @@ function removeUrlSpacesFromObjectValues(queryResult) {
 
     return queryResult;
 }
-
-
-/**************************************************************************
- **************************************************************************
- **************************************************************************
- * 
- * LC Generation and Corresponding Helper Functions
- * 
- **************************************************************************
- **************************************************************************
- */
-
-/**
- * 
- * @param { any } clientRequestWithParamsMap: input Map consisting of LC Details("Trade_Id, Lc_Id")
- * @param { any } http_response: Http Response to be built based on LC Generation and Upload to file Server
- *
-*/
-
-function generateLCAndUploadItToFileServer(clientRequestWithParamsMap, http_response) {
-
-    // ToDo : Generate LC based on Input Details
-
-    var fileName = "LoC-Shipment-" + clientRequestWithParamsMap.get("taId") + clientRequestWithParamsMap.get("lcId") + ".pdf";
-
-    //pdfDoc.save(fileName);
-
-    var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap );
-
-    /*var fileData = generateLCFileBasedOnSelectedInput( clientRequestWithParamsMap.get("taId"),
-        clientRequestWithParamsMap.get("lcId"),
-        clientRequestWithParamsMap.get("buyer"),
-        clientRequestWithParamsMap.get("bank"),
-        clientRequestWithParamsMap.get("seller"),
-        clientRequestWithParamsMap.get("shipment"),
-        clientRequestWithParamsMap.get("count"),
-        clientRequestWithParamsMap.get("expiryDate"),
-        clientRequestWithParamsMap.get("creditAmount") );*/
-
-    var dstFile = "./LCFiles/" + fileName;
-
-    console.log("generateLCAndUploadItToFileServer.fs.writeFile => Writing LC Data to PDF File : " + dstFile);
-
-    fileSystemModule.writeFile(dstFile, fileData, (err) => {
-
-        console.log("generateLCAndUploadItToFileServer.fs.writeFile => in call back function code");
-
-        if (err) {
-
-            console.error("Error while writing data to pdf file : Error => " + err);
-            var failureMessage = "generateLCAndUploadItToFileServer : Error while writing data to pdf file => " + err;
-
-            var http_StatusCode = 400;
-            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
-
-            return;
-        }
-
-        console.log("generateLCAndUploadItToFileServer => Successfully wrote the data to PDF File");
-
-        var successMessage = "generateLCAndUploadItToFileServer : Successfully wrote the data to PDF File";
-        buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
-
-    });
-
-    // ToDo : Copy the File from downloads location to File Server Location
-
-    /*
-    console.log("generateLCAndUploadItToFileServer => : Moving the file to File Server Location => LCFiles");
-
-    var srcFile = "C:/Users/Administrator/Downloads/RetrieveText.txt";
-    var dstFile = "./LCFiles/RetrieveText.txt";
-
-    fileSystemModule.copyFile( srcFile, dstFile, (err) => {
-
-        if (err) {
-
-            console.error("Error while moving the LC File to Destination : Error => " + err);
-            var failureMessage = "generateLCAndUploadItToFileServer : Error while moving the LC File to Destination => " + err;
-
-            var http_StatusCode = 400;
-            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
-
-            return;
-        }
-
-        console.log("generateLCAndUploadItToFileServer => Successfully moved the file to File Server Location :");
-
-        var successMessage = "generateLCAndUploadItToFileServer : Successfully moved the file to File Server Location";
-        buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
-
-    });
-    */
-
-}
-
-/****************************************************************************************
-    Generate Single LC based on Selected Input Details
-*****************************************************************************************/
-
-function generateLCFileBasedOnSelectedInput(clientRequestWithParamsMap) {
-
-    // Create LC : PDF File
-
-    var pdfDoc = new jsPdfModule();
-
-    clientRequestWithParamsMap = removeUrlSpacesFromMapValues(clientRequestWithParamsMap);
-
-    // Generate Pdf Doc
-
-    var todaysDate = new Date();
-    var todaysMonth = parseInt(todaysDate.getMonth().toString());
-    todaysMonth += 1;
-    var todaysYear = parseInt(todaysDate.getYear().toString());
-    todaysYear += 1900;
-
-    var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
-    pdfDoc.text(135, 30, dateString);
-
-    // Place
-
-    var placeString = "Place : " + "Hyderabad, India";
-    pdfDoc.text(135, 40, placeString);
-
-    // To Section Details
-
-    pdfDoc.text(15, 60, "To : ");
-    pdfDoc.text(15, 70, clientRequestWithParamsMap.get("seller") + ",");
-
-    // Subject Section Details
-
-    var LCSubjectLine = "Sub : Letter of Credit For Shipment : (" + clientRequestWithParamsMap.get("shipment") + "), Id : (" + clientRequestWithParamsMap.get("taId") + ")";
-    pdfDoc.text(25, 95, LCSubjectLine);
-
-    // Letter content Paragraph 1
-
-    var LCContentLine1 = clientRequestWithParamsMap.get("bank") + " here by certifies that, payment for the amount of " + clientRequestWithParamsMap.get("creditAmount");
-    var LCContentLine2 = "will be processed by " + clientRequestWithParamsMap.get("bank") + " on behalf of " + clientRequestWithParamsMap.get("buyer") + ", as soon as";
-    var LCContentLine3 = clientRequestWithParamsMap.get("shipment") + "(" + clientRequestWithParamsMap.get("count") + ")" + " are delivered on or before " + clientRequestWithParamsMap.get("expiryDate") + ".";
-
-    pdfDoc.text(30, 120, LCContentLine1);
-    pdfDoc.text(15, 130, LCContentLine2);
-    pdfDoc.text(15, 140, LCContentLine3);
-
-    // Subject Section Details
-
-    var LCContentLine4 = "LC would expire with immediate effect on " + clientRequestWithParamsMap.get("expiryDate") + " , if promised";
-    var LCContentLine5 = "items : " + clientRequestWithParamsMap.get("shipment") + "(" + clientRequestWithParamsMap.get("count") + ")" + " are not delivered by then.";
-
-    pdfDoc.text(30, 155, LCContentLine4);
-    pdfDoc.text(15, 165, LCContentLine5);
-
-    // Closure : Addressing by Author
-
-    var LCAddressingSignOffByAuthor = "Thanks & Regards,";
-    pdfDoc.text(135, 190, LCAddressingSignOffByAuthor);
-    pdfDoc.text(135, 200, clientRequestWithParamsMap.get("buyer"));
-
-    var generateUniqueTradeId = "TradeId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-    var generateUniqueLCId = "LCId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
-
-    var tradeIdString = "Trade Id : " + generateUniqueTradeId;
-    var lcIdString = "LC Id : " + generateUniqueLCId;
-
-    pdfDoc.text(25, 220, tradeIdString);
-    pdfDoc.text(25, 230, lcIdString);
-
-    // Generate Data Output for pdfDoc
-
-    var dataOutput = pdfDoc.output();
-    return dataOutput;
-}
-
-/**
- * 
- * @param {any} successMessage  : Success Message Content
- * @param {any} webClientRequest  : Client Request Name
- * @param {any} http_Response : Http Response thats gets built
- * 
-*/
-
-function buildSuccessResponse_ForLCGeneration(successMessage, webClientRequest, http_response) {
-
-    // Build success Response for Record Updation
-
-    var lcGenerationResponseObject = null;
-
-    lcGenerationResponseObject = { Request: webClientRequest, Status: successMessage };
-    var lcGenerationResponse = JSON.stringify(lcGenerationResponseObject);
-
-    http_response.writeHead(200, { 'Content-Type': 'application/json' });
-    http_response.end(lcGenerationResponse);
-}
-
-
-/**
- * 
- * @param {any} inputMap : any map whose values need to be replaced without url space literals
- * 
- * @returns     map_WithoutURLSpaces : output Map with all values minus URL spaces
- * 
-*/
-
-function removeUrlSpacesFromMapValues(inputMap) {
-
-    // Modify the Values to remove URL Spaces
-
-    var keys = inputMap.keys();
-
-    for (var currentKey of keys) {
-
-        var currentValue = inputMap.get(currentKey);
-        var regExpr = /%20/gi;
-        currentValue = currentValue.replace(regExpr, " ");
-
-        inputMap.set(currentKey, currentValue);
-    }
-
-    return inputMap;
-}
-
+/*/
