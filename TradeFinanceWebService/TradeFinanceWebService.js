@@ -30,11 +30,9 @@ var UserAuthenticationModule = require('./UserAuthentication');
 var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
 var UserRecordsQueryAndUpdatesModule = require('./UserRecordsQueryAndUpdates');
 
-
 // Define globals as per JSPDF Inclusion Usage/Syntax
 
 var port = process.env.PORT || 3500;
-
 
 // MongoDB Connection Variables
 
@@ -243,7 +241,7 @@ http.createServer(function (req, res) {
                     console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
                     var userType = clientRequestWithParamsMap.get("UserType");
 
-                    if (UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
+                    if (UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
                         userDetails_TableName,
                         userType,
                         UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
@@ -547,8 +545,6 @@ function ParseWebClientRequest(clientRequestCollection) {
 
 
 
-
-
 /**************************************************************************
  **************************************************************************
  **************************************************************************
@@ -571,19 +567,19 @@ function ParseWebClientRequest(clientRequestCollection) {
  */
 
 /*/
-function UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults, http_Response) {
+function UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType(dbConnection, collectionName, inputUserType, UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults, http_Response) {
 
     var query = null;
     var http_StatuCode;
 
-    console.log("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
+    console.log("UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
 
     // Pre Validations
 
     if (inputUserType == null || inputUserType == undefined) {
 
-        console.error("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Invalid UserType Entered");
-        var failureMessage = "UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Invalid UserType Entered";
+        console.error("UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType : Invalid UserType Entered");
+        var failureMessage = "UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType : Invalid UserType Entered";
 
         http_StatuCode = 400;
         buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
@@ -597,14 +593,14 @@ function UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType(dbConnection, coll
 
         if (err) {
 
-            console.error("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
-            var failureMessage = "UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
+            console.error("UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
+            var failureMessage = "UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
 
             http_StatuCode = 500;
             buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
         }
 
-        console.log("UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
+        console.log("UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
         console.log(result);
 
         return UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults(result, http_Response, inputUserType);
@@ -647,7 +643,7 @@ function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCo
 /*/
 function UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults(queryResult, http_Response, queryInput) {
 
-    console.log("Callback Function (UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults) : Successfully retrieved the records through function (UserRecordsQueryAndUpdates.retrieveUsers_BasedOnType) => ");
+    console.log("Callback Function (UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults) : Successfully retrieved the records through function (UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType) => ");
     console.log(queryResult);
 
     var queryResponse_JSON_String = buildUserDBQueryResponse_JSON(queryResult, queryInput);

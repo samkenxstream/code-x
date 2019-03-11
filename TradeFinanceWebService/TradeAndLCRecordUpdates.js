@@ -45,6 +45,8 @@ var lc_Object = {
 
 var bDebug = false;
 
+var HelperUtilsModule = require('./HelperUtils');
+var mongoDbCrudModule = require('./MongoDbCRUD');
 
 /**************************************************************************
  **************************************************************************
@@ -84,7 +86,8 @@ function prepareTradeDocumentObject(recordObjectMap) {
 
 function prepareLcDocumentObject(recordObjectMap) {
 
-    lc_Object._id = recordObjectMap.get("Lc_Id");
+    // Same Record gets modified after Trade Creation ( _id shouldn't be changed )
+
     lc_Object.Trade_Id = recordObjectMap.get("Trade_Id");
     lc_Object.Lc_Id = recordObjectMap.get("Lc_Id");
     lc_Object.Buyer = recordObjectMap.get("Buyer");
@@ -135,7 +138,7 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
 
         // Remove spaces from trade_object values before adding to MongoDB
 
-        trade_Object = removeUrlSpacesFromObjectValues(trade_Object);
+        trade_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(trade_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
             trade_Object);
@@ -148,7 +151,7 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
 
         // Remove spaces from lc_Object values before adding to MongoDB
 
-        lc_Object = removeUrlSpacesFromObjectValues(lc_Object);
+        lc_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(lc_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
             lc_Object);
@@ -374,7 +377,7 @@ function buildTradeRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
 
-    queryResult = removeUrlSpacesFromObjectValues(queryResult);
+    queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller, "Shipment": queryResult.Shipment,
@@ -397,7 +400,7 @@ function buildLcRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
 
-    queryResult = removeUrlSpacesFromObjectValues(queryResult);
+    queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Lc_Id": queryResult.Lc_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller,
@@ -407,34 +410,6 @@ function buildLcRecord_JSON(queryResult) {
     };
 
     return queryResponse_JSON;
-}
-
-
-/**
- * 
- * @param {any} queryResult : query Result from mongo DB
- * 
- * @returns     queryResult_WithoutURLSpaces : queryResult with all values minus URL spaces
- * 
-*/
-
-function removeUrlSpacesFromObjectValues(queryResult) {
-
-    // Modify the Values to remove URL Spaces
-
-    var keys = Object.keys(queryResult);
-    var values = Object.values(queryResult);
-
-    for (var i = 0; i < values.length; i++) {
-
-        var currentValue = String(values[i]);
-        var regExpr = /%20/gi;
-        currentValue = currentValue.replace(regExpr, " ");
-
-        queryResult[keys[i]] = currentValue;
-    }
-
-    return queryResult;
 }
 
 

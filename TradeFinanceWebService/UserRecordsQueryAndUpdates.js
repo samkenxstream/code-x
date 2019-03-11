@@ -3,6 +3,7 @@
 
 var bDebug = false;
 
+var HelperUtilsModule = require('./HelperUtils');
 
 /**************************************************************************
  **************************************************************************
@@ -141,7 +142,7 @@ function buildUserDBRecord_JSON(queryResult) {
 
     var queryResponse_JSON = null;
 
-    queryResult = removeUrlSpacesFromObjectValues(queryResult);
+    queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
     queryResponse_JSON = {
         "UserType": queryResult.UserType, "Name": queryResult.Name, "Shipment": queryResult.Shipment, "Location": queryResult.Location,

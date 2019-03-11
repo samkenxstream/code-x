@@ -39,9 +39,11 @@ var credentialsData_Object = {
 
 //var randomSeed_ForPasswordHash = "RandomHashSeed";
 
-var cryptoModule = require('crypto');
-
 var bDebug = false;
+
+var cryptoModule = require('crypto');
+var HelperUtilsModule = require('./HelperUtils');
+var mongoDbCrudModule = require('./MongoDbCRUD')
 
 /**
  * 
@@ -131,7 +133,7 @@ exports.addUserRegistrationRecordToDatabase = function (dbConnection, collection
 
     // Remove URL Spaces before adding the Record to User Details Database
 
-    currentDocument_Object = removeUrlSpacesFromObjectValues(currentDocument_Object);
+    currentDocument_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(currentDocument_Object);
     addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, currentDocument_Object, http_Response);
 
     return true;

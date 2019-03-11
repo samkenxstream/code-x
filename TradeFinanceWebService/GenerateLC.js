@@ -29,6 +29,7 @@ global.btoa = () => { };
 
 var fileSystemModule = require('fs');
 var jsPdfModule = require('jspdf');
+var HelperUtilsModule = require('./HelperUtils');
 
 var bDebug = false;
 
@@ -128,7 +129,7 @@ function generateLCFileBasedOnSelectedInput(clientRequestWithParamsMap) {
 
     var pdfDoc = new jsPdfModule();
 
-    clientRequestWithParamsMap = removeUrlSpacesFromMapValues(clientRequestWithParamsMap);
+    clientRequestWithParamsMap = HelperUtilsModule.removeUrlSpacesFromMapValues(clientRequestWithParamsMap);
 
     // Generate Pdf Doc
 
@@ -236,33 +237,6 @@ function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCo
 
     http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
     http_Response.end(builtResponse);
-}
-
-
-/**
- * 
- * @param {any} inputMap : any map whose values need to be replaced without url space literals
- * 
- * @returns     map_WithoutURLSpaces : output Map with all values minus URL spaces
- * 
-*/
-
-function removeUrlSpacesFromMapValues(inputMap) {
-
-    // Modify the Values to remove URL Spaces
-
-    var keys = inputMap.keys();
-
-    for (var currentKey of keys) {
-
-        var currentValue = inputMap.get(currentKey);
-        var regExpr = /%20/gi;
-        currentValue = currentValue.replace(regExpr, " ");
-
-        inputMap.set(currentKey, currentValue);
-    }
-
-    return inputMap;
 }
 
 
