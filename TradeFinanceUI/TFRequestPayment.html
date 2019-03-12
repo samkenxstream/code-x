@@ -78,7 +78,7 @@
                 <br /><br /><br /><br />
 
                 <label id="Label_buffer" style="padding-right: 12%"></label>
-                <button id="Ship-Goods-Button" class="Ship-Goods-Class">ShipGoods</button>
+                <button id="Request-Payment-Button" class="Request-Payment-Class">RequestPayment</button>
                 <br /><br /><br />
 
             </div>
@@ -104,10 +104,10 @@
         }
 
         /****************************************************************************************
-        Send Shipment : Place HyperLedger API Call
+        Request Payment : Place HyperLedger API Call
         *****************************************************************************************/
 
-        $("#Ship-Goods-Button").click(function () {
+        $("#Request-Payment-Button").click(function () {
 
             // Prepare Http Request from Form-data and send the request
 
@@ -133,20 +133,20 @@
 
             if (queryEmpty == true) {
 
-                alert(" (Trade Agreement Id & lcId)  values are missing while sending the Shipment : ");
+                alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
 
             } else {
 
-                // Status Change in Mongo DB
+                // Status Change in MongoDB
 
                 var webServerPrefix = "http://127.0.0.1:3500/?";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "StartShipment");
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "RequestPayment");
 
                 // Status Change in HyperLedger
 
                 /*
                 var webServerPrefix = "/tfbc/";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "sendShipment");
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "requestPayment");
                 */
 
             }

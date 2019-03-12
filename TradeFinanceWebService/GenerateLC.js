@@ -30,6 +30,7 @@ global.btoa = () => { };
 var fileSystemModule = require('fs');
 var jsPdfModule = require('jspdf');
 var HelperUtilsModule = require('./HelperUtils');
+var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
 
 var bDebug = false;
 
@@ -53,7 +54,12 @@ var lcFilesDestination = "./LCFiles/";
  *
 */
 
-exports.generateLCAndUploadItToFileServer = function (clientRequestWithParamsMap, http_response) {
+exports.generateLCAndUploadItToFileServer = function ( dbConnection,
+                                            tradeAndLcTable_Name,
+                                            clientRequestWithParamsMap,
+                                            webClientRequest,
+                                            statusToBeUpdated,
+                                            http_response ) {
 
     // ToDo : Generate LC based on Input Details
 
@@ -83,8 +89,23 @@ exports.generateLCAndUploadItToFileServer = function (clientRequestWithParamsMap
 
         console.log("generateLCAndUploadItToFileServer => Successfully wrote the data to PDF File");
 
+        /*
         var successMessage = "generateLCAndUploadItToFileServer : Successfully wrote the data to PDF File";
         buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
+        */
+
+        var tradeId = clientRequestWithParamsMap.get("taId");
+        var lcId = clientRequestWithParamsMap.get("lcId");
+
+        clientRequestWithParamsMap.set("Trade_Id", tradeId);
+        clientRequestWithParamsMap.set("Lc_Id", lcId);
+
+        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection,
+            tradeAndLcTable_Name,
+            clientRequestWithParamsMap,
+            webClientRequest,
+            statusToBeUpdated,
+            http_response);
 
     });
 

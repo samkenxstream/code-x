@@ -240,6 +240,8 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
 
+    console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId);
+
     var query_Object = { Trade_Id: tradeId, Lc_Id: lcId };
     var document_Object = {
         $set: { Current_Status: statusToBeUpdated }
@@ -252,9 +254,7 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
         webClientRequest,
         http_response);
 
-    console.log("Web Service: Switch Statement : Successfully launched the update Record with status Trade_Approved => Trade_Id: " + tradeId + " Lc_Id: " + lcId);
-
-    return;
+    console.log("Web Service: Switch Statement : Successfully launched the update Record with status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId);
 }
 
 /**
