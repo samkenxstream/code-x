@@ -159,10 +159,12 @@
     <script src="./JavaScript/RetrieveUserDetails.js"></script>
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
     <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
 
     <script>
 
         bDebug = false;
+        var setIntervalVar = null;
 
         $("#Shipment-Order-Submit").click(function () {
 
@@ -196,8 +198,8 @@
             }
 
             var Client_Request = "RequestTrade";
-
             TradeAndLC_DatabaseUpdateModule.updateTradeDetailsInMongoDB(tradeRequestRecord, Client_Request);
+
 
             /*
             // HyperLedger API Call
@@ -212,8 +214,26 @@
             HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeRequestObject, API_Name);
             */
 
+            // refresh Page Content
+
+            setIntervalVar = setInterval(checkForFormDataProcessingCompletion, FlowControlGlobalsModule.inputDataProcessingEventInterval);
+
         });
 
+
+        /***********************************************************************************************
+            Periodic checks to find out if input data got processed and refresh the page accordingly 
+        ************************************************************************************************/
+
+        function checkForFormDataProcessingCompletion( ) {
+
+            if (FlowControlGlobalsModule.tradeBuyerInputProcessed == true) {
+
+                clearInterval(setIntervalVar);
+                window.location.reload();
+            }
+
+        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
@@ -222,6 +242,10 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Process completion event : Initialize it to false
+
+            FlowControlGlobalsModule.tradeBuyerInputProcessed = false;
 
             // Fill the Buyer's details in Selection Box
 

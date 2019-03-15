@@ -81,7 +81,7 @@
 
                 <label id="Label_buffer" style="padding-left: 6% ; padding-right: 6%"></label>
 
-                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status">
+                <select style="padding-right: 2%; padding-left: 2%" id="Select-LC-Status" onchange='processLCStatusInputChange(event);'>
 
                     <option value="LCStatusSelection">Select LC Status</option>
                     <option value="LCRequested">LC_Requested</option>
@@ -92,19 +92,6 @@
 
                 <label id="Label_buffer" style="padding-right: 6%"></label>
                 <button id="Retrieve-Shipment-Details-Button" class="Retrieve-Shipment-Details">Retrieve Shipments</button>
-
-            </div>
-
-            <div class="Upload-LC-Files-Details-Container" style="width: 80%">
-
-                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 10%"></label>
-                <label id="Label_Upload_LC_Files" style="font-weight:bold; background-color:white; padding-left: 1%; padding-right:1%; padding-top: 1%; padding-bottom: 1%">Select LC Files</label>
-                <label id="Label_buffer" style="padding-right:6.5%"></label>
-                <input type="file" id="File_Input_For_Lc_Upload" class="File-Input-For-Lc-Upload" name="Upload-LC-Files">
-
-                <br /><br /><br />
-                <label id="Label_buffer" style="padding-right: 25%"></label>
-                <button id="Upload_LC_Files_Button" class="Upload-LC-Files-Button">Upload LC Files</button>
 
             </div>
 
@@ -155,14 +142,29 @@
         var bDebug = false;
 
         /****************************************************************************************
-            Retrieve Shipment Details to Display in Shipment Orders Table
+            Container Division Code to upload files to FTP Server
+        *****************************************************************************************
+
+             <div class="Upload-LC-Files-Details-Container" style="width: 80%">
+
+                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 10%"></label>
+                <label id="Label_Upload_LC_Files" style="font-weight:bold; background-color:white; padding-left: 1%; padding-right:1%; padding-top: 1%; padding-bottom: 1%">Select LC Files</label>
+                <label id="Label_buffer" style="padding-right:6.5%"></label>
+                <input type="file" id="File_Input_For_Lc_Upload" class="File-Input-For-Lc-Upload" name="Upload-LC-Files">
+
+                <br /><br /><br />
+                <label id="Label_buffer" style="padding-right: 25%"></label>
+                <button id="Upload_LC_Files_Button" class="Upload-LC-Files-Button">Upload LC Files</button>
+
+            </div>
+
+        *****************************************************************************************/
+
+        /****************************************************************************************
+             RetrieveLcDetails : Retrieve the LC details of current buyer from mongo db
         *****************************************************************************************/
 
         $("#Retrieve-Shipment-Details-Button").click(function () {
-
-            /****************************************************************************************
-                RetrieveLcDetails : Retrieve the LC details of current buyer from mongo db
-            *****************************************************************************************/
 
             // Retrieve the Lc Details from mongoDb
 
@@ -346,6 +348,26 @@
 
         });
 
+
+        /****************************************************************************************
+            Fill the Details of Shiptment Based on Seller Input Selection
+        *****************************************************************************************/
+
+        function processLCStatusInputChange(event) {
+
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
+
+            if (Requested_LC_Status == "LC_Generated" || Requested_LC_Status == "LC_Approved") {
+
+                document.getElementById("BuyerBank-Generate-LC-Button").style.display = "none";
+
+            } else {
+
+                document.getElementById("BuyerBank-Generate-LC-Button").style.display = "inline";
+
+            }
+        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references

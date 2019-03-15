@@ -224,6 +224,7 @@
     <script src="./JavaScript/RetrieveUserDetails.js"></script>
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
     <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
 
     <script>
 
@@ -232,6 +233,7 @@
         *****************************************************************************************/
 
         var bDebug = false;
+        var setIntervalVar = null;
 
         $("#Shipment-Order-Submit").click(function () {
 
@@ -287,16 +289,25 @@
             HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(lcRequestObject, API_Name);
             */
 
+            // refresh Page Content
+
+            setIntervalVar = setInterval(checkForFormDataProcessingCompletion, FlowControlGlobalsModule.inputDataProcessingEventInterval);
+
         });
 
 
-        /****************************************************************************************
-            Login & Logout functionality : Hide and display the Internal content references
-        *****************************************************************************************/
+        /***********************************************************************************************
+            Periodic checks to find out if input data got processed and refresh the page accordingly
+        ************************************************************************************************/
 
-        window.onload = function (event) {
+        function checkForFormDataProcessingCompletion() {
 
-            document.getElementById("Content-Navigation-bar").style.display = "none";
+            if (FlowControlGlobalsModule.lcBuyerInputProcessed == true) {
+
+                clearInterval(setIntervalVar);
+                window.location.reload();
+            }
+
         }
 
         /****************************************************************************************
@@ -309,6 +320,10 @@
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
 
+            // Process completion event : Initialize it to false
+
+            FlowControlGlobalsModule.lcBuyerInputProcessed = false;
+
             // Fill the Buyer's details in Selection Box
 
             fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
@@ -320,9 +335,6 @@
             // Fill the Bank details in Selection Box
 
             fillTheUserDetails_FromMongoDB("Bank", "Bank-Input");
-
-            // Fill the Shipment Details in Selection Box
-
         }
 
         /****************************************************************************************

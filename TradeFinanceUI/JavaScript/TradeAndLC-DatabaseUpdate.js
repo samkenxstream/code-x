@@ -46,6 +46,8 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
                     responseObject = JSON.parse(this.responseText);
                     alert("Request Content: " + responseObject.Request + " , Status Content: " + responseObject.Status);
 
+                    FlowControlGlobalsModule.tradeBuyerInputProcessed = true;
+
                 } else {
 
                     if (bDebug == true) {
@@ -57,6 +59,7 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
             } else {
 
                 alert("Failure to receive response for requestTrade call :=> Status : " + this.status + " readyState : " + this.readyState);
+                FlowControlGlobalsModule.tradeBuyerInputProcessed = true;
             }
 
         };
@@ -104,8 +107,9 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
                     //Parse the JSON Response Object
 
                     responseObject = JSON.parse(this.response);
-
                     alert("Request Content: " + responseObject.Request + " , Status Content: " + responseObject.Status);
+
+                    FlowControlGlobalsModule.lcBuyerInputProcessed = true;
 
                 } else {
 
@@ -118,6 +122,8 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
             } else {
 
                 alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+
+                FlowControlGlobalsModule.lcBuyerInputProcessed = true;
             }
 
         };
