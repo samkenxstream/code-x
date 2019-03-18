@@ -53,6 +53,16 @@ var mongoDbCrudModule = require('./MongoDbCRUD')
 
 function prepareUserRegistrationObject(recordObjectMap) {
 
+    // Replace the "URL Space" with regular space in Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeUrlSpacesFromMapValues(recordObjectMap);
+
+    // Remove "Starting & Trailing Spaces" from Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeStartingAndTrailingSpacesFromMapValues(recordObjectMap);
+
+    // Prepare User Registration Object for MongoDB consumption
+
     console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(UserName) : " + recordObjectMap.get("UserName"));
 
     userData_Object.UserType = recordObjectMap.get("UserType");
@@ -147,6 +157,17 @@ exports.addUserRegistrationRecordToDatabase = function (dbConnection, collection
  */
 
 function prepareUserCredentialsObject (recordObjectMap) {
+
+
+    // Replace the "URL Space" with regular space in Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeUrlSpacesFromMapValues(recordObjectMap);
+
+    // Remove "Starting & Trailing Spaces" from Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeStartingAndTrailingSpacesFromMapValues(recordObjectMap);
+
+    // Prepare User Registration Object for MongoDB consumption
 
     credentialsData_Object.UserName = recordObjectMap.get("UserName");
     credentialsData_Object.Password = recordObjectMap.get("Password");

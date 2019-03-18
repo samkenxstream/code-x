@@ -68,6 +68,16 @@ var mongoDbCrudModule = require('./MongoDbCRUD');
 
 function prepareTradeDocumentObject(recordObjectMap) {
 
+    // Replace the "URL Space" with regular space in Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeUrlSpacesFromMapValues(recordObjectMap);
+
+    // Remove "Starting & Trailing Spaces" from Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeStartingAndTrailingSpacesFromMapValues(recordObjectMap);
+
+    // Prepare Trade Object for MongoDB consumption
+
     trade_Object._id = recordObjectMap.get("Trade_Id");
     trade_Object.Trade_Id = recordObjectMap.get("Trade_Id");
     trade_Object.Buyer = recordObjectMap.get("Buyer");
@@ -85,6 +95,16 @@ function prepareTradeDocumentObject(recordObjectMap) {
  */
 
 function prepareLcDocumentObject(recordObjectMap) {
+
+    // Replace the "URL Space" with regular space in Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeUrlSpacesFromMapValues(recordObjectMap);
+
+    // Remove "Starting & Trailing Spaces" from Record Object Map Values
+
+    recordObjectMap = HelperUtilsModule.removeStartingAndTrailingSpacesFromMapValues(recordObjectMap);
+
+    // Prepare LC Object for MongoDB consumption
 
     // Same Record gets modified after Trade Creation ( _id shouldn't be changed )
 

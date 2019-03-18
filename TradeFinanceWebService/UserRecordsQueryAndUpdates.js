@@ -152,4 +152,3 @@ function buildUserDBRecord_JSON(queryResult) {
     return queryResponse_JSON;
 }
 
-

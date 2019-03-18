@@ -66,36 +66,6 @@ var lcDetailsRequiredFields = ["Trade_Id", "Lc_Id", "Buyer", "Seller", "Seller_I
 var userRegistrationData_RequiredFields = ["UserType", "User_Id", "Name", "Location", "Email", "Address", "UserName", "Password"];
 
 
-/*
-*
- var trade_Object = {
-    Trade_Id: "",
-    Buyer: "",
-    Seller: "",
-    Shipment: "",
-    ShipmentCount: "",
-    Amount: "",
-    Current_Status: ""
-};
-
-var lc_Object = {
-    Trade_Id: "",
-    Lc_Id: "",
-    Buyer: "",
-    Seller: "",
-    Seller_Id: "",
-    Bank: "",
-    Shipment: "",
-    ShipmentCount: "",
-    Amount: "",
-    Expiry_Date: "",
-    Request_Location: "",
-    Current_Status: ""
-};
-
-*/
-
-
 // Global variables
 
 var bDebug = true;
