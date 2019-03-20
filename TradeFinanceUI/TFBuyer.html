@@ -137,7 +137,7 @@
 
                 <div class="Shipment-Input-Container" style="width: 25%">
 
-                    <input id="TradeId-Input" type="text">
+                    <input id="TradeId-Input" type="text" onchange='processTradeIdInputChange(event);'>
                     <br />
                     <br />
 
@@ -225,6 +225,7 @@
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
     <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
     <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/RetrieveTradeDetails-ForAutoFill.js"></script>
 
     <script>
 
@@ -326,7 +327,15 @@
 
             // Fill the Buyer's details in Selection Box
 
+            if (bDebug == true) {
+                alert("Before filling the buyer Selection Box Details : => numOfValues : " + document.getElementById("Buyer-Input").length);
+            }
+
             fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
+
+            if (bDebug == true) {
+                alert("After filling the buyer Selection Box Details from Mongo DB : => numOfValues : " + document.getElementById("Buyer-Input").length);
+            }
 
             // Fill the Seller's details in Selection Box
 
@@ -379,6 +388,34 @@
             var updateDynamicFieldsArray = ["Shipment-Input", "Seller-Id-Input"];
 
             RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, null, changedSellerInputValue);
+        }
+
+        /****************************************************************************************
+            Retrieve the Details of Trade when User Enters Trade_Id
+        *****************************************************************************************/
+
+        function processTradeIdInputChange(event) {
+
+            var tradeIdInputValue = document.getElementById("TradeId-Input").value;
+
+            // Build Query
+
+            var queryMap = new Map();
+            queryMap.set("Trade_Id", tradeIdInputValue);
+
+            // Fields to be updated dynamically
+
+            var dynamicFieldsToBeUpdated = new Map();
+            dynamicFieldsToBeUpdated.set("Buyer_Field_Id", "Buyer-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Field_Id", "Seller-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Id_Field_Id", "Seller-Id-Input");
+            dynamicFieldsToBeUpdated.set("Shipment_Field_Id", "Shipment-Input");
+            dynamicFieldsToBeUpdated.set("Shipment_Count_Field_Id", "ShipmentCount");
+            dynamicFieldsToBeUpdated.set("Credit_Amount_Field_Id", "CreditAmountInput");
+
+            // Mongo DB call for Retrieving The Shipment Details : For Auto Fill during LC Request
+
+            RetrieveAutoFillTradeDetails_Module.RetrieveAutoFillTradeDetailsRecords(webServerPrefix, queryMap, "RetrieveTradeDetails", dynamicFieldsToBeUpdated);
         }
 
     </script>
