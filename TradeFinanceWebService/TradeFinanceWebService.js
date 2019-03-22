@@ -337,11 +337,6 @@ http.createServer(function (req, res) {
                         res);
 
                     console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
-
-                    // Build Response
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-
                     break;
 
                 case "GetCurrentStatus":
@@ -360,12 +355,6 @@ http.createServer(function (req, res) {
                         res);
 
                     console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details => " + queriedTradeDetails);
-
-                    // Build Response
-                    // Complete Response will be built in Call back function after the DB Query
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-
                     break;
 
                 case "RetrieveLCDetails":
@@ -380,12 +369,6 @@ http.createServer(function (req, res) {
                         res);
 
                     console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details => " + queriedLcDetails);
-
-                    // Build Response
-                    // Complete Response will be built in Call back function after the DB Query
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-
                     break;
 
                 case "ApproveTrade":

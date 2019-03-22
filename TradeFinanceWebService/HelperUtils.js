@@ -9,7 +9,7 @@
 
 // Generic Variables Global
 
-var bDebug = true;
+var bDebug = false;
 
 /**************************************************************************
  **************************************************************************
@@ -20,6 +20,29 @@ var bDebug = true;
  **************************************************************************
  **************************************************************************
  */
+
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_StatusCode : Http Status code based on type of Error
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+exports.buildErrorResponse_Generic = function (clientRequest, failureMessage, http_StatusCode, http_Response) {
+
+    // build Error Response and attach it to Http_Response
+
+    var responseObject = null;
+
+    responseObject = { Request: clientRequest, Status: failureMessage };
+    var builtResponse = JSON.stringify(responseObject);
+
+    http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
+    http_Response.end(builtResponse);
+}
 
 /**
  * 

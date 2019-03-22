@@ -454,8 +454,11 @@ exports.handleQueryResults = function (err, queryResult, req, res, queryType) {
     console.log(queryResult);
 
     var queryResponse_JSON_String = buildQueryResponse_JSON(queryResult, queryType);
-    res.end(queryResponse_JSON_String);
 
+    // Build Success Response with Query Results
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(queryResponse_JSON_String);
 }
 
 

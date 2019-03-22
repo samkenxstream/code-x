@@ -82,7 +82,7 @@ exports.generateLCAndUploadItToFileServer = function ( dbConnection,
             var failureMessage = "generateLCAndUploadItToFileServer : Error while writing data to pdf file => " + err;
 
             var http_StatusCode = 400;
-            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
+            HelperUtilsModule.buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
 
             return;
         }
@@ -125,7 +125,7 @@ exports.generateLCAndUploadItToFileServer = function ( dbConnection,
             var failureMessage = "generateLCAndUploadItToFileServer : Error while moving the LC File to Destination => " + err;
 
             var http_StatusCode = 400;
-            buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
+            HelperUtilsModule.buildErrorResponse_Generic("generateLC", failureMessage, http_StatusCode, http_response);
 
             return;
         }
@@ -247,6 +247,7 @@ function buildSuccessResponse_ForLCGeneration(successMessage, webClientRequest, 
  * 
 */
 
+/*/
 function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response) {
 
     // build Error Response and attach it to Http_Response
@@ -259,9 +260,5 @@ function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCo
     http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
     http_Response.end(builtResponse);
 }
-
-
-
-
-
+/*/
 

@@ -11,6 +11,8 @@
 
 var bDebug = false;
 
+var HelperUtilsModule = require('./HelperUtils');
+
 /**************************************************************************
  **************************************************************************
  **************************************************************************
@@ -134,19 +136,20 @@ exports.removeRecordFromTradeAndLcDatabase = function (dbConnection, collectionN
  *
  */
 
-exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectionName, Trade_Identifier, Lc_Identifier, handleQueryResults, req, res) {
+exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectionName, Trade_Identifier, Lc_Identifier, handleQueryResults, http_request, http_response) {
 
     // Record Retrieval based on "Lc_Id | Trade_Id | *(All Records)"
 
     var query = null;
     var queryType = "AllRecords";
 
-    console.log("retrieveRecordFromTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + Trade_Identifier + " Lc_Identifier :" + Lc_Identifier);
+    console.log("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + Trade_Identifier + " Lc_Identifier :" + Lc_Identifier);
 
     if (Trade_Identifier != null) {
 
         query = { Trade_Id: Trade_Identifier };
         queryType = "SingleTradeRecord";
+
     }
     else if (Lc_Identifier != null) {
 
@@ -159,13 +162,25 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
         dbConnection.collection(collectionName).findOne(query, function (err, result) {
 
             if (err) {
-                console.log("Error while querying the Record from tradeAndLc Database => " + " Trade Id : " + Trade_Identifier + " LC Id : " + Lc_Identifier);
-                throw err;
+
+                var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Internal Server Error while querying the Record from tradeAndLc Database : " + err;
+                logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+
+                return;
             }
 
             console.log("retrieveRecordFromTradeAndLcDatabase => Query for single Record => returned Answer : ");
             console.log(result);
-            return handleQueryResults(null, result, req, res, queryType);
+
+            if (result == null || result == undefined) {
+
+                var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Null Records returned for TradeAndLC Record query => Trade_Id: " + Trade_Identifier + ", LC_Id: " + Lc_Identifier;
+                logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+
+                return;
+            }
+
+            return handleQueryResults(null, result, http_request, http_response, queryType);
         });
 
     } else {
@@ -173,14 +188,58 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
         dbConnection.collection(collectionName).find({}).toArray( function (err, result) {
 
             if (err) {
-                console.log("Error while querying all the Records from tradeAndLc Database");
-                throw err;
+
+                var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Internal Server Error while querying for all the Records from tradeAndLc Database : " + err;
+                logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+
+                return;
             }
 
-            console.log("Successfully retrieved all the records through function (retrieveRecordFromTradeAndLcDatabase) => ");
+            console.log("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Successfully retrieved all the records => ");
             console.log(result);
-            return handleQueryResults( null, result, req, res, queryType);
+
+            if (result == null || result == undefined) {
+
+                var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Null Records returned for TradeAndLC Record query For All Records";
+                logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+
+                return;
+            }
+
+            return handleQueryResults(null, result, http_request, http_response, queryType);
         });
     }
+}
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function logInternalServerError(clientRequest, failureMessage, http_Response) {
+
+    console.error(failureMessage);
+
+    var http_StatusCode = 500;
+    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
+}
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+function logBadHttpRequestError(clientRequest, failureMessage, http_Response) {
+
+    console.error(failureMessage);
+
+    var http_StatusCode = 400;
+    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
 }
 

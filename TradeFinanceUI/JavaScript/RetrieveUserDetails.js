@@ -35,13 +35,9 @@ var RetrieveUserDetails_Module = (function () {
 
                 if (this.readyState == 4) {
 
-                    //Parse the JSON Response Object
-                    //responseObject = JSON.parse(this.response);
-
                     if (bDebug == true) {
 
                         alert("Successfully Retrieved the User Details Records through API : " + Client_Request);
-                        alert(" Response Content: " + responseObject);
                     }
 
 
@@ -91,7 +87,7 @@ var RetrieveUserDetails_Module = (function () {
     }
 
     /***********************************************************************************************************
-    Helper Methods : fillTheDetailsInSelectionBoxss
+    Helper Methods : fillTheDetailsInSelectionBoxes
     ************************************************************************************************************/
 
     function fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxId, additionalBoxField_Id) {
@@ -143,6 +139,8 @@ var RetrieveUserDetails_Module = (function () {
     ************************************************************************************************************/
 
     function fillTheDynamicFieldsBasedOnChangedInput(userDetailRecords, selectionBoxIdArray, changedSellerInputValue) {
+
+        // Cleanup the values in Selection Box
 
         for (var i = 0; i < selectionBoxIdArray.length; i++) {
 
