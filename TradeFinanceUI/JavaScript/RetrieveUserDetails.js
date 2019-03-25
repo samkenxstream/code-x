@@ -7,7 +7,7 @@ var RetrieveUserDetails_Module = (function () {
     Retrieve the User-Details Records As per Input User Type ( Buyer, Seller, Bank )
     *****************************************************************************************/
 
-    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, selectionBoxIdArray, additionalBoxField_Id, changedSellerInputValue) {
+    function retrieveUserDetails_FromMongoDB(webServerPrefix, queryObject_Record, Client_Request, dynamicFieldsToBeUpdated, sellerInputChanged) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -40,26 +40,24 @@ var RetrieveUserDetails_Module = (function () {
                         alert("Successfully Retrieved the User Details Records through API : " + Client_Request);
                     }
 
-
                     //Parse the JSON Response Object
 
                     var responseString = this.response;
                     var userDetailRecords = responseString.split("\n");
-                    var numOfRecords = userDetailRecords.length - 2;
-                    responseSingleObject = JSON.parse(userDetailRecords[numOfRecords]);
+                    responseLastUserRecordObject = JSON.parse(userDetailRecords[userDetailRecords.length - 2]);
 
                     if (bDebug == true) {
 
-                        alert("Success Response for RetrieveUserDetails : Last UserDetails Record => " + responseSingleObject);
+                        alert("Success Response for RetrieveUserDetails : Last UserDetails Record => " + responseLastUserRecordObject);
                     }
 
-                    if (changedSellerInputValue == null || changedSellerInputValue == undefined) {
+                    if (sellerInputChanged == true) {
 
-                        fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxIdArray[0], additionalBoxField_Id);
+                        fillDynamicFieldsBasedOnChangedSellerInput(userDetailRecords, dynamicFieldsToBeUpdated);
 
                     } else {
 
-                        fillTheDynamicFieldsBasedOnChangedInput(userDetailRecords, selectionBoxIdArray, changedSellerInputValue);
+                        fillTheDetailsInSelectionBox(userDetailRecords, queryObject_Record.get("UserType"), dynamicFieldsToBeUpdated);
                     }
 
                 } else {
@@ -87,10 +85,30 @@ var RetrieveUserDetails_Module = (function () {
     }
 
     /***********************************************************************************************************
-    Helper Methods : fillTheDetailsInSelectionBoxes
+        Helper Methods : fillTheDetailsInSelectionBoxes
     ************************************************************************************************************/
 
-    function fillTheDetailsInSelectionBox(userDetailRecords, selectionBoxId, additionalBoxField_Id) {
+    function fillTheDetailsInSelectionBox(userDetailRecords, userType, dynamicFieldsToBeUpdated) {
+
+        // Select the Combo Box based on User Type
+
+        var selectionBox = null;
+        var sellerIdFieldBox = null;
+
+        if (userType == "Buyer") {
+
+            selectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Buyer_Field_Id"));
+
+        } else if (userType == "Seller") {
+
+            selectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Field_Id"));
+            sellerIdFieldBox = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Id_Field_Id"));
+
+        } else if (userType == "Bank") {
+
+            selectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Bank_Field_Id"));
+
+        }
 
         // For all the User Details of corresponding UserType
 
@@ -98,15 +116,12 @@ var RetrieveUserDetails_Module = (function () {
 
             responseSingleObject = JSON.parse(userDetailRecords[i]);
 
-            var selectionBox = document.getElementById(selectionBoxId);
-
             // Log error if userName doesn't exist
 
-            if (bDebug == true) {
+            if (responseSingleObject.Name == undefined || responseSingleObject.Name == null) {
 
-                if (responseSingleObject.Name != undefined && responseSingleObject.Name != null) {
-                    alert("inappropriate Name in current record of UserDetails = " + responseSingleObject.Name);
-                }
+                alert("Inappropriate Name in current record of UserDetails = " + responseSingleObject.Name);
+                continue;
             }
 
             var currentUserName = responseSingleObject.Name;
@@ -122,14 +137,12 @@ var RetrieveUserDetails_Module = (function () {
 
             // Add additinoal Field if not Null Input
 
-            if (additionalBoxField_Id != null) {
+            if (userType == "Seller") {
 
-                var additionalFieldBox = document.getElementById(additionalBoxField_Id);
                 var currentIdElementToBeAdded = document.createElement("option");
                 currentIdElementToBeAdded.text = responseSingleObject.UserName;
 
-                additionalFieldBox.add(currentIdElementToBeAdded);
-
+                sellerIdFieldBox.add(currentIdElementToBeAdded);
             }
         }
     }
@@ -138,56 +151,42 @@ var RetrieveUserDetails_Module = (function () {
     Helper Methods : fillTheDynamicFieldsBasedOnChangedInput
     ************************************************************************************************************/
 
-    function fillTheDynamicFieldsBasedOnChangedInput(userDetailRecords, selectionBoxIdArray, changedSellerInputValue) {
+    function fillDynamicFieldsBasedOnChangedSellerInput(userDetailRecords, dynamicFieldsToBeUpdated) {
 
-        // Cleanup the values in Selection Box
+        // Cleanup the values in "Seller Id & Shipment" Combo Boxes
 
-        for (var i = 0; i < selectionBoxIdArray.length; i++) {
+        sellerIdSelectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Id_Field_Id"));
+        shipmentSelectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Shipment_Field_Id"));
 
-            document.getElementById(selectionBoxIdArray[i]).innerHTML = null;
-        }
+        sellerIdSelectionBox.innerHTML = null;
+        shipmentSelectionBox.innerHTML = null;
 
-        // For all the User Details of corresponding UserType
+        var changedSellerInputValue = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Field_Id")).value;
+
+        // For all the User Details of Seller
 
         for (var i = 0; i < userDetailRecords.length-1; i++) {
 
             responseSingleObject = JSON.parse(userDetailRecords[i]);
 
-            var shipmentSelectionBox = document.getElementById(selectionBoxIdArray[0]);
-
-            var sellerIdSelectionBox = null;
-            if (selectionBoxIdArray.length > 1) {
-
-                sellerIdSelectionBox = document.getElementById(selectionBoxIdArray[1]);
-            }
-
             // Log error if userName doesn't exist
 
-            if (responseSingleObject.Name == undefined && responseSingleObject.Name == null) {
+            if (responseSingleObject.Name == undefined || responseSingleObject.Name == null) {
 
                 alert("inappropriate Name in current record of UserDetails = " + responseSingleObject.Name);
+                continue;
 
-            } else {
+            }
 
-                if (responseSingleObject.Name == changedSellerInputValue) {
+            if (responseSingleObject.Name == changedSellerInputValue) {
 
-                    if (bDebug == true) {
+                // Shipment Value Addition without Spaces
 
-                        alert("currentShipmentValue = " + currentShipmentValue);
-                    }
+                var currentShipmentValue = responseSingleObject.Shipment;
+                var currentSellerIdValue = responseSingleObject.UserName;
 
-                    // Shipment Value Addition without Spaces
-
-                    var currentShipmentValue = responseSingleObject.Shipment;
-                    var currentSellerIdValue = responseSingleObject.UserName;
-
-                    addOptionToSelectionBox(shipmentSelectionBox, currentShipmentValue);
-
-                    if (selectionBoxIdArray.length > 1) {
-
-                        addOptionToSelectionBox(sellerIdSelectionBox, currentSellerIdValue);
-                    }
-                }
+                addOptionToSelectionBox(shipmentSelectionBox, currentShipmentValue);
+                addOptionToSelectionBox(sellerIdSelectionBox, currentSellerIdValue);
             }
         }
     }

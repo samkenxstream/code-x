@@ -327,23 +327,15 @@
 
             // Fill the Buyer's details in Selection Box
 
-            if (bDebug == true) {
-                alert("Before filling the buyer Selection Box Details : => numOfValues : " + document.getElementById("Buyer-Input").length);
-            }
-
-            fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
-
-            if (bDebug == true) {
-                alert("After filling the buyer Selection Box Details from Mongo DB : => numOfValues : " + document.getElementById("Buyer-Input").length);
-            }
+            fillTheUserDetails_FromMongoDB("Buyer");
 
             // Fill the Seller's details in Selection Box
 
-            fillTheUserDetails_FromMongoDB("Seller", "Seller-Input", "Seller-Id-Input");
+            fillTheUserDetails_FromMongoDB("Seller");
 
             // Fill the Bank details in Selection Box
 
-            fillTheUserDetails_FromMongoDB("Bank", "Bank-Input");
+            fillTheUserDetails_FromMongoDB("Bank");
         }
 
         /****************************************************************************************
@@ -355,18 +347,25 @@
             fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, null);
         }
 
-        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, additionalBoxField_Id) {
+        function fillTheUserDetails_FromMongoDB(userTypeValue) {
 
             // Build Query
 
             var queryMap = new Map();
             queryMap.set("UserType", userTypeValue);
 
+            // Selection Box Id's
+
+            var dynamicFieldsToBeUpdated = new Map();
+
+            dynamicFieldsToBeUpdated.set("Buyer_Field_Id", "Buyer-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Field_Id", "Seller-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Id_Field_Id", "Seller-Id-Input");
+            dynamicFieldsToBeUpdated.set("Bank_Field_Id", "Bank-Input");
+
             // Mongo DB call for Retrieving The User Details
 
-            var updateDynamicFieldsArray = [selectionBoxId];
-
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, additionalBoxField_Id, null);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", dynamicFieldsToBeUpdated, false);
 
         }
 
@@ -386,13 +385,20 @@
             var queryMap = new Map();
             queryMap.set("UserType", "Seller");
 
-            var changedSellerInputValue = document.getElementById("Seller-Input").value;
+            //var changedSellerInputValue = document.getElementById("Seller-Input").value;
+            //var updateDynamicFieldsArray = ["Shipment-Input", "Seller-Id-Input"];
+
+            var dynamicFieldsToBeUpdated = new Map();
+
+            dynamicFieldsToBeUpdated.set("Buyer_Field_Id", "Buyer-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Field_Id", "Seller-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Id_Field_Id", "Seller-Id-Input");
+            dynamicFieldsToBeUpdated.set("Shipment_Field_Id", "Shipment-Input");
 
             // Mongo DB call for Retrieving The Shipment Details
 
-            var updateDynamicFieldsArray = ["Shipment-Input", "Seller-Id-Input"];
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", dynamicFieldsToBeUpdated, true);
 
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, null, changedSellerInputValue);
         }
 
         /****************************************************************************************

@@ -67,9 +67,22 @@ var RetrieveAutoFillTradeDetails_Module = (function () {
                     }
                 }
 
+            // Invalid Client Request ( Incorrect Trade_Id )
+
+            } else if (this.status == 400) {
+
+                if (this.readyState == 4) {
+
+                    alert("Trade Details are not found for Trade_Id => " + queryObject_Record.get("Trade_Id"));
+                    window.location.reload();
+                }
+
+            // All Other Errors
+
             } else {
 
                 alert("Failure to place RetrieveTradeDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+                window.location.reload();
             }
 
         };
