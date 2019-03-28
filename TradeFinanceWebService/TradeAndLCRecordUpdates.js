@@ -25,7 +25,8 @@ var trade_Object = {
     Shipment: "",
     ShipmentCount: "",
     Amount: "",
-    Current_Status: ""
+    Current_Status: "",
+    UserName: ""
 };
 
 var lc_Object = {
@@ -40,7 +41,8 @@ var lc_Object = {
     Amount: "",
     Expiry_Date: "",
     Request_Location: "",
-    Current_Status: ""
+    Current_Status: "",
+    UserName: ""
 };
 
 var bDebug = false;
@@ -85,6 +87,12 @@ function prepareTradeDocumentObject(recordObjectMap) {
     trade_Object.Shipment = recordObjectMap.get("Shipment");
     trade_Object.ShipmentCount = recordObjectMap.get("ShipmentCount");
     trade_Object.Amount = recordObjectMap.get("Amount");
+
+    if ( recordObjectMap.get("UserName") != null && recordObjectMap.get("UserName") != undefined ) {
+
+        trade_Object.UserName = recordObjectMap.get("UserName");
+    }
+
     trade_Object.Current_Status = "Trade_Requested";
 }
 
@@ -119,6 +127,12 @@ function prepareLcDocumentObject(recordObjectMap) {
     lc_Object.Amount = recordObjectMap.get("Amount");
     lc_Object.Expiry_Date = recordObjectMap.get("Expiry_Date");
     lc_Object.Request_Location = recordObjectMap.get("Request_Location");
+
+    if (recordObjectMap.get("UserName") != null && recordObjectMap.get("UserName") != undefined) {
+
+        lc_Object.UserName = recordObjectMap.get("UserName");
+    }
+
     lc_Object.Current_Status = "LC_Requested";
 }
 
@@ -133,7 +147,7 @@ function prepareLcDocumentObject(recordObjectMap) {
  * 
  */
 
-exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest) {
+exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest, http_response) {
 
     // Check if all the required fields are present before adding the record
 
@@ -143,8 +157,12 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
 
         if (recordObjectMap.get(currentKey) == null) {
 
-            console.error("addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
-            return false;
+            console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
+
+            var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey;
+            HelperUtilsModule.logBadHttpRequestError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+            return;
         }
     }
 
@@ -161,7 +179,9 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
         trade_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(trade_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
-            trade_Object);
+            trade_Object,
+            "RequestTrade",
+            http_response);
 
     } else {
 
@@ -174,7 +194,9 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
         lc_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(lc_Object);
         addRecordToTradeAndLcDatabase(dbConnection,
             collectionName,
-            lc_Object);
+            lc_Object,
+            "RequestLC",
+            http_response);
     }
 
     return true;
@@ -189,7 +211,7 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
  * 
  */
 
-function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Object) {
+function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Object, clientRequest, http_response) {
 
     // Update if Present ; Add Otherwise
 
@@ -212,8 +234,12 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
 
             if (err) {
 
-                console.log("addRecordToTradeAndLcDatabase : Error while querying for document to be inserted");
-                throw err;
+                console.error("TradeAndLCRecordUpdates.addRecordToTradeAndLcDatabase : Internal Server Error while querying for record to be inserted");
+
+                var failureMessage = "TradeAndLCRecordUpdates.addRecordToTradeAndLcDatabase : Internal Server Error while querying for record to be inserted";
+                HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                return;
             }
 
             var recordPresent = (result) ? "true" : "false";
@@ -222,14 +248,14 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
                 // Record Addition
 
                 console.log("Record Not Found, Adding New Record => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-                mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
+                mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object, clientRequest, http_response);
             }
             else {
 
                 // Record Updation
 
                 console.log("Record Found, Updating the existing Record => " + " Trade Id : " + document_Object.Trade_Id + " LC Id : " + document_Object.Lc_Id);
-                mongoDbCrudModule.directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query);
+                mongoDbCrudModule.directUpdationOfRecordToDatabase(dbConnection, collectionName, document_Object, query, clientRequest, http_response);
             }
 
         });
@@ -239,7 +265,7 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
         // Record Addition
 
         console.log("Both Trade_Id and Lc_Id are null in input Object, Adding New Record without primary keys");
-        mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
+        mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object, clientRequest, http_response);
     }
 
 }
@@ -395,14 +421,28 @@ function buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest
 
 function buildTradeRecord_JSON(queryResult) {
 
-    var queryResponse_JSON = null;
+    var queryResponse_JSON = new Object();
 
     queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
+    /*
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller, "Shipment": queryResult.Shipment,
         "ShipmentCount": queryResult.ShipmentCount, "Amount": queryResult.Amount, "Current_Status": queryResult.Current_Status
-    };
+    };*/
+
+    queryResponse_JSON.Trade_Id = queryResult.Trade_Id;
+    queryResponse_JSON.Buyer = queryResult.Buyer;
+    queryResponse_JSON.Seller = queryResult.Seller;
+    queryResponse_JSON.Shipment = queryResult.Shipment;
+    queryResponse_JSON.ShipmentCount = queryResult.ShipmentCount;
+    queryResponse_JSON.Amount = queryResult.Amount;
+    queryResponse_JSON.Current_Status = queryResult.Current_Status;
+
+    if (queryResult.UserName != null && queryResult.UserName != undefined) {
+
+        queryResponse_JSON.UserName = queryResult.UserName;
+    }
 
     return queryResponse_JSON;
 }
@@ -418,16 +458,35 @@ function buildTradeRecord_JSON(queryResult) {
 
 function buildLcRecord_JSON(queryResult) {
 
-    var queryResponse_JSON = null;
+    var queryResponse_JSON = new Object();
 
     queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
+    /*
     queryResponse_JSON = {
         "Trade_Id": queryResult.Trade_Id, "Lc_Id": queryResult.Lc_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller,
         "Seller_Id": queryResult.Seller_Id, "Bank": queryResult.Bank, "Shipment": queryResult.Shipment, "Amount": queryResult.Amount,
         "ShipmentCount": queryResult.ShipmentCount, "Current_Status": queryResult.Current_Status, "Expiry_Date": queryResult.Expiry_Date,
         "Request_Location": queryResult.Request_Location
-    };
+    };*/
+
+    queryResponse_JSON.Trade_Id = queryResult.Trade_Id;
+    queryResponse_JSON.Lc_Id = queryResult.Lc_Id;
+    queryResponse_JSON.Buyer = queryResult.Buyer;
+    queryResponse_JSON.Seller = queryResult.Seller;
+    queryResponse_JSON.Seller_Id = queryResult.Seller_Id;
+    queryResponse_JSON.Bank = queryResult.Bank;
+    queryResponse_JSON.Shipment = queryResult.Shipment;
+    queryResponse_JSON.Amount = queryResult.Amount;
+    queryResponse_JSON.ShipmentCount = queryResult.ShipmentCount;
+    queryResponse_JSON.Current_Status = queryResult.Current_Status;
+    queryResponse_JSON.Expiry_Date = queryResult.Expiry_Date;
+    queryResponse_JSON.Request_Location = queryResult.Request_Location;
+
+    if (queryResult.UserName != null && queryResult.UserName != undefined) {
+
+        queryResponse_JSON.UserName = queryResult.UserName;
+    }
 
     return queryResponse_JSON;
 }
@@ -481,6 +540,38 @@ function buildQueryResponse_JSON(queryResult, queryType) {
 
         return JSON.stringify(buildLcRecord_JSON(queryResult));
 
+    } else if (queryType == "TradeDetailsBasedOnUser") {
+
+        var queryResponse_TradeRecords_JSON_String = "";
+
+        for (var i = 0; i < queryResult.length; i++) {
+
+            if (queryResult[i].Lc_Id == null || queryResult[i].Lc_Id == undefined) {
+
+                queryResponse_TradeRecords_JSON_String += JSON.stringify(buildTradeRecord_JSON(queryResult[i]));
+                queryResponse_TradeRecords_JSON_String += "\n";
+            }
+
+        }
+
+        return queryResponse_TradeRecords_JSON_String;
+
+    } else if (queryType == "LCDetailsBasedOnUser") {
+
+        var queryResponse_LCRecords_JSON_String = "";
+
+        for (var i = 0; i < queryResult.length; i++) {
+
+            if (queryResult[i].Lc_Id != null && queryResult[i].Lc_Id != undefined) {
+
+                queryResponse_LCRecords_JSON_String += JSON.stringify(buildLcRecord_JSON(queryResult[i]));
+                queryResponse_LCRecords_JSON_String += "\n";
+
+            }
+        }
+
+        return queryResponse_LCRecords_JSON_String;
+
     } else {
 
         var queryResponse_AllRecords_JSON_String = "";
@@ -505,5 +596,4 @@ function buildQueryResponse_JSON(queryResult, queryType) {
 
     return queryResponse_JSON;
 }
-
 

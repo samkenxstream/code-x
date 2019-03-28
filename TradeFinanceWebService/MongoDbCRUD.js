@@ -9,7 +9,7 @@
 
 // Generic Variables Global
 
-var bDebug = false;
+var bDebug = true;
 
 var HelperUtilsModule = require('./HelperUtils');
 
@@ -31,17 +31,26 @@ var HelperUtilsModule = require('./HelperUtils');
  * 
  */
 
-exports.directAdditionOfRecordToDatabase = function (dbConnection, collectionName, document_Object) {
+exports.directAdditionOfRecordToDatabase = function (dbConnection, collectionName, document_Object, clientRequest, http_response) {
 
     // Record Addition
 
     dbConnection.collection(collectionName).insertOne(document_Object, function (err, result) {
 
         if (err) {
-            console.log("Error while adding the Record to Database collection => " + collectionName);
-            throw err;
+            console.error("MongoDbCRUD.directAdditionOfRecordToDatabase : Error while adding the Record to Database collection => " + collectionName);
+
+            var failureMessage = "MongoDbCRUD.directAdditionOfRecordToDatabase : Internal Server Error adding the Record to Database collection => " + collectionName;
+            HelperUtilsModule.logInternalServerError("directAdditionOfRecordToDatabase", failureMessage, http_response);
+
+            return;
         }
-        console.log("Successfully added the record to the Collection : " + collectionName);
+
+        console.log("MongoDbCRUD.directAdditionOfRecordToDatabase : Successfully added the record to the Collection : " + collectionName);
+
+        var successMessage = "MongoDbCRUD.directAdditionOfRecordToDatabase : Successfully added the record to the Collection : " + collectionName;
+        HelperUtilsModule.buildSuccessResponse_Generic(successMessage, clientRequest, http_response);
+
         console.log(result);
 
     });
@@ -55,7 +64,7 @@ exports.directAdditionOfRecordToDatabase = function (dbConnection, collectionNam
  * 
  */
 
-exports.directUpdationOfRecordToDatabase = function (dbConnection, collectionName, document_Object, query) {
+exports.directUpdationOfRecordToDatabase = function (dbConnection, collectionName, document_Object, query, clientRequest, http_response) {
 
     // Record Updation
 
@@ -63,15 +72,23 @@ exports.directUpdationOfRecordToDatabase = function (dbConnection, collectionNam
 
     var newUpdateObject = { $set: document_Object };
     var udpateSert = {upsert: true};
+
     dbConnection.collection(collectionName).updateOne(query, newUpdateObject, udpateSert, function (err, result) {
 
         if (err) {
-            console.log("Error while updating the Record to tradeAndLc Database collection");
-            throw err;
-        }
-        console.log("Successfully updated the record in the Trade and LC Table : " + document_Object.Trade_Id);
-        console.log(result);
+            console.error("MongoDbCRUD.directUpdationOfRecordToDatabase : Error while updating the Record to Database collection => " + collectionName);
 
+            var failureMessage = "MongoDbCRUD.directUpdationOfRecordToDatabase : Internal Server Error updating the Record to Database collection => " + collectionName;
+            HelperUtilsModule.logInternalServerError("directUpdationOfRecordToDatabase", failureMessage, http_response);
+
+            return;
+        }
+
+        console.log("MongoDbCRUD.directUpdationOfRecordToDatabase : Successfully updated the record in the Trade and LC Table : " + document_Object.Trade_Id);
+        var successMessage = "MongoDbCRUD.directUpdationOfRecordToDatabase : Successfully updated the record to the Collection : " + collectionName;
+        HelperUtilsModule.buildSuccessResponse_Generic(successMessage, clientRequest, http_response);
+
+        console.log(result);
     });
 }
 
@@ -131,8 +148,11 @@ exports.removeRecordFromTradeAndLcDatabase = function (dbConnection, collectionN
  * 
  * @param {any} dbConnection  : Connection to database 
  * @param {any} collectionName  : Name of Table ( Collection )
- * @param {any[Optional]} Lc_Id : query Key => Letter of Credit Id
  * @param {any[Optional]} Trade_Id : query Key => Trade Id
+ * @param {any[Optional]} Lc_Id : query Key => Letter of Credit Id
+ * @param {any} handleQueryResults  : Call back function to handle the Query Results
+ * @param {any} http_request  : http request passed from web service handler
+ * @param {any} http_response : http response to be filled while responding to web client request
  *
  */
 
@@ -164,7 +184,7 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
             if (err) {
 
                 var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Internal Server Error while querying the Record from tradeAndLc Database : " + err;
-                logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+                HelperUtilsModule.logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
 
                 return;
             }
@@ -175,7 +195,7 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
             if (result == null || result == undefined) {
 
                 var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Null Records returned for TradeAndLC Record query => Trade_Id: " + Trade_Identifier + ", LC_Id: " + Lc_Identifier;
-                logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+                HelperUtilsModule.logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
 
                 return;
             }
@@ -190,7 +210,7 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
             if (err) {
 
                 var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Internal Server Error while querying for all the Records from tradeAndLc Database : " + err;
-                logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+                HelperUtilsModule.logInternalServerError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
 
                 return;
             }
@@ -201,7 +221,7 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
             if (result == null || result == undefined) {
 
                 var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase : Null Records returned for TradeAndLC Record query For All Records";
-                logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
+                HelperUtilsModule.logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase", failureMessage, http_response);
 
                 return;
             }
@@ -211,35 +231,95 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
     }
 }
 
-/**
+/**************************************************************************
+ **************************************************************************
+ **************************************************************************
  * 
- * @param {any} clientRequest  : Web Client Request
- * @param {any} failureMessage  : Failure Message Error Content
- * @param {any} http_Response : Http Response thats gets built
+ * Trade and LC "Record Query & Response Building" based on User Name
  * 
-*/
+ **************************************************************************
+ **************************************************************************
+ */
 
-function logInternalServerError(clientRequest, failureMessage, http_Response) {
-
-    console.error(failureMessage);
-
-    var http_StatusCode = 500;
-    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
-}
 
 /**
  * 
- * @param {any} clientRequest  : Web Client Request
- * @param {any} failureMessage  : Failure Message Error Content
- * @param {any} http_Response : Http Response thats gets built
- * 
+ * @param {any} dbConnection  : Connection to database 
+ * @param {any} collectionName  : Name of Table ( Collection )
+ * @param {any} queryObjectMap : Map of <k,v> pairs capturing query information
+ * @param {any} handleQueryResults  : Call back function to handle the Query Results
+ * @param {any} http_request  : http request passed from web service handler
+ * @param {any} http_response : http response to be filled while responding to web client request
+ *
 */
 
-function logBadHttpRequestError(clientRequest, failureMessage, http_Response) {
+exports.retrieveRecordFromTradeAndLcDatabase_BasedOnUser = function (dbConnection, collectionName, queryObjectMap,
+    handleQueryResults, queryType, http_request, http_response) {
 
-    console.error(failureMessage);
+    // Record Retrieval based on UserName and or "Lc_Id | Trade_Id"
 
-    var http_StatusCode = 400;
-    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
+    console.log("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => collectionName :" + collectionName + ", NumberOfQueryKeys :" + queryObjectMap.length);
+
+    if (queryObjectMap.length == 0) {
+
+        console.error("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => empty Query Object map. Returning ");
+
+        var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => empty Query Object map. Returning..";
+        HelperUtilsModule.logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase_BasedOnUser", failureMessage, http_response);
+
+        return;
+    }
+
+    // build Query Object
+
+    var queryObject = new Object();
+    var queryKeys = queryObjectMap.keys();
+
+    for (var currentKey of queryKeys) {
+
+        if (bDebug == true) {
+
+            console.log( "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => Adding <K,V> to query Object => Key : " + currentKey + ", Value : " + queryObjectMap.get(currentKey) );
+        }
+
+        queryObject[currentKey] = queryObjectMap.get(currentKey);
+    }
+
+    if (bDebug == true) {
+
+        var queryKeys = Object.keys(queryObject);
+        console.log("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => queryObject.length : " + queryKeys.length);
+
+        for (var currentKey of queryKeys) {
+
+            console.log("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => queryObject.Key : " + currentKey + ", queryObject.Value = " + queryObject[currentKey]);
+        }
+    }
+
+    // Query And Response Building
+
+    dbConnection.collection(collectionName).find(queryObject).toArray( function (err, result) {
+
+        if (err) {
+
+            var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser : Internal Server Error while querying the Record from tradeAndLc Database : " + err;
+            HelperUtilsModule.logInternalServerError("retrieveRecordFromTradeAndLcDatabase_BasedOnUser", failureMessage, http_response);
+
+            return;
+        }
+
+        console.log("retrieveRecordFromTradeAndLcDatabase_BasedOnUser => Query for Records based on User => Returned Answer : ");
+        console.log(result);
+
+        if (result == null || result == undefined) {
+
+            var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser : Null Records returned for TradeAndLC Record query based on UserName";
+            HelperUtilsModule.logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase_BasedOnUser", failureMessage, http_response);
+
+            return;
+        }
+
+        return handleQueryResults(null, result, http_request, http_response, queryType);
+    });
 }
 

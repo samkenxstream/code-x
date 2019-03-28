@@ -21,6 +21,7 @@ var bDebug = false;
  **************************************************************************
  */
 
+var HelperUtilsModule = require('./HelperUtils');
 
 /**
  * 
@@ -42,6 +43,59 @@ exports.buildErrorResponse_Generic = function (clientRequest, failureMessage, ht
 
     http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
     http_Response.end(builtResponse);
+}
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+exports.logInternalServerError = function (clientRequest, failureMessage, http_Response) {
+
+    console.error(failureMessage);
+
+    var http_StatusCode = 500;
+    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
+}
+
+/**
+ * 
+ * @param {any} clientRequest  : Web Client Request
+ * @param {any} failureMessage  : Failure Message Error Content
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+exports.logBadHttpRequestError = function (clientRequest, failureMessage, http_Response) {
+
+    console.error(failureMessage);
+
+    var http_StatusCode = 400;
+    HelperUtilsModule.buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response);
+}
+
+/**
+ * 
+ * @param {any} successMessage  : Success Message Content
+ * @param {any} webClientRequest  : Client Request Name
+ * @param {any} http_Response : Http Response thats gets built
+ * 
+*/
+
+exports.buildSuccessResponse_Generic = function (successMessage, webClientRequest, http_response) {
+
+    // Build success Response for Client Request
+
+    var responseObject = null;
+
+    responseObject = { Request: webClientRequest, Status: successMessage };
+    var genericResponse = JSON.stringify(responseObject);
+
+    http_response.writeHead(200, { 'Content-Type': 'application/json' });
+    http_response.end(genericResponse);
 }
 
 /**

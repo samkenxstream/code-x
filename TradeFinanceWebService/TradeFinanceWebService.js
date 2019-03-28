@@ -29,6 +29,7 @@ var mongoDbCrudModule = require('./MongoDbCRUD');
 var UserAuthenticationModule = require('./UserAuthentication');
 var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
 var UserRecordsQueryAndUpdatesModule = require('./UserRecordsQueryAndUpdates');
+var HelperUtilsModule = require('./HelperUtils');
 
 // Define globals as per JSPDF Inclusion Usage/Syntax
 
@@ -282,7 +283,8 @@ http.createServer(function (req, res) {
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         tradeDetailsRequiredFields,
-                        false)) {
+                        false,
+                        res)) {
 
                         console.log("Web Service: Switch Statement : Successfully added Record for Trade");
                     }
@@ -293,11 +295,13 @@ http.createServer(function (req, res) {
 
                     // Build Response
 
+                    /*
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     var tradeResponseObject = { Request: "Request_Trade", Status: "Trade_Requested" };
                     var tradeResponse = JSON.stringify(tradeResponseObject);
 
                     res.end(tradeResponse);
+                    */
 
                     break;
 
@@ -307,7 +311,8 @@ http.createServer(function (req, res) {
                         tradeAndLcTable_Name,
                         clientRequestWithParamsMap,
                         lcDetailsRequiredFields,
-                        true)) {
+                        true,
+                        res)) {
 
                         console.log("Web Service: Switch Statement : Successfully added Record for LC");
                     }
@@ -318,13 +323,17 @@ http.createServer(function (req, res) {
 
                     // Build Response
 
+                    /*
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
                     var lcResponse = JSON.stringify(lcResponseObject);
 
                     res.end(lcResponse);
+                    */
 
                     break;
+
+                // Retrieve Records : Generic
 
                 case "RetrieveAllRecords":
 
@@ -339,14 +348,10 @@ http.createServer(function (req, res) {
                     console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
                     break;
 
-                case "GetCurrentStatus":
-
-                    break;
-
                 case "RetrieveTradeDetails":
 
                     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
-                    var queriedTradeDetails = mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         tradeId,
                         null,
@@ -354,13 +359,13 @@ http.createServer(function (req, res) {
                         req,
                         res);
 
-                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details => " + queriedTradeDetails);
+                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details");
                     break;
 
                 case "RetrieveLCDetails":
 
                     var lcId = clientRequestWithParamsMap.get("Lc_Id");
-                    var queriedLcDetails = mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
                         null,
                         lcId,
@@ -368,8 +373,102 @@ http.createServer(function (req, res) {
                         req,
                         res);
 
-                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details => " + queriedLcDetails);
+                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details");
                     break;
+
+                // Retrieve Records : Based on User
+
+                case "RetrieveTradeDetailsBasedOnUser":
+
+                    var userName = clientRequestWithParamsMap.get("UserName");
+                    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+
+                    // Build Query
+
+                    var queryMap = new Map();
+
+                    if (userName != null && userName != undefined) {
+
+                        queryMap.set("UserName", userName);
+                    }
+
+                    if (tradeId != null && tradeId != undefined) {
+
+                        queryMap.set("Trade_Id", tradeId);
+                    }
+
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        queryMap,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
+                        "TradeDetailsBasedOnUser",
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details for User : " + userName);
+                    break;
+
+                case "RetrieveLCDetailsBasedOnUser":
+
+                    var userName = clientRequestWithParamsMap.get("UserName");
+                    var lcId = clientRequestWithParamsMap.get("Lc_Id");
+
+                    // Build Query
+
+                    var queryMap = new Map();
+
+                    if (userName != null && userName != undefined) {
+
+                        queryMap.set("UserName", userName);
+                    }
+
+                    if (lcId != null && lcId != undefined) {
+
+                        queryMap.set("Lc_Id", lcId);
+                    }
+
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        queryMap,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
+                        "LCDetailsBasedOnUser",
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details for User : " + userName);
+                    break;
+
+                case "RetrieveAllRecordsBasedOnUser":
+
+                    var userName = clientRequestWithParamsMap.get("UserName");
+
+                    // Build Query
+
+                    var queryMap = new Map();
+
+                    if (userName != null && userName != undefined) {
+
+                        queryMap.set("UserName", userName);
+                    }
+
+                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        queryMap,
+                        TradeAndLCRecordsUpdateModule.handleQueryResults,
+                        "AllRecordsBasedOnUser",
+                        req,
+                        res);
+
+                    console.log("Web Service: Switch Statement : Successfully retrieved the Record details for User : " + userName);
+                    break;
+
+                // Status Retrieval
+
+                case "GetCurrentStatus":
+
+                    break;
+
+                // Approvals and Shipment processing ( Status Change based on User Input Query )
 
                 case "ApproveTrade":
 
@@ -447,21 +546,6 @@ http.createServer(function (req, res) {
 
                     // Update the Status to be "LC_Generated" in Mongo DB
 
-                    /*
-                    var statusToBeUpdated = "LC_Generated";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    // Generate LC File on the Server Side
-
-                    generateLCModule.generateLCAndUploadItToFileServer( clientRequestWithParamsMap,
-                        res);
-                    */
-
                     var statusToBeUpdated = "LC_Generated";
                     generateLCModule.generateLCAndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
                         tradeAndLcTable_Name,
@@ -475,6 +559,10 @@ http.createServer(function (req, res) {
                 default:
 
                     console.error("Inappropriate Web Client Request received...exiting");
+
+                    var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
+                    HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
                     break;
 
             }
