@@ -26,43 +26,50 @@ var HelperUtilsModule = require('./HelperUtils');
  *
  */
 
-exports.retrieveUsers_BasedOnType = function (dbConnection, collectionName, inputUserType, handleUserDatabaseQueryResults, http_Response) {
+exports.retrieveUserDetails = function (dbConnection, collectionName, queryMap, handleUserDatabaseQueryResults, http_Response) {
 
-    var query = null;
     var http_StatuCode;
 
-    console.log("retrieveUsers_BasedOnType => collectionName :" + collectionName + " UserType :" + inputUserType);
+    console.log("retrieveUserDetails => collectionName :" + collectionName + ", Number of User based Queries:" + queryMap.keys().length);
 
     // Pre Validations
 
-    if (inputUserType == null || inputUserType == undefined) {
+    if (queryMap == null || queryMap == undefined || queryMap.length == 0 ) {
 
-        console.error("retrieveUsers_BasedOnType : Invalid UserType Entered");
-        var failureMessage = "retrieveUsers_BasedOnType : Invalid UserType Entered";
+        console.error("retrieveUserDetails : Invalid Query Map Input");
+        var failureMessage = "retrieveUserDetails : Invalid input Query Map";
 
         http_StatuCode = 400;
-        buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
+        buildErrorResponse_Generic("RetrieveUserDetails", failureMessage, http_StatuCode, http_Response);
     }
 
-    // Query And Response Building
+    // build query object based on input Query Map
 
-    query = { UserType: inputUserType };
+    var queryKeys = queryMap.keys();
+    var queryObject = new Object();
 
-    dbConnection.collection(collectionName).find(query).toArray(function (err, result) {
+    for (var currentKey of queryKeys) {
+
+        queryObject[currentKey] = queryMap.get(currentKey);
+    }
+
+    // query the db & build Response
+
+    dbConnection.collection(collectionName).find(queryObject).toArray(function (err, result) {
 
         if (err) {
 
-            console.error("retrieveUsers_BasedOnType : Internal Server Error while querying for User Records");
-            var failureMessage = "retrieveUsers_BasedOnType : Internal Server Error while querying for User Records";
+            console.error("retrieveUserDetails : Internal Server Error while querying for User Records");
+            var failureMessage = "retrieveUserDetails : Internal Server Error while querying for User Records";
 
             http_StatuCode = 500;
-            buildErrorResponse_Generic("RetrieveUsersBasedOnType", failureMessage, http_StatuCode, http_Response);
+            buildErrorResponse_Generic("RetrieveUserDetails", failureMessage, http_StatuCode, http_Response);
         }
 
-        console.log("retrieveUsers_BasedOnType : Successfully retrieved all the user records based on input UserType");
+        console.log("retrieveUserDetails : Successfully retrieved all the user records based on input QueryMap");
         console.log(result);
 
-        return handleUserDatabaseQueryResults(result, http_Response, inputUserType);
+        return handleUserDatabaseQueryResults(result, http_Response);
 
     });
 }
@@ -94,16 +101,15 @@ function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCo
  * 
  * @param {any} result  : Database Query Result ( List of Records : 1 - n )
  * @param       http_Response  : Reponse To be built
- * @param {any} queryInput  : query input value ( UserType Value )
  *
  */
 
-exports.handleUserDatabaseQueryResults = function (queryResult, http_Response, queryInput) {
+exports.handleUserDatabaseQueryResults = function (queryResult, http_Response) {
 
-    console.log("Callback Function (handleUserDatabaseQueryResults) : Successfully retrieved the records through function (retrieveUsers_BasedOnType) => ");
+    console.log("Callback Function (handleUserDatabaseQueryResults) : Successfully retrieved the records through function (retrieveUserDetails) => ");
     console.log(queryResult);
 
-    var queryResponse_JSON_String = buildUserDBQueryResponse_JSON(queryResult, queryInput);
+    var queryResponse_JSON_String = buildUserDBQueryResponse_JSON(queryResult);
 
     http_Response.writeHead(200, { 'Content-Type': 'application/json' });
     http_Response.end(queryResponse_JSON_String);
@@ -113,11 +119,10 @@ exports.handleUserDatabaseQueryResults = function (queryResult, http_Response, q
 /**
  * 
  * @param {any} queryResult  : query Response received from Mongo DB ( User & Auth DB )
- * @param {any} queryInput   : query Input Value
  *
  */
 
-function buildUserDBQueryResponse_JSON(queryResult, queryInput) {
+function buildUserDBQueryResponse_JSON( queryResult ) {
 
     var queryResponse_AllRecords_JSON_String = "";
 

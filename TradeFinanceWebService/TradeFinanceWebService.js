@@ -124,10 +124,10 @@ http.createServer(function (req, res) {
 
     // Connect to Mongo DB, Create Database & Collections
 
-    // Connect to "User Details" db for "User Registration & Authentication"  
+    // Connect to "User Details" db for "User Registration & Authentication"
 
     if ( webClientRequest == "UserRegistration" || webClientRequest == "UserAuthentication" ||
-         webClientRequest == "RetrieveUsersBasedOnType") {
+        webClientRequest == "RetrieveUsersBasedOnType" || webClientRequest == "RetrieveUserDetailsBasedOnUserName" ) {
 
         var dbConnection_UserDetails_Database;
 
@@ -212,9 +212,27 @@ http.createServer(function (req, res) {
                     console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
                     var userType = clientRequestWithParamsMap.get("UserType");
 
-                    if (UserRecordsQueryAndUpdatesModule.retrieveUsers_BasedOnType(dbConnection_UserDetails_Database,
+                    // Build Query
+
+                    var queryMap = new Map();
+
+                    if (userType != null && userType != undefined) {
+
+                        queryMap.set("UserType", userType);
+
+                    } else {
+
+                        console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType");
+
+                        var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType";
+                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                        break;
+                    }
+
+                    if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
                         userDetails_TableName,
-                        userType,
+                        queryMap,
                         UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
                         res)) {
 
@@ -227,11 +245,56 @@ http.createServer(function (req, res) {
 
                     break;
 
+                case "RetrieveUserDetailsBasedOnUserName":
+
+                    console.log("Inside User Registration & Auth Switch : RetrieveUserDetailsBasedOnUserName : UserName : " + clientRequestWithParamsMap.get("UserName"));
+                    var userName = clientRequestWithParamsMap.get("UserName");
+
+                    // Build Query
+
+                    var queryMap = new Map();
+
+                    if (userName != null && userName != undefined) {
+
+                        queryMap.set("UserName", userName);
+
+                    } else {
+
+                        console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName");
+
+                        var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName";
+                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                        break;
+                    }
+
+                    // DB query & Reponse Building
+
+                    if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
+                        userDetails_TableName,
+                        queryMap,
+                        UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
+                        res)) {
+
+                        console.log("Web Service: Switch Statement : Successfully Retrieved the required User Details");
+                    }
+                    else {
+
+                        console.error("Web Service: Switch Statement : Failed to Retrieve the required User Details");
+                    }
+
+                    break;
+
                 default:
 
-                    console.error("Inappropriate WebClientRequest : ", webClientRequest);
+                    console.error("Inappropriate Web Client Request received...exiting");
+
+                    var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
+                    HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
                     break;
             }
+
         });
     }
 
