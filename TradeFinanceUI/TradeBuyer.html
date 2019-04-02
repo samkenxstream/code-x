@@ -166,6 +166,13 @@
         bDebug = false;
         var setIntervalVar = null;
 
+        var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+        if (bDebug == true) {
+
+            alert("FlowControlGlobalsModule.currentUser_UserName during page load : " + currentUserNameValue);
+        }
+
         $("#Shipment-Order-Submit").click(function () {
 
             var todaysDate = new Date();
@@ -197,9 +204,24 @@
                 tradeRequestRecord.set(tradeRequestKeys[index], tradeRequestValues[index]);
             }
 
+            // Add UserName to the "Trade Record"
+
+            var currentUserNameVal = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            if (currentUserNameVal != null && currentUserNameVal != undefined) {
+
+                if (bDebug == true) {
+
+                    alert("UserName Values before placing Trade Request : " + currentUserNameVal);
+                }
+
+                tradeRequestRecord.set("UserName", currentUserNameVal);
+            }
+
+            // Request Trade with Mongo DB Web Service Call
+
             var Client_Request = "RequestTrade";
             TradeAndLC_DatabaseUpdateModule.updateTradeDetailsInMongoDB(tradeRequestRecord, Client_Request);
-
 
             /*
             // HyperLedger API Call
@@ -239,6 +261,8 @@
             Login & Logout functionality : Hide and display the Internal content references
         *****************************************************************************************/
 
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
@@ -249,12 +273,25 @@
 
             // Fill the Buyer's details in Selection Box
 
-            fillTheUserDetails_FromMongoDB("Buyer", "Buyer-Input");
-            document.getElementById("Buyer-Input").autofocus = true;
+            if (currentUserNameValue == null || currentUserNameValue == undefined) {
+
+                fillTheUserDetails_FromMongoDB("Buyer");
+                document.getElementById("Buyer-Input").autofocus = true;
+
+            } else {
+
+                var buyerSelectionBox = document.getElementById("Buyer-Input");
+                buyerSelectionBox.innerHTML = null;
+
+                // Add the current User Name Value to
+
+                RetrieveUserDetails_Module.addOptionToSelectionBox(buyerSelectionBox, currentUserNameValue);
+                buyerSelectionBox.disabled = true;
+            }
 
             // Fill the Seller's details in Selection Box
 
-            fillTheUserDetails_FromMongoDB("Seller", "Seller-Input");
+            fillTheUserDetails_FromMongoDB("Seller");
             document.getElementById("Seller-Input").autofocus = true;
 
         }
@@ -263,24 +300,23 @@
             Fill the User Details in Selection Box
         *****************************************************************************************/
 
-        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId) {
-
-            fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, null);
-        }
-
-        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, additionalBoxField_Id) {
+        function fillTheUserDetails_FromMongoDB(userTypeValue) {
 
             // Build Query
 
             var queryMap = new Map();
             queryMap.set("UserType", userTypeValue);
 
+            // Selection Box Id's
+
+            var dynamicFieldsToBeUpdated = new Map();
+
+            dynamicFieldsToBeUpdated.set("Buyer_Field_Id", "Buyer-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Field_Id", "Seller-Input");
+
             // Mongo DB call for Retrieving The User Details
 
-            var updateDynamicFieldsArray = [selectionBoxId];
-
-            var webServerPrefix = "http://127.0.0.1:3500/?";
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, additionalBoxField_Id, null);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", dynamicFieldsToBeUpdated, false);
 
         }
 
@@ -295,14 +331,17 @@
             var queryMap = new Map();
             queryMap.set("UserType", "Seller");
 
-            var changedSellerInputValue = document.getElementById("Seller-Input").value;
+            // Build Map of Fields to be updated
+
+            var dynamicFieldsToBeUpdated = new Map();
+
+            dynamicFieldsToBeUpdated.set("Buyer_Field_Id", "Buyer-Input");
+            dynamicFieldsToBeUpdated.set("Seller_Field_Id", "Seller-Input");
+            dynamicFieldsToBeUpdated.set("Shipment_Field_Id", "Shipment-Input");
 
             // Mongo DB call for Retrieving The Shipment Details
 
-            var updateDynamicFieldsArray = ["Shipment-Input"];
-
-            var webServerPrefix = "http://127.0.0.1:3500/?";
-            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", updateDynamicFieldsArray, null, changedSellerInputValue);
+            RetrieveUserDetails_Module.retrieveUserDetailsRecords(webServerPrefix, queryMap, "RetrieveUsersBasedOnType", dynamicFieldsToBeUpdated, true);
 
         }
 

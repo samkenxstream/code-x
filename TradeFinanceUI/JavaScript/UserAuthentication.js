@@ -1,6 +1,8 @@
 
 var UserAuthenticationModule = (function () {
 
+    var bDebug = false;
+
     /****************************************************************************************
         User Logoff : Logoff from current session 
                     : Redirect to Home Page 
@@ -240,6 +242,20 @@ var UserAuthenticationModule = (function () {
                     if (bDebug == true) {
 
                         alert("Logging in to TF Website");
+                    }
+
+                    if (bDebug == true) {
+
+                        alert("Login Successful. Setting Global => userAuthenticationRecord.get(UserName) : " + userAuthenticationRecord.get("UserName") );
+                    }
+
+                    // Store the current User Name in Local Cache
+
+                    window.localStorage.setItem( FlowControlGlobalsModule.currentUserName_Key, userAuthenticationRecord.get("UserName") );
+
+                    if (bDebug == true) {
+
+                        alert("After setting Global => " + FlowControlGlobalsModule.currentUserName_Key + " : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key) );
                     }
 
                     document.getElementById("Content-Navigation-bar").style.display = "initial";

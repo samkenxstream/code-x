@@ -137,7 +137,7 @@ var RetrieveUserDetails_Module = (function () {
 
             // Add additinoal Field if not Null Input
 
-            if (userType == "Seller") {
+            if (userType == "Seller" && sellerIdFieldBox != null && sellerIdFieldBox != undefined) {
 
                 var currentIdElementToBeAdded = document.createElement("option");
                 currentIdElementToBeAdded.text = responseSingleObject.UserName;
@@ -158,8 +158,14 @@ var RetrieveUserDetails_Module = (function () {
         sellerIdSelectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Id_Field_Id"));
         shipmentSelectionBox = document.getElementById(dynamicFieldsToBeUpdated.get("Shipment_Field_Id"));
 
-        sellerIdSelectionBox.innerHTML = null;
-        shipmentSelectionBox.innerHTML = null;
+        if (sellerIdSelectionBox != null && sellerIdSelectionBox != undefined) {
+
+            sellerIdSelectionBox.innerHTML = null;
+        }
+        if (shipmentSelectionBox != null && shipmentSelectionBox != undefined) {
+
+            shipmentSelectionBox.innerHTML = null;
+        }
 
         var changedSellerInputValue = document.getElementById(dynamicFieldsToBeUpdated.get("Seller_Field_Id")).value;
 
@@ -185,8 +191,14 @@ var RetrieveUserDetails_Module = (function () {
                 var currentShipmentValue = responseSingleObject.Shipment;
                 var currentSellerIdValue = responseSingleObject.UserName;
 
-                addOptionToSelectionBox(shipmentSelectionBox, currentShipmentValue);
-                addOptionToSelectionBox(sellerIdSelectionBox, currentSellerIdValue);
+                if (sellerIdSelectionBox != null && sellerIdSelectionBox != undefined) {
+
+                    addOptionToSelectionBox(sellerIdSelectionBox, currentSellerIdValue);
+                }
+                if (shipmentSelectionBox != null && shipmentSelectionBox != undefined) {
+
+                    addOptionToSelectionBox(shipmentSelectionBox, currentShipmentValue);
+                }
             }
         }
     }
@@ -219,7 +231,8 @@ var RetrieveUserDetails_Module = (function () {
 
     return {
 
-        retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB
+        retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB,
+        addOptionToSelectionBox: addOptionToSelectionBox
     };
 
 })();

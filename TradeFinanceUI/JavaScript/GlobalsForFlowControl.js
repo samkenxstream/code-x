@@ -3,13 +3,15 @@ var FlowControlGlobalsModule = (function () {
 
 
     // Page Refresh Globals : After Completion of processing
-    // ToDo : Use Events for better maintenance
 
     var inputDataProcessingEventInterval = 250;
 
     var tradeBuyerInputProcessed = false;
     var lcBuyerInputProcessed = false;
     
+    // User context Globals : Current User Related details
+
+    var currentUserName_Key = "currentUserName";
 
     /****************************************************************************************
         Reveal private methods & variables
@@ -19,7 +21,8 @@ var FlowControlGlobalsModule = (function () {
 
         tradeBuyerInputProcessed: tradeBuyerInputProcessed,
         lcBuyerInputProcessed: lcBuyerInputProcessed,
-        inputDataProcessingEventInterval: inputDataProcessingEventInterval
+        inputDataProcessingEventInterval: inputDataProcessingEventInterval,
+        currentUserName_Key: currentUserName_Key
     };
 
 })();

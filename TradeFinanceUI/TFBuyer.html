@@ -236,6 +236,13 @@
         var bDebug = false;
         var setIntervalVar = null;
 
+        var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+        if (bDebug == true) {
+
+            alert("FlowControlGlobalsModule.currentUser_UserName during page load : " + currentUserNameValue );
+        }
+
         $("#Shipment-Order-Submit").click(function () {
 
             var todaysDate = new Date();
@@ -272,6 +279,22 @@
             for (var index = 0; index < lcRequestKeys.length; index++) {
                 lcRequestRecord.set(lcRequestKeys[index], lcRequestValues[index]);
             }
+
+            // Add UserName to the "LC Record"
+
+            var currentUserNameVal = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            if (currentUserNameVal != null && currentUserNameVal != undefined) {
+
+                if (bDebug == true) {
+
+                    alert("UserName Values before placing LC Request : " + currentUserNameVal);
+                }
+
+                lcRequestRecord.set("UserName", currentUserNameVal);
+            }
+
+            // Request Trade with Mongo DB Web Service Call
 
             var Client_Request = "RequestLC";
             TradeAndLC_DatabaseUpdateModule.updateLCDetailsInMongoDB(lcRequestRecord, Client_Request);
@@ -327,7 +350,21 @@
 
             // Fill the Buyer's details in Selection Box
 
-            fillTheUserDetails_FromMongoDB("Buyer");
+            if (currentUserNameValue == null || currentUserNameValue == undefined) {
+
+                fillTheUserDetails_FromMongoDB("Buyer");
+                document.getElementById("Buyer-Input").autofocus = true;
+
+            } else {
+
+                var buyerSelectionBox = document.getElementById("Buyer-Input");
+                buyerSelectionBox.innerHTML = null;
+
+                // Add the current User Name Value to
+
+                RetrieveUserDetails_Module.addOptionToSelectionBox(buyerSelectionBox, currentUserNameValue);
+                buyerSelectionBox.disabled = true;
+            }
 
             // Fill the Seller's details in Selection Box
 
@@ -341,11 +378,6 @@
         /****************************************************************************************
             Fill the User Details in Selection Box
         *****************************************************************************************/
-
-        function fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId) {
-
-            fillTheUserDetails_FromMongoDB(userTypeValue, selectionBoxId, null);
-        }
 
         function fillTheUserDetails_FromMongoDB(userTypeValue) {
 
@@ -385,8 +417,7 @@
             var queryMap = new Map();
             queryMap.set("UserType", "Seller");
 
-            //var changedSellerInputValue = document.getElementById("Seller-Input").value;
-            //var updateDynamicFieldsArray = ["Shipment-Input", "Seller-Id-Input"];
+            // Build Map of Fields to be updated
 
             var dynamicFieldsToBeUpdated = new Map();
 
