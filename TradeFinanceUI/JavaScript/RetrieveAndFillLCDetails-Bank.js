@@ -8,7 +8,7 @@ var RetrieveAndFillLCDetailsBank_Module = (function () {
         Retrieve LC Details of Buyer : Retrieve LC Details from MongoDB and Add them to Table As Row
     ************************************************************************************************************/
 
-    function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status) {
+    function retrieveLcRecordsOfBuyer_FromMongoDB(Client_Request, Requested_LC_Status, currentUserName, currentUserType) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -37,7 +37,7 @@ var RetrieveAndFillLCDetailsBank_Module = (function () {
 
                     alert("Success Response for RetrieveLCDetails");
 
-                    fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, Requested_LC_Status);
+                    fillTheLCRequestDetailsOfCurrentUser(lcRequestRecords, Requested_LC_Status, currentUserName, currentUserType);
 
                 } else {
 
@@ -63,21 +63,21 @@ var RetrieveAndFillLCDetailsBank_Module = (function () {
     }
 
     /***********************************************************************************************************
-        fillTheLCRequestDetailsOfCurrentBuyer : Fill the LC Request details of current buyer in the Table
+        fillTheLCRequestDetailsOfCurrentUser : Fill the LC Request details of current buyer in the Table
     ************************************************************************************************************/
 
-    function fillTheLCRequestDetailsOfCurrentBuyer(lcRequestRecords, requested_LC_Status) {
+    function fillTheLCRequestDetailsOfCurrentUser(lcRequestRecords, requested_LC_Status, currentUserName, currentUserType) {
 
         if (bDebug == true) {
 
-            alert("fillTheLCRequestDetailsOfCurrentBuyer : Requested_LC_Status : => " + requested_LC_Status);
+            alert("fillTheLCRequestDetailsOfCurrentUser : Requested_LC_Status : => " + requested_LC_Status);
         }
 
         var shipmentDetailsTable = document.getElementById("Buyer_Bank_Shipment_Order_Details");
 
         if (bDebug == true) {
 
-            alert("fillTheLCRequestDetailsOfCurrentBuyer : totalNumberOfLCRecords Returned : => " + lcRequestRecords.length);
+            alert("fillTheLCRequestDetailsOfCurrentUser : totalNumberOfLCRecords Returned : => " + lcRequestRecords.length);
         }
 
         var currentRowNumber = 1;
@@ -93,6 +93,23 @@ var RetrieveAndFillLCDetailsBank_Module = (function () {
             if (requested_LC_Status != responseSingleObject.Current_Status) {
 
                 continue;
+            }
+
+            // Filter the Shipment Details Based on Logged In User Name
+
+            if (currentUserName != null && currentUserType != null) {
+
+                if (bDebug == true) {
+
+                    alert( "fillTheLCRequestDetailsOfCurrentUser : Name of Current User => " + currentUserName +
+                        ", CurrentUserType => " + currentUserType + 
+                        ", Name of Current Record User => " + responseSingleObject[currentUserType] );
+                }
+
+                if (currentUserName != responseSingleObject[currentUserType]) {
+
+                    continue;
+                }
             }
 
             // Add the content to the Table after filtering out records with unexpected status
@@ -148,7 +165,7 @@ var RetrieveAndFillLCDetailsBank_Module = (function () {
 
         if (bDebug == true) {
 
-            alert("fillTheLCRequestDetailsOfCurrentBuyer : total Number Of Rows inserted : => " + currentRowNumber - 1);
+            alert("fillTheLCRequestDetailsOfCurrentUser : total Number Of Rows inserted : => " + currentRowNumber - 1);
         }
     }
 

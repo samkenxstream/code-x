@@ -226,13 +226,125 @@ var RetrieveUserDetails_Module = (function () {
     }
 
     /****************************************************************************************
+        Retrieve User Details and Set Current User Context
+    *****************************************************************************************/
+
+    function retrieveUserDetailsAnd_SetCurrentUserContext(webServerPrefix, queryObject_Record, Client_Request) {
+
+        var xmlhttp;
+        var httpRequestString = webServerPrefix;
+
+        xmlhttp = new XMLHttpRequest();
+        httpRequestString += "Client_Request=" + Client_Request;
+
+        var queryObject_Keys = queryObject_Record.keys();
+
+        for (var currentKey of queryObject_Keys) {
+
+            httpRequestString += "&"
+            httpRequestString += currentKey + "=" + queryObject_Record.get(currentKey);
+        }
+
+        xmlhttp.open("POST", httpRequestString, true);
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.setRequestHeader("accept", "application/json");
+
+        // Wait for Async response and Handle it in web page
+
+        xmlhttp.onreadystatechange = function () {
+
+            if (this.status == 200) {
+
+                if (this.readyState == 4) {
+
+                    if (bDebug == true) {
+
+                        alert("Successfully Retrieved the User Details Records through API : " + Client_Request);
+                    }
+
+                    //Parse the JSON Response Object
+
+                    var responseString = this.response;
+                    var userDetailRecords = responseString.split("\n");
+
+                    if (bDebug == true) {
+
+                        alert("retrieveUserDetailsAnd_SetCurrentUserContext : Number of Records => " + userDetailRecords.length);
+                        alert("retrieveUserDetailsAnd_SetCurrentUserContext : Response String => " + responseString);
+                        alert("retrieveUserDetailsAnd_SetCurrentUserContext : First User Record => " + userDetailRecords[userDetailRecords.length - 2]);
+                    }
+
+                    var singleUserObject = JSON.parse(userDetailRecords[userDetailRecords.length - 2]);
+
+                    if (bDebug == true) {
+
+                        alert("Success Response for RetrieveUserDetailsBasedOnUserName : Current User Record => " + singleUserObject);
+                    }
+
+                    setCurrentUserContextInLocalCache(singleUserObject);
+
+                } else {
+
+                    if (bDebug == true) {
+
+                        alert("Intermediate Success Response for RetrieveUserDetailsBasedOnUserName call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    }
+                }
+
+            } else {
+
+                alert("Failure to place RetrieveUserDetailsBasedOnUserName call :=> Status : " + this.status + " readyState : " + this.readyState);
+            }
+
+        };
+
+        if (bDebug == true) {
+
+            alert("Retrieving the Registered User Details from MongoDB Based On UserName => httpRequest : " + httpRequestString);
+        }
+
+        xmlhttp.send();
+
+    }
+
+    /****************************************************************************************
+        Sets the current User Context Details ( Usually during Page Load )
+    *****************************************************************************************/
+
+    function setCurrentUserContextInLocalCache(singleUserObject) {
+
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserType_Key, singleUserObject.UserType);
+
+        if (bDebug == true) {
+
+            alert("setCurrentUserContextInLocalCache : Setting Name of Current User => " + singleUserObject.Name);
+        }
+
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Name_Key, singleUserObject.Name);
+
+        if (bDebug == true) {
+
+            alert( "setCurrentUserContextInLocalCache : After setting Name of Current User => " +
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key) );
+        }
+
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Shipment_Key, singleUserObject.Shipment);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Location_Key, singleUserObject.Location);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Email_Key, singleUserObject.Email);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Address_Key, singleUserObject.Address);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, singleUserObject.UserName);
+
+    }
+
+    /****************************************************************************************
         Reveal private methods 
     *****************************************************************************************/
 
     return {
 
         retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB,
-        addOptionToSelectionBox: addOptionToSelectionBox
+        addOptionToSelectionBox: addOptionToSelectionBox,
+        retrieveUserDetailsAnd_SetContext: retrieveUserDetailsAnd_SetCurrentUserContext
     };
 
 })();

@@ -136,29 +136,17 @@
     <script src="./JavaScript/GenerateLCDetails.js"></script>
     <script src="./JavaScript/RetrieveAndFillLCDetails-Bank.js"></script>
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/RetrieveUserDetails.js"></script>
 
     <script>
 
         var bDebug = false;
+        var currentBankName = null;
+        var currentUserName = null;
 
-        /****************************************************************************************
-            Container Division Code to upload files to FTP Server
-        *****************************************************************************************
+        var webServerPrefix = "http://127.0.0.1:3500/?";
 
-             <div class="Upload-LC-Files-Details-Container" style="width: 80%">
-
-                <label id="Label_buffer" style="padding-left: 6% ; padding-right: 10%"></label>
-                <label id="Label_Upload_LC_Files" style="font-weight:bold; background-color:white; padding-left: 1%; padding-right:1%; padding-top: 1%; padding-bottom: 1%">Select LC Files</label>
-                <label id="Label_buffer" style="padding-right:6.5%"></label>
-                <input type="file" id="File_Input_For_Lc_Upload" class="File-Input-For-Lc-Upload" name="Upload-LC-Files">
-
-                <br /><br /><br />
-                <label id="Label_buffer" style="padding-right: 25%"></label>
-                <button id="Upload_LC_Files_Button" class="Upload-LC-Files-Button">Upload LC Files</button>
-
-            </div>
-
-        *****************************************************************************************/
 
         /****************************************************************************************
              RetrieveLcDetails : Retrieve the LC details of current buyer from mongo db
@@ -179,7 +167,23 @@
                 alert("Existing Rows are removed from the Table");
             }
 
-            RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status);
+            // Retrieve LC_Request Details corresponding to Current Bank
+
+            currentBankName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+
+            if (bDebug == true) {
+
+                alert("currentBankName of the logged in Bank user : " + currentBankName);
+            }
+
+            if (currentBankName != null && currentBankName != undefined && currentBankName != "") {
+
+                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, currentBankName, "Bank");
+
+            } else {
+
+                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, null, null);
+            }
 
             /****************************************************************************************
                 getLC : Place HyperLedger API Call
@@ -197,46 +201,6 @@
         *****************************************************************************************/
 
         $("#Upload_LC_Files_Button").click(function () {
-
-            // Retrieve the Lc Details from mongoDb
-
-            /*
-            var formDataLCFiles = new FormData();
-            //var allLCFiles = document.querySelector("input[type='file'][multiple]");
-            var allLCFiles = document.getElementById("File_Input_For_Lc_Upload");
-
-            for (var i = 0; i < allLCFiles.length; i++) {
-
-                formDataLCFiles.append('AllLCFiles',allLCFiles.files[i]);
-            }
-
-            //var url = "http://127.0.0.1:8080/LocalWeb/TradeFinance/TradeFinanceWebServer/TradeFinanceWebService/TradeFinanaceWebClient";
-            //var url = "https://drive.google.com/drive/my-drive";
-
-            var url = 'http://localhost:3000/Identities';
-
-            var simpleFileData = allLCFiles.files[0];
-            var simpleObject = { "name": "trade-finanace-web-client", "version": "0.0.0" };
-            var simpleTextData = "Simple Random Blob";
-
-            var addObject = { id: 2 };
-
-            fetch(url, {
-
-                method: 'POST',
-                mode: 'no-cors',
-                //credentials: 'include',
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(addObject)
-            })
-            .then(response => response.json())
-            .then(response => console.log("Success Response Content = " + response))
-            .catch(errorResponse => console.error("Error Response :=> " + errorResponse));
-            */
 
             // Retrieve the Lc Details from mongoDb
 
@@ -376,6 +340,29 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve the Bank Name on load in local cache: Used for further Queries
+
+            if (bDebug == true) {
+
+                alert("Before setting User Context Details : currentUserName : " + currentUserName);
+            }
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            if (bDebug == true) {
+
+                alert("currentBankName of the logged in Bank user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
+            }
+
         }
 
     </script>
