@@ -8,7 +8,7 @@ var RetrieveTradeDetailsModule = (function () {
     Retrieve Trade Details Corresponding to Seller : Retrieve Shipment ( Trade ) Details from MongoDB that haven't reached LC stage
     *****************************************************************************************************************************/
 
-    function retrieveTradeRecordsOfSeller_FromMongoDB(Client_Request, Requested_Trade_Status) {
+    function retrieveTradeRecordsOfSeller_FromMongoDB(Client_Request, Requested_Trade_Status, currentUser, currentUserType) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -38,7 +38,7 @@ var RetrieveTradeDetailsModule = (function () {
                         alert(" All the Trade Records of Current Buyer => " + tradeRecords);
                     }
 
-                    fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status);
+                    fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status, currentUser, currentUserType);
 
                 } else {
 
@@ -67,7 +67,7 @@ var RetrieveTradeDetailsModule = (function () {
     fillTheTradeDetailsOfCurrentSeller : Fill the Trade details of current seller in the Table
     ************************************************************************************************************/
 
-    function fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status) {
+    function fillTheTradeDetailsOfCurrentSeller(tradeRecords, Requested_Trade_Status, currentUser, currentUserType) {
 
         var shipmentDetailsTable = document.getElementById("Seller_Page_Trade_Details");
 
@@ -86,6 +86,25 @@ var RetrieveTradeDetailsModule = (function () {
             if (responseSingleObject.Current_Status != Requested_Trade_Status) {
                 continue;
             }
+
+            // Filter the LC Details Based on current User    
+
+            if (currentUser != null && currentUserType != null) {
+
+                if (bDebug == true) {
+
+                    alert("fillTheTradeDetailsOfCurrentSeller : Name of Current User => " + currentUser +
+                        ", CurrentUserType => " + currentUserType +
+                        ", Name of Current Record User => " + responseSingleObject[currentUserType]);
+                }
+
+                if (currentUser != responseSingleObject[currentUserType]) {
+
+                    continue;
+                }
+            }
+
+            // Fill the form Data
 
             var currentRow = shipmentDetailsTable.insertRow(currentRowIndex + 1);
             currentRowIndex++;

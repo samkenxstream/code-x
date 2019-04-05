@@ -178,10 +178,15 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/HTMLElements-HelperUtil.js"></script>
     <script src="./JavaScript/RetrieveTradeDetails.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/RetrieveUserDetails.js"></script>
 
     <script>
 
         var bDebug = false;
+
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentSellerName = null;
 
         /****************************************************************************************
             RetrieveTradeDetails : Retrieve the Trade details of current seller from mongo db
@@ -203,9 +208,24 @@
                 alert("Existing Rows are removed from the Table");
             }
 
+            //RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status);
             // Retrieve the Trades as per selected Trade Status
 
-            RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status);
+            currentSellerName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Seller : " + currentSellerName);
+            }
+
+            if (currentSellerName != null && currentSellerName != undefined && currentSellerName != "") {
+
+                RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status, currentSellerName, "Seller");
+
+            } else {
+
+                RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status, null, null);
+            }
 
         });
 
@@ -216,6 +236,24 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve the Seller Name on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Seller user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
+            }
+
         }
 
     </script>

@@ -8,7 +8,7 @@ var RetrieveLCDetailsModule = (function () {
     Retrieve LCRequest Details for current Seller : Retrieve LCRequest Details from MongoDB for current Seller
     *****************************************************************************************************************************/
 
-    function retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request, Requested_LC_Status) {
+    function retrieveLCRequestsToCurrentSeller_FromMongoDB(Client_Request, Requested_LC_Status, currentUser, currentUserType) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -38,7 +38,7 @@ var RetrieveLCDetailsModule = (function () {
                         alert("All the lcRequests of Current Buyer => " + lcRequests);
                     }
 
-                    fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status);
+                    fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status, currentUser, currentUserType);
 
                 } else {
 
@@ -67,7 +67,7 @@ var RetrieveLCDetailsModule = (function () {
     fillTheLcRequestDetailsOfCurrentSeller : Fill the LC Request details of current seller in the Table as per input LC Status
     *****************************************************************************************************************************/
 
-    function fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status) {
+    function fillTheLcRequestDetailsOfCurrentSeller(lcRequests, Requested_LC_Status, currentUser, currentUserType) {
 
         var shipmentDetailsTable = document.getElementById("Seller_LC_Request_Details");
 
@@ -75,9 +75,38 @@ var RetrieveLCDetailsModule = (function () {
 
             responseSingleObject = JSON.parse(lcRequests[i]);
 
+            // Filter out Records with different status than required
+
             if (responseSingleObject.Current_Status != Requested_LC_Status) {
                 continue;
             }
+
+            // Filter the LC Details Based on current User    
+
+            if (currentUser != null && currentUserType != null) {
+
+                if (bDebug == true) {
+
+                    alert("fillTheLcRequestDetailsOfCurrentSeller : Name of Current User => " + currentUser +
+                        ", CurrentUserType => " + currentUserType +
+                        ", Name of Current Record User => " + responseSingleObject[currentUserType]);
+                }
+
+                if (currentUser != responseSingleObject[currentUserType]) {
+
+                    continue;
+                }
+            }
+
+            // Fill the form Data
+
+            if (bDebug == true) {
+
+                alert( "fillTheLcRequestDetailsOfCurrentSeller : Current User matched with Record's value : Filling data => " + currentUser +
+                    ", Name of Current Record User => " + responseSingleObject[currentUserType]);
+            }
+
+            // Fill the form Data
 
             var currentRow = shipmentDetailsTable.insertRow(currentRowIndex + 1);
             currentRowIndex++;

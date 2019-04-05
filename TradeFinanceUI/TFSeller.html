@@ -117,7 +117,7 @@
                 <a class="SellerLC" href="./TFSeller.html">ShowLC</a>
                 <a class="AcceptLC" href="./TFSellerLCAccept.html">ApproveLC</a>
                 <a class="ShipGoods" href="./TFShipGoods.html">ShipGoods</a>
-                <a class="ShipGoods" href="./TFRequestPayment.html">ReqPayment</a>
+                <a class="RequestPayment" href="./TFRequestPayment.html">ReqPayment</a>
 
             </div>
 
@@ -181,10 +181,15 @@
     <script src="./JavaScript/TradeAndLC-StatusUpdate.js"></script>
     <script src="./JavaScript/HTMLElements-HelperUtil.js"></script>
     <script src="./JavaScript/RetrieveLCDetails.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/RetrieveUserDetails.js"></script>
 
     <script>
 
         var bDebug = false;
+
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentSellerName = null;
 
         $("#Retrieve_LC_Requests").click(function () {
 
@@ -206,9 +211,23 @@
                 alert("Existing Rows are removed from the Table");
             }
 
-            // Retrieve the Trades as per selected Trade Status
+            // Retrieve the LC Records as per selected LC Status
 
-            RetrieveLCDetailsModule.retrieveLCRecordsOfCurrentSeller(Client_Request, Requested_LC_Status);
+            currentSellerName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Seller : " + currentSellerName);
+            }
+
+            if (currentSellerName != null && currentSellerName != undefined && currentSellerName != "") {
+
+                RetrieveLCDetailsModule.retrieveLCRecordsOfCurrentSeller(Client_Request, Requested_LC_Status, currentSellerName, "Seller");
+
+            } else {
+
+                RetrieveLCDetailsModule.retrieveLCRecordsOfCurrentSeller(Client_Request, Requested_LC_Status, null, null);
+            }
 
         });
 
@@ -219,6 +238,24 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve the Seller Name on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Seller user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
+            }
+
         }
 
     </script>
