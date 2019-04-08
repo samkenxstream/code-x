@@ -2,6 +2,7 @@
 var UserAuthenticationModule = (function () {
 
     var bDebug = false;
+    var webServerPrefix = "http://127.0.0.1:3500/?";
 
     /****************************************************************************************
         User Logoff : Logoff from current session 
@@ -95,7 +96,6 @@ var UserAuthenticationModule = (function () {
 
     function registerUser_MongoDB(userRegistrationRecord, Client_Request) {
 
-        var webServerPrefix = "http://127.0.0.1:3500/?"
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
@@ -202,7 +202,6 @@ var UserAuthenticationModule = (function () {
 
     function authenticateUser_MongoDB(userAuthenticationRecord, Client_Request) {
 
-        var webServerPrefix = "http://127.0.0.1:3500/?"
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
@@ -258,8 +257,12 @@ var UserAuthenticationModule = (function () {
                         alert("After setting Global => " + FlowControlGlobalsModule.currentUserName_Key + " : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key) );
                     }
 
-                    document.getElementById("Content-Navigation-bar").style.display = "initial";
-                    document.getElementById("Login-Navigation-bar").style.display = "none";
+                    // Filter the display based on logged-in User Type
+
+                    filterDisplayBasedOnLoggedInUser( );
+
+                    //document.getElementById("Content-Navigation-bar").style.display = "initial";
+                    //document.getElementById("Login-Navigation-bar").style.display = "none";
                 }
 
             } else if (this.status == 200) {
@@ -282,6 +285,38 @@ var UserAuthenticationModule = (function () {
         }
 
         xmlhttp.send();
+    }
+
+    /****************************************************************************************
+        filterDisplayBasedOnLoggedInUser : Filter the display Based on User Type
+    *****************************************************************************************/
+
+    function filterDisplayBasedOnLoggedInUser( ) {
+
+        // Hide Login Navigation & Display Content Navigation
+
+        document.getElementById("Content-Navigation-bar").style.display = "initial";
+        document.getElementById("Login-Navigation-bar").style.display = "none";
+
+        // Set User Context
+
+        // Build Query
+
+        currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+        var queryMap = new Map();
+        queryMap.set("UserName", currentUserName);
+
+        // Retrieve the Bank Name on load in local cache: Used for further Queries
+
+        if (bDebug == true) {
+
+            alert("filterDisplayBasedOnLoggedInUser : Before setting User Context Details : currentUserName : " + currentUserName);
+        }
+
+        RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+            "RetrieveUserDetailsBasedOnUserName", true);
+
     }
 
     /****************************************************************************************

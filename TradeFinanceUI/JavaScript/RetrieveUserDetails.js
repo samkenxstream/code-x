@@ -231,6 +231,11 @@ var RetrieveUserDetails_Module = (function () {
 
     function retrieveUserDetailsAnd_SetCurrentUserContext(webServerPrefix, queryObject_Record, Client_Request) {
 
+        retrieveUserDetailsAnd_SetCurrentUserContext(webServerPrefix, queryObject_Record, Client_Request, false);
+    }
+
+    function retrieveUserDetailsAnd_SetCurrentUserContext(webServerPrefix, queryObject_Record, Client_Request, bChangeDisplayAsPerUser) {
+
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
@@ -283,6 +288,13 @@ var RetrieveUserDetails_Module = (function () {
 
                     setCurrentUserContextInLocalCache(singleUserObject);
 
+                    // Change the Display Tabs As per Logged In User
+
+                    if (bChangeDisplayAsPerUser) {
+
+                        hidePagesBasedOnLoggedInUser(singleUserObject);
+                    }
+
                 } else {
 
                     if (bDebug == true) {
@@ -333,6 +345,43 @@ var RetrieveUserDetails_Module = (function () {
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Email_Key, singleUserObject.Email);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Address_Key, singleUserObject.Address);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, singleUserObject.UserName);
+    }
+
+    /****************************************************************************************
+        Sets the current User Context Details ( Usually during Page Load )
+    *****************************************************************************************/
+
+    function hidePagesBasedOnLoggedInUser(singleUserObject) {
+
+        // Hide content Pages based on User Type
+
+        var currentUserType = singleUserObject.UserType;
+
+        if (bDebug == true) {
+
+            alert("hidePagesBasedOnLoggedInUser : After setting User Context Details : currentUserType : " + currentUserType);
+        }
+
+        if (currentUserType == "Buyer") {
+
+            document.getElementById("Seller-Link").style.display = "none";
+            document.getElementById("Buyer-Bank-Link").style.display = "none";
+
+        } else if (currentUserType == "Seller") {
+
+            document.getElementById("Buyer-Link").style.display = "none";
+            document.getElementById("Buyer-Bank-Link").style.display = "none";
+
+        } else if (currentUserType == "Bank") {
+
+            document.getElementById("Buyer-Link").style.display = "none";
+            document.getElementById("Seller-Link").style.display = "none";
+
+        } else {
+
+            alert("hidePagesBasedOnLoggedInUser : Incorrect User Type : currentUserType : " + currentUserType);
+
+        }
 
     }
 
