@@ -15,6 +15,14 @@ var UserAuthenticationModule = (function () {
 
         document.getElementById("Content-Navigation-bar").style.display = "none";
         document.getElementById("Login-Navigation-bar").style.display = "initial";
+
+        var TFHomePage = document.getElementById("TradeFinance-HomePage");
+
+        if (TFHomePage != null && TFHomePage != undefined) {
+
+            TFHomePage.style.display = "initial";
+        }
+        
         document.location.replace("./TradeFinanceHome.html");
     }
 
@@ -260,9 +268,6 @@ var UserAuthenticationModule = (function () {
                     // Filter the display based on logged-in User Type
 
                     filterDisplayBasedOnLoggedInUser( );
-
-                    //document.getElementById("Content-Navigation-bar").style.display = "initial";
-                    //document.getElementById("Login-Navigation-bar").style.display = "none";
                 }
 
             } else if (this.status == 200) {
@@ -297,6 +302,7 @@ var UserAuthenticationModule = (function () {
 
         document.getElementById("Content-Navigation-bar").style.display = "initial";
         document.getElementById("Login-Navigation-bar").style.display = "none";
+        document.getElementById("TradeFinance-HomePage").style.display = "none";
 
         // Set User Context
 

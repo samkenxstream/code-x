@@ -41,7 +41,7 @@
 
     <div class="header" style="color: #302827; width: 95%">
 
-        <a class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
+        <a id="TradeFinance-HomePage" class="Header-Home" onclick='processNavigationBar_ToHome(event);' href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
         <div class="NavigationBar" id="Navigation-bar">
 
@@ -56,6 +56,7 @@
             <div class="Content_NavigationBar" id="Content-Navigation-bar">
 
                 <a class="Buyer" onclick='processNavigationBar_ToBuyer(event);' href="./TFBuyer.html">Buyer</a>
+                <a class="Contact-Info" onclick='processNavigationBar_ToContactInfo(event);' href="./TFContactInfo.html">Contact-US</a>
                 <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
 
             </div>
@@ -187,6 +188,8 @@
         window.onload = function (event) {
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
+            document.getElementById("TradeFinance-HomePage").style.display = "none";
+
         }
 
     </script>

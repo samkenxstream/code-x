@@ -347,9 +347,12 @@ var RetrieveUserDetails_Module = (function () {
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, singleUserObject.UserName);
     }
 
-    /****************************************************************************************
-        Sets the current User Context Details ( Usually during Page Load )
-    *****************************************************************************************/
+    /********************************************************************************************************
+       
+       hidePagesBasedOnLoggedInUser : Sets the current User Context Details ( Usually during Page Load )
+                                      Show only one of "Buyer, Seller, Bank" Pages during login
+
+    *********************************************************************************************************/
 
     function hidePagesBasedOnLoggedInUser(singleUserObject) {
 
@@ -362,27 +365,66 @@ var RetrieveUserDetails_Module = (function () {
             alert("hidePagesBasedOnLoggedInUser : After setting User Context Details : currentUserType : " + currentUserType);
         }
 
+        // Build UserPage Ids Map & Hide Pages based on User Type
+
+        var userPageIdsMap = new Map();
+
+        userPageIdsMap.set("Buyer-Page-Id", "Buyer-Link");
+        userPageIdsMap.set("Seller-Page-Id", "Seller-Link");
+        userPageIdsMap.set("Bank-Page-Id", "Buyer-Bank-Link");
+
+        hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap);
+    }
+
+    /*********************************************************************************************************
+
+       hidePagesBasedOnLoggedInUser : Generic function to hide User Pages based on logged info ( Generic )
+
+    **********************************************************************************************************/
+
+    function hideUserPagesBasedOnCurrentUserContext(userPageIdsMap) {
+
+        // Hide content Pages based on User Type
+
+        var currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+        if (bDebug == true) {
+
+            alert("hideUserPagesBasedOnLoggedInInfo : Current User Context : currentUserType : " + currentUserType);
+        }
+
+        hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap);
+    }
+
+
+    /*********************************************************************************************************
+
+       hidePagesBasedOnLoggedInUser : Generic function to hide User Pages based on logged info ( Generic )
+
+    **********************************************************************************************************/
+
+    function hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap) {
+
         if (currentUserType == "Buyer") {
 
-            document.getElementById("Seller-Link").style.display = "none";
-            document.getElementById("Buyer-Bank-Link").style.display = "none";
+            document.getElementById(userPageIdsMap.get("Seller-Page-Id")).style.display = "none";
+            document.getElementById(userPageIdsMap.get("Bank-Page-Id")).style.display = "none";
 
         } else if (currentUserType == "Seller") {
 
-            document.getElementById("Buyer-Link").style.display = "none";
-            document.getElementById("Buyer-Bank-Link").style.display = "none";
+            document.getElementById(userPageIdsMap.get("Buyer-Page-Id")).style.display = "none";
+            document.getElementById(userPageIdsMap.get("Bank-Page-Id")).style.display = "none";
 
         } else if (currentUserType == "Bank") {
 
-            document.getElementById("Buyer-Link").style.display = "none";
-            document.getElementById("Seller-Link").style.display = "none";
+            document.getElementById(userPageIdsMap.get("Buyer-Page-Id")).style.display = "none";
+            document.getElementById(userPageIdsMap.get("Seller-Page-Id")).style.display = "none";
 
         } else {
 
-            alert("hidePagesBasedOnLoggedInUser : Incorrect User Type : currentUserType : " + currentUserType);
+            alert("hideUserPagesBasedOnUserType : Incorrect User Type : currentUserType : " + currentUserType);
 
         }
-
     }
 
     /****************************************************************************************
@@ -393,7 +435,9 @@ var RetrieveUserDetails_Module = (function () {
 
         retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB,
         addOptionToSelectionBox: addOptionToSelectionBox,
-        retrieveUserDetailsAnd_SetContext: retrieveUserDetailsAnd_SetCurrentUserContext
+        retrieveUserDetailsAnd_SetContext: retrieveUserDetailsAnd_SetCurrentUserContext,
+        hideUserPagesBasedOnUserContext: hideUserPagesBasedOnCurrentUserContext
+
     };
 
 })();

@@ -63,7 +63,7 @@ input[type=text], input[type=password] {
 
     <div class="header">
 
-        <a class="Header-Home" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+        <a id="TradeFinance-HomePage" class="Header-Home" href="./TradeFinanceHome.html">TradeFinanceHome</a>
 
         <div class="NavigationBar" id="Navigation-bar">
 
@@ -71,7 +71,6 @@ input[type=text], input[type=password] {
 
                 <a class="Login" onclick="document.getElementById('Login-Popup').style.display='block'" href="#">Login</a>&nbsp;
                 <a class="SignUp" onclick="document.getElementById('Signup-Popup').style.display='block'" href="#">SignUp</a>&nbsp;
-                <a class="Contact-Info" id="Contact-Info-Link" href="./TFContactInfo.html">Contact-US</a>
 
             </div>
 
@@ -80,6 +79,7 @@ input[type=text], input[type=password] {
                 <a class="Buyer" id="Buyer-Link" href="./TradeBuyer.html">Buyer</a>
                 <a class="Buyer-Bank" id="Buyer-Bank-Link" href="./TFBuyerBank.html">Buyer-Bank</a>
                 <a class="Seller" id="Seller-Link" href="./TradeSeller.html">Seller</a>
+                <a class="Contact-Info" id="Contact-Info-Link" href="./TFContactInfo.html">Contact-US</a>
                 <button type="button" class="logout_button" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
 
             </div>
