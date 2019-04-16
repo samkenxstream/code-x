@@ -142,10 +142,16 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/TradeAndLC-StatusRetrieval.js"></script>
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScript/RetrieveUserDetails.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
 
     <script>
 
         var bDebug = false;
+        var currentUserName = null;
+        var currentUserType = null;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
 
         $("#Retrieve-TA-Details-Button").click(function () {
 
@@ -164,7 +170,24 @@
             // Retrieve the Trade Details from mongoDb
 
             var Client_Request = "RetrieveTradeDetails";
-            TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request);
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Buyer : " + currentUserName);
+                alert("current UserType set during Page Load User Context : " + currentUserType);
+            }
+
+            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
+
+            } else {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
+            }
 
             /****************************************************************************************
                 getTA : Place HyperLedger API Call
@@ -190,6 +213,17 @@
             document.getElementById("Login-Navigation-bar").style.display = "none";
             document.getElementById("TradeFinance-HomePage").style.display = "none";
 
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve User Context on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
         }
 
     </script>

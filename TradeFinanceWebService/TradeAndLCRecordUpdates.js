@@ -283,15 +283,38 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
 
 exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collectionName, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated, http_response) {
 
+    var query_Object = new Object();
+
     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
+    var userName = clientRequestWithParamsMap.get("UserName");
 
-    console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId);
+    console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId + ", UserName: " + userName);
 
-    var query_Object = { Trade_Id: tradeId, Lc_Id: lcId };
+    // Build Query Based on input <k,v> pairs
+
+    if (tradeId != null && tradeId != undefined) {
+
+        query_Object.Trade_Id = tradeId;
+    }
+
+    if (lcId != null && lcId != undefined) {
+
+        query_Object.Lc_Id = lcId;
+    }
+
+    if (userName != null && userName != undefined) {
+
+        query_Object.UserName = userName;
+    }
+
+    // Status to be updated
+
     var document_Object = {
         $set: { Current_Status: statusToBeUpdated }
     };
+
+    // CRUD Operations to Mongo DB
 
     updateRecordInTradeAndLcDatabase(dbConnection,
         collectionName,
@@ -300,7 +323,7 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
         webClientRequest,
         http_response);
 
-    console.log("Web Service: Switch Statement : Successfully launched the update Record with status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId);
+    console.log("Web Service: Switch Statement : Successfully launched the update Record with status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId + ", UserName: " + userName);
 }
 
 /**
@@ -318,8 +341,9 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
     var query = null;
 
-    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id);
+    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id + ", UserName: " + query_Object.UserName);
 
+/*    
     if (query_Object.Trade_Id != null) {
 
         query = { Trade_Id: query_Object.Trade_Id };
@@ -336,6 +360,16 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
         return;
     }
 
+*/
+
+    if (Object.keys(query_Object).length < 1) {
+
+        var failureMessage = "Wrong Query/missing input query data : Couldn't find Record";
+        buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
+
+        return;
+    }
+
     // Update Record in DB
 
     dbConnection.collection(collectionName).updateOne(query, document_Object, function (err, result) {
@@ -344,7 +378,8 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
             var failureMessage = "Error while executing the updation on Record";
             buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
-            throw err;
+
+            return;
         }
 
         var recordPresent = (result == null || result == undefined) ? "false" : "true";

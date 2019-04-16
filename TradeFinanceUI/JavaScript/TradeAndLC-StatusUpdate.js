@@ -59,7 +59,7 @@ var TradeAndLC_StatusUpdateModule = (function () {
 
                 if (bDebug == true) {
 
-                    alert("Failure to place changeTradeAndLCStatus call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place change TradeAndLC Status call => " + Client_Request + " :=> Status : " + this.status + " readyState : " + this.readyState);
                 }
             }
 

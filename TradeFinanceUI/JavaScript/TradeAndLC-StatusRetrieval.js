@@ -8,7 +8,7 @@ var TradeAndLC_StatusRetrievalModule = (function () {
         Retrieve LC Details : Retrieve the lc details from mongo DB based on Lc_Id
     *****************************************************************************************/
 
-    function retrieveLcDetails_FromMongoDB(Lc_Id, Client_Request) {
+    function retrieveLcDetails_FromMongoDB(Lc_Id, Client_Request, currentUser, currentUserType) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -33,9 +33,29 @@ var TradeAndLC_StatusRetrievalModule = (function () {
                     //Parse the JSON Response Object
 
                     responseObject = JSON.parse(this.response);
-                    alert("All the LC Details for LC Id => " + Lc_Id + " : " + responseObject);
 
-                    fillTheLCStatusDetailsPage(responseObject);
+                    if (bDebug == true) {
+
+                        alert("All the LC Details for LC Id => " + Lc_Id + " : " + responseObject);
+                    }
+
+                    // Check the inclusiveness of Lc-Id ( to see if it belongs to Current User )
+
+                    if (currentUser != null && currentUser != undefined && currentUserType != null && currentUserType != undefined) {
+
+                        if (currentUser == responseObject[currentUserType]) {
+
+                            fillTheLCStatusDetailsPage(responseObject);
+
+                        } else {
+
+                            alert("LC_Id : " + Lc_Id +" doesn't belong to Current user : " + currentUser);
+                        }
+
+                    } else {
+
+                        alert("Incorrect User Name/Type in current User Context");
+                    }
 
                 } else {
 
@@ -83,7 +103,7 @@ var TradeAndLC_StatusRetrievalModule = (function () {
         Retrieve Trade Details : Retrieve the trade details from mongo DB based on Trade_Id
     *****************************************************************************************/
 
-    function retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request) {
+    function retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request, currentUser, currentUserType) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -108,9 +128,29 @@ var TradeAndLC_StatusRetrievalModule = (function () {
                     //Parse the JSON Response Object
 
                     responseObject = JSON.parse(this.response);
-                    alert("All the Trade Details for Trade Id => " + Trade_Id + " : " + responseObject);
 
-                    fillTheShipmentStatusDetailsPage(responseObject);
+                    if (bDebug == true) {
+
+                        alert("All the Trade Details for Trade Id => " + Trade_Id + " : " + responseObject);
+                    }
+
+                    // Check the inclusiveness of Ta-Id ( to see if it belongs to Current User )
+
+                    if (currentUser != null && currentUser != undefined && currentUserType != null && currentUserType != undefined) {
+
+                        if (currentUser == responseObject[currentUserType]) {
+
+                            fillTheShipmentStatusDetailsPage(responseObject);
+
+                        } else {
+
+                            alert("Ta_Id : " + Trade_Id + " doesn't belong to Current user : " + currentUser);
+                        }
+
+                    } else {
+
+                        alert("Incorrect User Name/Type in current User Context");
+                    }
 
                 } else {
 
