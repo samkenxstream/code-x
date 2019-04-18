@@ -89,10 +89,14 @@
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScript/TradeAndLC-StatusUpdate.js"></script>
+    <script src="./JavaScript/RetrieveUserDetails.js"></script>
+    <script src="./JavaScript/GlobalsForFlowControl.js"></script>
 
     <script>
 
         var bDebug = false;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentUserName = null;
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
@@ -103,6 +107,17 @@
             document.getElementById("Login-Navigation-bar").style.display = "none";
             document.getElementById("TradeFinance-HomePage").style.display = "none";
 
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve User Context on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
         }
 
         /****************************************************************************************
@@ -138,6 +153,12 @@
                 alert(" (Trade Agreement Id & lcId)  values are missing while Requesting Payment : ");
 
             } else {
+
+                // Include the current User's Name in query as Seller
+                // Does the "Inclusiveness Check" ( Current Seller <=> Trade_Id ) automatically
+
+                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+                queryMap.set("Seller", currentUserName);
 
                 // Status Change in MongoDB
 

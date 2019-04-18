@@ -283,13 +283,26 @@ function addRecordToTradeAndLcDatabase(dbConnection, collectionName, document_Ob
 
 exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collectionName, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated, http_response) {
 
+    // Replace the "URL Space" with regular space in Query Object Map Values
+
+    clientRequestWithParamsMap = HelperUtilsModule.removeUrlSpacesFromMapValues(clientRequestWithParamsMap);
+
+    // Extract input Query Values
+
     var query_Object = new Object();
 
     var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
     var userName = clientRequestWithParamsMap.get("UserName");
+    var sellerName = clientRequestWithParamsMap.get("Seller");
+    var bankName = clientRequestWithParamsMap.get("Bank");
 
-    console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId + ", UserName: " + userName);
+    // Parameter List String Building
+
+    var paramList = "<=> Param List <=> " + "Trade_Id: " + tradeId + ", Lc_Id: " + lcId +
+        ", UserName: " + userName + ", Seller: " + sellerName + ", Bank: " + bankName;
+
+    console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + paramList);
 
     // Build Query Based on input <k,v> pairs
 
@@ -308,6 +321,16 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
         query_Object.UserName = userName;
     }
 
+    if (sellerName != null && sellerName != undefined) {
+
+        query_Object.Seller = sellerName;
+    }
+
+    if (bankName != null && bankName != undefined) {
+
+        query_Object.Bank = bankName;
+    }
+
     // Status to be updated
 
     var document_Object = {
@@ -323,7 +346,7 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
         webClientRequest,
         http_response);
 
-    console.log("Web Service: Switch Statement : Successfully launched the update Record with status : " + statusToBeUpdated + " => Trade_Id: " + tradeId + ", Lc_Id: " + lcId + ", UserName: " + userName);
+    console.log("Web Service: Switch Statement : Successfully launched the update Record with status : " + statusToBeUpdated + paramList);
 }
 
 /**
@@ -337,34 +360,18 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
 
 function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, webClientRequest, http_response) {
 
+    // Parameter List String Building
+
+    var paramList = "<=> Param List <=> " + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id +
+        ", UserName: " + query_Object.UserName + ", Seller: " + query_Object.Seller + ", BankName: " + query_Object.Bank;
+
     // Find Record & Update
 
-    var query = null;
-
-    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id + ", UserName: " + query_Object.UserName);
-
-/*    
-    if (query_Object.Trade_Id != null) {
-
-        query = { Trade_Id: query_Object.Trade_Id };
-
-    } else if (query_Object.Lc_Id != null) {
-
-        query = { Lc_Id: query_Object.Lc_Id };
-
-    } else {
-
-        var failureMessage = "Wrong Query/missing input data : Couldn't find Record";
-        buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
-
-        return;
-    }
-
-*/
+    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + paramList);
 
     if (Object.keys(query_Object).length < 1) {
 
-        var failureMessage = "Wrong Query/missing input query data : Couldn't find Record";
+        var failureMessage = "Wrong Query/missing input query data : Couldn't find Record" + paramList;
         buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
 
         return;
@@ -372,33 +379,58 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
     // Update Record in DB
 
-    dbConnection.collection(collectionName).updateOne(query, document_Object, function (err, result) {
+    dbConnection.collection(collectionName).updateOne(query_Object, document_Object, function (err, res) {
 
         if (err) {
 
-            var failureMessage = "Error while executing the updation on Record";
+            var failureMessage = "Error while executing the updation on Record" + paramList;
             buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
 
             return;
         }
 
-        var recordPresent = (result == null || result == undefined) ? "false" : "true";
+        var recordPresent = (res == null || res == undefined) ? "false" : "true";
+
+        // Invalid Result of CRUD operation : Return Error Response
+
         if (recordPresent == "false") {
+
+            console.error("Record Not Found => For Query : " + paramList);
+            var failureMessage = "Record Updation: Record not found for Query : " + paramList;
+            buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
+
+        } else {
 
             // Record Not Found : Return Error Response
 
-            console.error("Record Not Found => For Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id);
-            var failureMessage = "Record Updation: Record not found for Trade_Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id;
-            buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
+            console.log("updateRecordInTradeAndLcDatabase => result.nModified : " + res.result.nModified +
+                ", result.n : " + res.result.n + ", result.ok : " + res.result.ok);
 
-        }
-        else {
+            if (res.result.n == 0) {
+
+                console.error("Record Not Found => For Query : " + paramList);
+                var failureMessage = "Record Updation: Record not found for Query : " + paramList;
+                buildErrorResponse_ForRecordUpdation(failureMessage, webClientRequest, http_response);
 
             // Record Updation Successful
 
-            console.log("Record Found, Updated the Record with latest Status => " + " Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id);
-            var successMessage = "Record Found, Updated the Record with latest Status => " + " Trade Id : " + query_Object.Trade_Id + " LC Id : " + query_Object.Lc_Id;
-            buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest, http_response);
+            } else {
+
+                if (res.result.nModified == 1) {
+
+                    console.log("Record Found, Updated the Record with latest Status => Query : " + paramList);
+                    var successMessage = "Record Found, Updated the Record with latest Status => Query : " + paramList;
+
+                } else {
+
+                    console.log("Record Found, But Status already updated to required state => Query : " + paramList);
+                    var successMessage = "Record Found, But Status already updated to required state => Query : " + paramList;
+
+                } 
+
+                buildSuccessResponse_ForRecordUpdation(successMessage, webClientRequest, http_response);
+            }
+
         }
 
     });

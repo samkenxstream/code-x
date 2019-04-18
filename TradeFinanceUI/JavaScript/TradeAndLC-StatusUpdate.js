@@ -45,7 +45,7 @@ var TradeAndLC_StatusUpdateModule = (function () {
                         alert(" Status Content: " + responseObject.Status);
                     }
 
-                    alert("Successfully changed the Status of Trade : " + Client_Request);
+                    alert("Successfully changed the Status of Trade : " + Client_Request + ", Status Message : " + responseObject.Status);
 
                 } else {
 
@@ -57,9 +57,19 @@ var TradeAndLC_StatusUpdateModule = (function () {
 
             } else {
 
-                if (bDebug == true) {
+                if (this.readyState == 4) {
 
-                    alert("Failure to place change TradeAndLC Status call => " + Client_Request + " :=> Status : " + this.status + " readyState : " + this.readyState);
+                    alert("Failure to place change of status call for TradeAndLC => " + Client_Request + " :=> Status : " + this.status);
+
+                    responseObject = JSON.parse(this.response);
+                    alert("Response Status => " + responseObject.Status);
+
+                } else {
+
+                    if (bDebug == true) {
+
+                        alert("Intermediate Success Response for changeTradeAndLCStatus call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    }
                 }
             }
 
