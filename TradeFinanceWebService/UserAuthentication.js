@@ -34,7 +34,8 @@ var userData_Object = {
 
 var credentialsData_Object = {
     UserName: "",
-    Password: ""
+    Password: "",
+    PasswordEncrypted: ""
 };
 
 //var randomSeed_ForPasswordHash = "RandomHashSeed";
@@ -171,6 +172,7 @@ function prepareUserCredentialsObject (recordObjectMap) {
 
     credentialsData_Object.UserName = recordObjectMap.get("UserName");
     credentialsData_Object.Password = recordObjectMap.get("Password");
+    credentialsData_Object.PasswordEncrypted = recordObjectMap.get("PasswordEncrypted");
 }
 
 /**
@@ -238,7 +240,21 @@ exports.validateUserCredentials = function (dbConnection, collectionName, record
 
             console.log("validateUserCredentials : User Exists. Validate the Credentials for User : " + document_Object.UserName);
 
-            var inputPasswordHash = cryptoModule.createHash('md5').update(document_Object.Password).digest('hex');
+            var inputPasswordHash = null;
+
+            // Check if Password has already been Encrypted
+
+            if (document_Object.PasswordEncrypted == "True") {
+
+                inputPasswordHash = document_Object.Password;
+
+            } else {
+
+                inputPasswordHash = cryptoModule.createHash('md5').update(document_Object.Password).digest('hex');
+            }
+
+            // Password comparison 
+
             console.log("validateUserCredentials : generated Hash for input password : " + inputPasswordHash);
 
             if (result.Password != inputPasswordHash) {

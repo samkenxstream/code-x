@@ -210,6 +210,11 @@ var UserAuthenticationModule = (function () {
 
     function authenticateUser_MongoDB(userAuthenticationRecord, Client_Request) {
 
+        authenticateUser_MongoDB(userAuthenticationRecord, Client_Request, null);
+    }
+
+    function authenticateUser_MongoDB(userAuthenticationRecord, Client_Request, AuthFailAction) {
+
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
@@ -249,11 +254,7 @@ var UserAuthenticationModule = (function () {
                     if (bDebug == true) {
 
                         alert("Logging in to TF Website");
-                    }
-
-                    if (bDebug == true) {
-
-                        alert("Login Successful. Setting Global => userAuthenticationRecord.get(UserName) : " + userAuthenticationRecord.get("UserName") );
+                        alert("Login Successful. Setting Global => userAuthenticationRecord.get(UserName) : " + userAuthenticationRecord.get("UserName"));
                     }
 
                     // Store the current User Name in Local Cache
@@ -279,7 +280,19 @@ var UserAuthenticationModule = (function () {
 
             } else {
 
-                alert("Received failure response for userAuthentication call :=> Status : " + this.status + " readyState : " + this.readyState);
+                if (this.readyState != 4) {
+
+                    if (bDebug == true) {
+
+                        alert("Received intermediary failure response for userAuthentication call :=> Status : " + this.status + " readyState : " + this.readyState);
+                    }
+
+                } else {
+
+                    alert("Received failure response for userAuthentication call :=> Status : " + this.status + " readyState : " + this.readyState);
+                }
+
+                UserAuthenticationModule.processLogOffEvent(event);
             }
 
         };
@@ -325,6 +338,28 @@ var UserAuthenticationModule = (function () {
 
     }
 
+    /**********************************************************************************************************
+        pageLoadUserAuthentication : Validate using current User Credentials stored in Local Storage
+    ***********************************************************************************************************/
+
+    function pageLoadUserAuthentication() {
+
+        // Build Query
+
+        var currentUser_UserNameVal = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
+        var currentUser_PasswordVal = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Password_Key);
+
+        // Validate the credentials on every refresh & Pageload
+
+        var authRecord = new Map();
+
+        authRecord.set("UserName", currentUser_UserNameVal);
+        authRecord.set("Password", currentUser_PasswordVal);
+        authRecord.set("PasswordEncrypted", "True");
+
+        UserAuthenticationModule.authenticateUser(authRecord, "UserAuthentication", "LogOff");
+    }
+
     /****************************************************************************************
         Reveal private methods 
     *****************************************************************************************/
@@ -333,7 +368,10 @@ var UserAuthenticationModule = (function () {
 
         processLogOffEvent: processLogoff,
         processUserRegistrationEvent: processUserRegistration,
-        processUserAuthenticationEvent: processUserAuthentication
+        processUserAuthenticationEvent: processUserAuthentication,
+        authenticateUser: authenticateUser_MongoDB,
+        authenticateUserOnPageLoad: pageLoadUserAuthentication
+
     };
 
 })();

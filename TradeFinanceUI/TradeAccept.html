@@ -147,6 +147,7 @@
     <script src="./JavaScript/TradeAndLC-StatusUpdate.js"></script>
     <script src="./JavaScript/RetrieveUserDetails.js"></script>
     <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/UserAuthentication.js"></script>
 
     <script>
 
@@ -216,6 +217,12 @@
         *****************************************************************************************/
 
         window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Current Page Display
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
             document.getElementById("TradeFinance-HomePage").style.display = "none";

@@ -345,6 +345,7 @@ var RetrieveUserDetails_Module = (function () {
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Email_Key, singleUserObject.Email);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Address_Key, singleUserObject.Address);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, singleUserObject.UserName);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Password_Key, singleUserObject.Password);
     }
 
     /********************************************************************************************************

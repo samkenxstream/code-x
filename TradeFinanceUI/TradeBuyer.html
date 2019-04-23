@@ -160,6 +160,7 @@
     <script src="./JavaScript/HyperLedgerAPIWrapper.js"></script>
     <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
     <script src="./JavaScript/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScript/UserAuthentication.js"></script>
 
     <script>
 
@@ -244,10 +245,10 @@
 
 
         /***********************************************************************************************
-            Periodic checks to find out if input data got processed and refresh the page accordingly 
+            Periodic checks to find out if input data got processed and refresh the page accordingly
         ************************************************************************************************/
 
-        function checkForFormDataProcessingCompletion( ) {
+        function checkForFormDataProcessingCompletion() {
 
             if (FlowControlGlobalsModule.tradeBuyerInputProcessed == true) {
 
@@ -264,6 +265,12 @@
         var webServerPrefix = "http://127.0.0.1:3500/?";
 
         window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Current Page Display
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
             document.getElementById("TradeFinance-HomePage").style.display = "none";

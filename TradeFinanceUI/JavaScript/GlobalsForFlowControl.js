@@ -20,6 +20,7 @@ var FlowControlGlobalsModule = (function () {
     var currentUser_Email_Key = "currentUser_Email";
     var currentUser_Address_Key = "currentUser_Address";
     var currentUser_UserName_Key = "currentUser_UserName";
+    var currentUser_Password_Key = "currentUser_Password";
 
     /****************************************************************************************
         Reveal private methods & variables
@@ -43,6 +44,7 @@ var FlowControlGlobalsModule = (function () {
         currentUser_Email_Key: currentUser_Email_Key,
         currentUser_Address_Key: currentUser_Address_Key,
         currentUser_UserName_Key: currentUser_UserName_Key,
+        currentUser_Password_Key: currentUser_Password_Key
 
     };
 

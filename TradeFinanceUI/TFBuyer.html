@@ -226,6 +226,7 @@
     <script src="./JavaScript/TradeAndLC-DatabaseUpdate.js"></script>
     <script src="./JavaScript/GlobalsForFlowControl.js"></script>
     <script src="./JavaScript/RetrieveTradeDetails-ForAutoFill.js"></script>
+    <script src="./JavaScript/UserAuthentication.js"></script>
 
     <script>
 
@@ -240,7 +241,7 @@
 
         if (bDebug == true) {
 
-            alert("FlowControlGlobalsModule.currentUser_UserName during page load : " + currentUserNameValue );
+            alert("FlowControlGlobalsModule.currentUser_UserName during page load : " + currentUserNameValue);
         }
 
         $("#Shipment-Order-Submit").click(function () {
@@ -341,6 +342,12 @@
         var webServerPrefix = "http://127.0.0.1:3500/?";
 
         window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Current Page Display
 
             document.getElementById("Login-Navigation-bar").style.display = "none";
             document.getElementById("TradeFinance-HomePage").style.display = "none";
