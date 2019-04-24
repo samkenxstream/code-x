@@ -166,6 +166,7 @@
 
         bDebug = false;
         var setIntervalVar = null;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
 
         var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
 
@@ -262,12 +263,11 @@
             Login & Logout functionality : Hide and display the Internal content references
         *****************************************************************************************/
 
-        var webServerPrefix = "http://127.0.0.1:3500/?";
-
         window.onload = function (event) {
 
             // Authenticate On Page Load : Through Current User Context
 
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
             UserAuthenticationModule.authenticateUserOnPageLoad();
 
             // Current Page Display

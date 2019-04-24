@@ -172,6 +172,7 @@
 
             // Authenticate On Page Load : Through Current User Context
 
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
             UserAuthenticationModule.authenticateUserOnPageLoad();
 
             // Current Page Display

@@ -290,7 +290,7 @@ var RetrieveUserDetails_Module = (function () {
 
                     // Change the Display Tabs As per Logged In User
 
-                    if (bChangeDisplayAsPerUser) {
+                    if (bChangeDisplayAsPerUser == true && FlowControlGlobalsModule.bFirstTimeAuthentication == true) {
 
                         hidePagesBasedOnLoggedInUser(singleUserObject);
                     }
@@ -319,9 +319,9 @@ var RetrieveUserDetails_Module = (function () {
 
     }
 
-    /****************************************************************************************
-        Sets the current User Context Details ( Usually during Page Load )
-    *****************************************************************************************/
+    /************************************************************************************************************
+        setCurrentUserContextInLocalCache : Sets the current User Context Details ( Usually during Page Load )
+    *************************************************************************************************************/
 
     function setCurrentUserContextInLocalCache(singleUserObject) {
 
@@ -346,6 +346,28 @@ var RetrieveUserDetails_Module = (function () {
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Address_Key, singleUserObject.Address);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, singleUserObject.UserName);
         window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Password_Key, singleUserObject.Password);
+    }
+
+    /*********************************************************************************************************************
+        initializeCurrentUserContextInLocalCache : Resets/Initializes the current User Context ( Usually during Logout )
+    **********************************************************************************************************************/
+
+    function initializeCurrentUserContextInLocalCache() {
+
+        if (bDebug == true) {
+
+            alert("initializeCurrentUserContextInLocalCache : Initializing / Resetting User Context in Local cache \n");
+        }
+
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserType_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Name_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Shipment_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Location_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Email_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Address_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_UserName_Key, null);
+        window.localStorage.setItem(FlowControlGlobalsModule.currentUser_Password_Key, null);
+
     }
 
     /********************************************************************************************************
@@ -437,7 +459,8 @@ var RetrieveUserDetails_Module = (function () {
         retrieveUserDetailsRecords: retrieveUserDetails_FromMongoDB,
         addOptionToSelectionBox: addOptionToSelectionBox,
         retrieveUserDetailsAnd_SetContext: retrieveUserDetailsAnd_SetCurrentUserContext,
-        hideUserPagesBasedOnUserContext: hideUserPagesBasedOnCurrentUserContext
+        hideUserPagesBasedOnUserContext: hideUserPagesBasedOnCurrentUserContext,
+        initializeUserContextInLocalCache: initializeCurrentUserContextInLocalCache
 
     };
 

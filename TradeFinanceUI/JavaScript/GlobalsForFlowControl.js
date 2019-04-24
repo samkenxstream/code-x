@@ -22,6 +22,10 @@ var FlowControlGlobalsModule = (function () {
     var currentUser_UserName_Key = "currentUser_UserName";
     var currentUser_Password_Key = "currentUser_Password";
 
+    // Authentication context Globals : First Time Authentication
+
+    var bFirstTimeAuthentication = true;
+
     /****************************************************************************************
         Reveal private methods & variables
     *****************************************************************************************/
@@ -44,7 +48,11 @@ var FlowControlGlobalsModule = (function () {
         currentUser_Email_Key: currentUser_Email_Key,
         currentUser_Address_Key: currentUser_Address_Key,
         currentUser_UserName_Key: currentUser_UserName_Key,
-        currentUser_Password_Key: currentUser_Password_Key
+        currentUser_Password_Key: currentUser_Password_Key,
+
+        // User Context of Current User
+
+        bFirstTimeAuthentication: bFirstTimeAuthentication
 
     };
 

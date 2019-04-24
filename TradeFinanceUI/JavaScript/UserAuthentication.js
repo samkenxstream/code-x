@@ -24,6 +24,10 @@ var UserAuthenticationModule = (function () {
         }
         
         document.location.replace("./TradeFinanceHome.html");
+
+        // Clear the Local Cache : Current User Context
+
+        RetrieveUserDetails_Module.initializeUserContextInLocalCache();
     }
 
     /****************************************************************************************
