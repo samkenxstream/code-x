@@ -96,7 +96,7 @@ http.createServer(function (req, res) {
 
     // Return unexpected urls
 
-    if (req.url == "/favicon.ico") {
+    if (req.url == null || req.url == "/favicon.ico") {
 
         console.log("unexpected req.url : " + req.url);
         return;
@@ -111,6 +111,15 @@ http.createServer(function (req, res) {
     console.log("req.url.query : " + (url.parse(req.url)).query );
 
     var requestParams = (url.parse(req.url)).query;
+
+    if (requestParams == null || requestParams == "") {
+
+        console.log("Null / empty req.url.query :");
+        return;
+    }
+
+    // Extract Query Parameters
+
     var requestParamsCollection = requestParams.split("&");
 
     console.log("requestParamsMap after parsing URL : " );
@@ -120,7 +129,6 @@ http.createServer(function (req, res) {
     console.log( "Parsed the Web Client Request : " + clientRequestWithParamsMap.get("Client_Request") );
     var webClientRequest = clientRequestWithParamsMap.get("Client_Request");
     console.log("UserType of Client request after parsing => " + clientRequestWithParamsMap.get("UserType"));
-
 
     // Connect to Mongo DB, Create Database & Collections
 

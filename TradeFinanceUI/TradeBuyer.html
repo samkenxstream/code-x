@@ -166,6 +166,7 @@
 
         bDebug = false;
         var setIntervalVar = null;
+        var setAuthRefreshInterval = null;
         var webServerPrefix = "http://127.0.0.1:3500/?";
 
         var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
@@ -301,6 +302,23 @@
 
             fillTheUserDetails_FromMongoDB("Seller");
             document.getElementById("Seller-Input").autofocus = true;
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
 
         }
 

@@ -98,6 +98,7 @@
         var bDebug = false;
         var webServerPrefix = "http://127.0.0.1:3500/?";
         var currentUserName = null;
+        var setAuthRefreshInterval = null;
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
@@ -126,6 +127,23 @@
 
             RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
                 "RetrieveUserDetailsBasedOnUserName");
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
         }
 
         /****************************************************************************************

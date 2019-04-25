@@ -191,6 +191,7 @@
 
         var webServerPrefix = "http://127.0.0.1:3500/?";
         var currentSellerName = null;
+        var setAuthRefreshInterval = null;
 
         $("#Retrieve_LC_Requests").click(function () {
 
@@ -264,6 +265,22 @@
 
                 alert("current Name of the logged in Seller user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
             }
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
 
         }
 
