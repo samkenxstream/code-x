@@ -64,9 +64,23 @@ exports.retrieveUserDetails = function (dbConnection, collectionName, queryMap, 
 
             http_StatuCode = 500;
             buildErrorResponse_Generic("RetrieveUserDetails", failureMessage, http_StatuCode, http_Response);
+
+            return;
         }
 
         console.log("retrieveUserDetails : Successfully retrieved all the user records based on input QueryMap");
+
+        if (result == null || result == undefined) {
+
+            console.error("retrieveUserDetails : Null Result returned while querying user Records");
+            var failureMessage = "retrieveUserDetails : Null Result returned while querying user Records";
+
+            http_StatusCode = 404;
+            buildErrorResponse_Generic("RetrieveUserDetails", failureMessage, http_StatusCode, http_Response);
+
+            return;
+        }
+
         console.log(result);
 
         return handleUserDatabaseQueryResults(result, http_Response);

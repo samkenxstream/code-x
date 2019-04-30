@@ -331,6 +331,22 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
         query_Object.Bank = bankName;
     }
 
+    // Check to make sure the presence of atleast one query
+
+    var queryKeys = Object.keys(query_Object);
+
+    if (queryKeys.length == 0 || statusToBeUpdated == null || statusToBeUpdated == undefined) {
+
+        console.error("TradeAndLCRecordUpdates.updateRecordStatusInTradeAndLcDatabase : "
+            + "Atleast one query parameter and Current_Status should be present to change Record Status");
+
+        var failureMessage = "TradeAndLCRecordUpdates.updateRecordStatusInTradeAndLcDatabase : " +
+            "Atleast one query parameter and Current_Status should be present to change Record Status";
+        HelperUtilsModule.logBadHttpRequestError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+        return;
+    }
+
     // Status to be updated
 
     var document_Object = {
@@ -339,10 +355,11 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
 
     // CRUD Operations to Mongo DB
 
-    updateRecordInTradeAndLcDatabase(dbConnection,
+    updateStatusOfRecordInTradeAndLcDatabase(dbConnection,
         collectionName,
         query_Object,
         document_Object,
+        statusToBeUpdated,
         webClientRequest,
         http_response);
 
@@ -351,14 +368,47 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
 
 /**
  * 
+ * Status Transition :    Trade_Requested => Trade_Approved => LC_Requested => LC_Generated => LC_Approved
+ *                        => Trade_Shipped => Shipment_Accepted => Payment_Requested => Payment_Made.
+ *
+*/
+
+function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatus) {
+
+    var expectedPreviousStatusMap = new Map();
+
+    expectedPreviousStatusMap.set("Trade_Requested", null);
+    expectedPreviousStatusMap.set("Trade_Approved", "Trade_Requested");
+    expectedPreviousStatusMap.set("LC_Requested", null);
+    expectedPreviousStatusMap.set("LC_Generated", null);
+    expectedPreviousStatusMap.set("LC_Approved", "LC_Generated");
+    expectedPreviousStatusMap.set("Trade_Shipped", "LC_Approved");
+    expectedPreviousStatusMap.set("Shipment_Accepted", "Trade_Shipped");
+    expectedPreviousStatusMap.set("Payment_Requested", "Shipment_Accepted");
+    expectedPreviousStatusMap.set("Payment_Made", "Payment_Requested");
+
+    if (expectedPreviousStatusMap.get(statusToBeUpdated) == currentStatus) {
+
+        return true;
+    } 
+
+    return false;
+}
+
+/**
+ * 
  * @param {any} dbConnection  : Connection to database 
  * @param {any} collectionName  : Name of Table ( Collection )
  * @param {any} query_Object : Query object to retrieve the corresponding Record ( Record, Row in Table )
  * @param {any} document_Object : Document object that needs to be updated ( Record, Row in Table )
- * 
+ * @param {any} statusToBeUpdated : Status of Record to be updated
+ * @param {any} webClientRequest : Status Change Request Name
+ * @param {any} http_response : http Response to be built based on the result
+ *
  */
 
-function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object, webClientRequest, http_response) {
+function updateStatusOfRecordInTradeAndLcDatabase(  dbConnection, collectionName, query_Object, document_Object,
+                                                    statusToBeUpdated, webClientRequest, http_response ) {
 
     // Parameter List String Building
 
@@ -367,7 +417,7 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
     // Find Record & Update
 
-    console.log("updateRecordInTradeAndLcDatabase => collectionName :" + collectionName + paramList);
+    console.log("updateStatusOfRecordInTradeAndLcDatabase => collectionName :" + collectionName + paramList);
 
     if (Object.keys(query_Object).length < 1) {
 
@@ -377,7 +427,58 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
         return;
     }
 
-    // Update Record in DB
+    // Query For the Existing Status and Validate the Appropriateness in Status Transition
+
+    // Status Transition :    Trade_Requested => Trade_Approved => LC_Requested => LC_Generated => LC_Approved 
+    //                     => Trade_Shipped => Shipment_Accepted => Payment_ Requested => Payment_Made.
+
+    console.log("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase => Checking the current status of Record for valid state Transition : ");
+
+    dbConnection.collection(collectionName).findOne(query_Object, function (err, result) {
+
+        if (err) {
+
+            console.error("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Error while checking the current status of Record");
+
+            var failureMessage = "TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Error while checking the current status of Record";
+            HelperUtilsModule.logInternalServerError("updateStatusOfRecordInTradeAndLcDatabase", failureMessage, http_response);
+
+            return;
+        }
+
+        var recordPresent = (result) ? "true" : "false";
+        if (recordPresent == "false") {
+
+            // Record Not Found : So Status Cann't be updated : Return Error
+
+            console.error("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Record in Query not found");
+
+            var failureMessage = "TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Record in Query not found";
+            HelperUtilsModule.logBadHttpRequestError("updateStatusOfRecordInTradeAndLcDatabase", failureMessage, http_response);
+
+            return;
+        }
+        else {
+
+            // Record Found : Check the validity of current Status using ExpectedPreviousStatusMap
+
+            console.log("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : " +
+                "Check the validity of current Status using ExpectedPreviousStatusMap");
+
+            if (checkValidityOfShipmentStatusTransition(statusToBeUpdated, result.Current_Status) == false) {
+
+                console.error("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Unexpected Current Status for State Transition");
+
+                var failureMessage = "TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Unexpected Current Status for State Transition";
+                HelperUtilsModule.logBadHttpRequestError("updateStatusOfRecordInTradeAndLcDatabase", failureMessage, http_response);
+
+                return;
+            }
+        }
+
+    });
+
+    // Update Status of Record in DB
 
     dbConnection.collection(collectionName).updateOne(query_Object, document_Object, function (err, res) {
 
@@ -403,7 +504,7 @@ function updateRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Ob
 
             // Record Not Found : Return Error Response
 
-            console.log("updateRecordInTradeAndLcDatabase => result.nModified : " + res.result.nModified +
+            console.log("updateStatusOfRecordInTradeAndLcDatabase => result.nModified : " + res.result.nModified +
                 ", result.n : " + res.result.n + ", result.ok : " + res.result.ok);
 
             if (res.result.n == 0) {
@@ -492,12 +593,6 @@ function buildTradeRecord_JSON(queryResult) {
 
     queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
-    /*
-    queryResponse_JSON = {
-        "Trade_Id": queryResult.Trade_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller, "Shipment": queryResult.Shipment,
-        "ShipmentCount": queryResult.ShipmentCount, "Amount": queryResult.Amount, "Current_Status": queryResult.Current_Status
-    };*/
-
     queryResponse_JSON.Trade_Id = queryResult.Trade_Id;
     queryResponse_JSON.Buyer = queryResult.Buyer;
     queryResponse_JSON.Seller = queryResult.Seller;
@@ -528,14 +623,6 @@ function buildLcRecord_JSON(queryResult) {
     var queryResponse_JSON = new Object();
 
     queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
-
-    /*
-    queryResponse_JSON = {
-        "Trade_Id": queryResult.Trade_Id, "Lc_Id": queryResult.Lc_Id, "Buyer": queryResult.Buyer, "Seller": queryResult.Seller,
-        "Seller_Id": queryResult.Seller_Id, "Bank": queryResult.Bank, "Shipment": queryResult.Shipment, "Amount": queryResult.Amount,
-        "ShipmentCount": queryResult.ShipmentCount, "Current_Status": queryResult.Current_Status, "Expiry_Date": queryResult.Expiry_Date,
-        "Request_Location": queryResult.Request_Location
-    };*/
 
     queryResponse_JSON.Trade_Id = queryResult.Trade_Id;
     queryResponse_JSON.Lc_Id = queryResult.Lc_Id;
@@ -572,8 +659,13 @@ function buildLcRecord_JSON(queryResult) {
 exports.handleQueryResults = function (err, queryResult, req, res, queryType) {
 
     if (err) {
-        console.log("Error in executing Retrieval Query : ");
-        throw err;
+
+        console.error("TradeAndLCRecordUpdates.handleQueryResults : Internal Server during record retrieval query execution");
+
+        var failureMessage = "TradeAndLCRecordUpdates.handleQueryResults : Internal Server during record retrieval query execution";
+        HelperUtilsModule.logInternalServerError("handleQueryResults", failureMessage, http_Response);
+
+        return;
     }
 
     console.log("Callback Function (handleQueryResults) : Successfully retrieved the records through function (mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase) => ");

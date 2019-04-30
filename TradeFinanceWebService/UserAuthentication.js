@@ -215,17 +215,17 @@ exports.validateUserCredentials = function (dbConnection, collectionName, record
 
         if (err) {
 
-            console.log("validateUserCredentials : Error while querying DB for User Credentials");
-            var failureMessage = "Failure: Error while querying DB for User Credentials";
+            console.error("UserAuthentication.validateUserCredentials : Internal Server Error while querying DB for User Credentials");
 
-            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+            var failureMessage = "UserAuthentication.validateUserCredentials : Internal Server Error while querying DB for User Credentials";
+            HelperUtilsModule.logInternalServerError("validateUserCredentials", failureMessage, http_Response);
 
-            throw err;
+            return;
         }
 
         var recordPresent = (result) ? "true" : "false";
 
-        // Add User Registration Record, If not already registered
+        // Check for the presence of User Record
 
         if (recordPresent == "false") {
 
@@ -323,7 +323,7 @@ function buildErrorResponse_ForUserAuthentication(failureMessage, http_Response)
 
 function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName, document_Object, http_Response) {
 
-    // Throw Error if User already Exists ; Add Record Otherwise
+    // "Log & Return" Error if User already Exists ; Add Record Otherwise
 
     var query = { UserName: document_Object.UserName };
     console.log("addRecordToUserDetailsDatabase_IfNotExists => collectionName :" + collectionName + ", UserName :" + document_Object.UserName);
@@ -336,16 +336,14 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
 
         if (err) {
 
-            console.log("addRecordToUserDetailsDatabase_IfNotExists : Error while querying for document to be inserted");
+            console.error("UserAuthentication.addRecordToUserDetailsDatabase_IfNotExists : Internal Server Error while " +
+                + "querying DB to check for existence of current user record(duplicacy validation)");
 
-            var failureMessage = "Failure: Unknown failure during User Registration";
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
+            var failureMessage = "UserAuthentication.addRecordToUserDetailsDatabase_IfNotExists : Internal Server Error while " +
+                + "querying DB to check for existence of current user record(duplicacy validation)";
+            HelperUtilsModule.logInternalServerError("addRecordToUserDetailsDatabase_IfNotExists", failureMessage, http_Response);
 
-            http_Response.writeHead(400, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
-
-            throw err;
+            return;
         }
 
         var recordPresent = (result) ? "true" : "false";

@@ -101,7 +101,7 @@ exports.directUpdationOfRecordToDatabase = function (dbConnection, collectionNam
  *
  */
 
-exports.removeRecordFromTradeAndLcDatabase = function (dbConnection, collectionName, Trade_Identifier, Lc_Identifier) {
+exports.removeRecordFromTradeAndLcDatabase = function (dbConnection, collectionName, Trade_Identifier, Lc_Identifier, http_response) {
 
     var query = null;
 
@@ -124,12 +124,20 @@ exports.removeRecordFromTradeAndLcDatabase = function (dbConnection, collectionN
     dbConnection.collection(collectionName).deleteMany(query, function (err, result) {
 
         if (err) {
-            console.log("Error while deleting the Record from tradeAndLc Database collection");
-            throw err;
-        }
-        console.log("Successfully deleted the record from the TradeAndLC Table : ");
-        console.log(result);
 
+            console.error("MongoDbCRUD.removeRecordFromTradeAndLcDatabase : Error while deleting the Record from tradeAndLc Database collection :" + collectionName);
+
+            var failureMessage = "MongoDbCRUD.removeRecordFromTradeAndLcDatabase : Error while deleting the Record from tradeAndLc Database collection :" + collectionName;
+            HelperUtilsModule.logInternalServerError("removeRecordFromTradeAndLcDatabase", failureMessage, http_response);
+
+            return;
+        }
+
+        console.log("MongoDbCRUD.removeRecordFromTradeAndLcDatabase : Successfully deleted the record from the TradeAndLC Table : " + Trade_Identifier);
+        var successMessage = "MongoDbCRUD.removeRecordFromTradeAndLcDatabase : Successfully deleted the record from the TradeAndLC Table : " + Trade_Identifier;
+        HelperUtilsModule.buildSuccessResponse_Generic(successMessage, clientRequest, http_response);
+
+        console.log(result);
     });
 
 }
@@ -262,7 +270,7 @@ exports.retrieveRecordFromTradeAndLcDatabase_BasedOnUser = function (dbConnectio
 
     if (queryObjectMap.length == 0) {
 
-        console.error("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => empty Query Object map. Returning ");
+        console.error("MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => empty Query Object map. Returning...");
 
         var failureMessage = "MongoDbCRUD.retrieveRecordFromTradeAndLcDatabase_BasedOnUser => empty Query Object map. Returning..";
         HelperUtilsModule.logBadHttpRequestError("retrieveRecordFromTradeAndLcDatabase_BasedOnUser", failureMessage, http_response);

@@ -144,11 +144,18 @@ http.createServer(function (req, res) {
             console.log("Inside the connection to User Details Mongo DB");
 
             if (err != null) {
-                console.log("Error while connecting to UserDetails mongo db on local server");
-                throw err;
+
+                console.error("TradeFinanceWebService.createServer : Server Error while connecting to UserDetails mongo db on local server :"
+                    + mongoUserDetailsDbUrl);
+
+                var failureMessage = "TradeFinanceWebService.createServer : Server Error while connecting to UserDetails mongo db on local server :"
+                    + mongoUserDetailsDbUrl;
+                HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
             }
             else {
-                console.log("Successfully connected to UserDetails MongoDb");
+
+                console.log("Successfully connected to UserDetails MongoDb : " + mongoUserDetailsDbUrl);
             }
 
             // Database Creation
@@ -161,8 +168,14 @@ http.createServer(function (req, res) {
             dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
 
                 if (err) {
-                    console.log("Error while creating / retrieving Collection ( Table ) in User Details mongoDb");
-                    throw err;
+
+                    console.error("TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                        + userDetails_TableName);
+
+                    var failureMessage = "TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                        + userDetails_TableName;
+                    HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
                 }
 
                 console.log("Successfully created / retrieved collection (userDetailsCollection)");
@@ -317,11 +330,17 @@ http.createServer(function (req, res) {
             console.log("Inside the connection to Mongo DB");
 
             if (err != null) {
-                console.log("Error while connecting to mongo db on local server");
-                throw err;
+
+                console.error("TradeFinanceWebService.createServer : Error while connecting to mongo db on local server :"
+                    + mongoDbUrl);
+
+                var failureMessage = "TradeFinanceWebService.createServer : Error while connecting to mongo db on local server :"
+                    + mongoDbUrl;
+                HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
             }
             else {
-                console.log("Successfully connected to MongoDb");
+                console.log("Successfully connected to MongoDb : " + mongoDbUrl);
             }
 
             // Database Creation
@@ -335,11 +354,17 @@ http.createServer(function (req, res) {
             dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
 
                 if (err) {
-                    console.log("Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb");
-                    throw err;
+
+                    console.error("TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
+                        + tradeAndLcTable_Name);
+
+                    var failureMessage = "TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
+                        + tradeAndLcTable_Name;
+                    HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
                 }
 
-                console.log("Successfully created collection (tradeAndLcCollection)");
+                console.log("Successfully created collection (tradeAndLcCollection) : " + tradeAndLcTable_Name);
                 console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
             });
 
@@ -364,16 +389,6 @@ http.createServer(function (req, res) {
                         console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
                     }
 
-                    // Build Response
-
-                    /*
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    var tradeResponseObject = { Request: "Request_Trade", Status: "Trade_Requested" };
-                    var tradeResponse = JSON.stringify(tradeResponseObject);
-
-                    res.end(tradeResponse);
-                    */
-
                     break;
 
                 case "RequestLC":
@@ -391,16 +406,6 @@ http.createServer(function (req, res) {
 
                         console.error("Web Service: Switch Statement : Failure while adding Record for LC");
                     }
-
-                    // Build Response
-
-                    /*
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    var lcResponseObject = { Request: "RequestLC", Status: "LC_Requested" };
-                    var lcResponse = JSON.stringify(lcResponseObject);
-
-                    res.end(lcResponse);
-                    */
 
                     break;
 
