@@ -186,7 +186,7 @@
 
             var Client_Request = "RetrieveLCDetails";
 
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
             currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
 
             if (bDebug == true) {
@@ -195,7 +195,7 @@
                 alert("current UserType set during Page Load User Context : " + currentUserType);
             }
 
-            if (currentUser != null && currentUser != undefined && currentUserType != null && currentUserType != undefined) {
+            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
 
                 TradeAndLC_StatusRetrievalModule.retrieveLCDetails_MongoDB(lcId_value, Client_Request, currentUserName, currentUserType);
 

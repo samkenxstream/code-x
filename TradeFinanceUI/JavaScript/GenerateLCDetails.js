@@ -57,7 +57,14 @@ var GenerateLCModule = (function () {
 
             } else {
 
-                alert("Failure to place generateLC call :=> Status : " + this.status + " readyState : " + this.readyState);
+                if (this.readyState == 4) {
+
+                    alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+
+                    var responseObject = JSON.parse(this.response);
+                    alert(responseObject.Status);
+                }
+
             }
 
         };

@@ -121,9 +121,16 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
 
             } else {
 
-                alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+                if (this.readyState == 4) {
 
-                FlowControlGlobalsModule.lcBuyerInputProcessed = true;
+                    alert("Failure to place requestLc call :=> Status : " + this.status + " readyState : " + this.readyState);
+
+                    responseObject = JSON.parse(this.response);
+                    alert(responseObject.Status);
+
+                    FlowControlGlobalsModule.lcBuyerInputProcessed = true;
+                }
+
             }
 
         };

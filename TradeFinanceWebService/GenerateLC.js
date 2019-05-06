@@ -49,23 +49,128 @@ var lcFilesDestination = "./LCFiles/";
 
 /**
  * 
- * @param { any } clientRequestWithParamsMap: input Map consisting of LC Details("Trade_Id, Lc_Id")
+ * @param {any} dbConnection  : Connection to database
+ * @param {any} tradeAndLcTable_Name  : Name of Table ( Collection )
+ * @param {any} clientRequestWithParamsMap : Map of <K,V> Pairs ( Record ) used to generate LC
+ * @param {any} webClientRequest : Web Client Request API
+ * @param {any} statusToBeUpdated : Status of LC Request to be Updated
  * @param { any } http_response: Http Response to be built based on LC Generation and Upload to file Server
  *
 */
 
-exports.generateLCAndUploadItToFileServer = function ( dbConnection,
-                                            tradeAndLcTable_Name,
-                                            clientRequestWithParamsMap,
-                                            webClientRequest,
-                                            statusToBeUpdated,
-                                            http_response ) {
+exports.generateLCAndUploadItToFileServer = function (dbConnection,
+    tradeAndLcTable_Name,
+    clientRequestWithParamsMap,
+    webClientRequest,
+    statusToBeUpdated,
+    http_response) {
 
-    // ToDo : Generate LC based on Input Details
+    // Check the Current Status to be "LC_Requested" Before placing LC Generation Request
+
+    var query_Object = new Object();
+
+    var tradeId = clientRequestWithParamsMap.get("taId");
+    console.log("GenerateLC.generateLCAndUploadItToFileServer : Check the current Status to be " +
+        "LC_Requested before generating LC : ");
+
+    // Build Query Based on input <k,v> pairs
+
+    if (tradeId != null && tradeId != undefined) {
+
+        query_Object.Trade_Id = tradeId;
+    }
+
+    // Find Record & Check Current Status
+
+    console.log("GenerateLC.generateLCAndUploadItToFileServer : " + tradeAndLcTable_Name + ", Trade_Id : " + tradeId);
+
+    if (Object.keys(query_Object).length < 1) {
+
+        var failureMessage = "Wrong Query/missing input query data : Couldn't find Record => " + " Trade_Id : " + tradeId;
+        buildErrorResponse_ForRecordUpdation(failureMessage, "GenerateLC", http_response);
+
+        return;
+    }
+
+    // Query For the Existing Status and Validate the Appropriateness in Status Transition : Should be "LC_Requested"
+
+    console.log("GenerateLC.generateLCAndUploadItToFileServer => Checking the current status of Record for valid state Transition : ");
+
+    dbConnection.collection(tradeAndLcTable_Name).findOne(query_Object, function (err, result) {
+
+        if (err) {
+
+            console.error("GenerateLC.generateLCAndUploadItToFileServer : Error while checking the current status of Record");
+
+            var failureMessage = "GenerateLC.generateLCAndUploadItToFileServer : Error while checking the current status of Record";
+            HelperUtilsModule.logInternalServerError("generateLCAndUploadItToFileServer", failureMessage, http_response);
+
+            return;
+        }
+
+        var recordPresent = (result) ? "true" : "false";
+        if (recordPresent == "false") {
+
+            // Record Not Found : So Status Cann't be updated : Return Error
+
+            console.error("GenerateLC.generateLCAndUploadItToFileServer : Record in Query not found");
+
+            var failureMessage = "GenerateLC.generateLCAndUploadItToFileServer : Record in Query not found";
+            HelperUtilsModule.logBadHttpRequestError("generateLCAndUploadItToFileServer", failureMessage, http_response);
+
+            return;
+        }
+        else {
+
+            // Record Found : Check the validity of current Status : Should be "LC_Requested"
+
+            console.log("GenerateLC.generateLCAndUploadItToFileServer : " +
+                "Check the validity of current Status : Should be LC_Requested");
+
+            // Unexpected State Transition 
+
+            if (result.Current_Status != "LC_Requested") {
+
+                console.error("GenerateLC.generateLCAndUploadItToFileServer : Unexpected Current Status for State Transition => " + result.Current_Status);
+
+                var failureMessage = "GenerateLC.generateLCAndUploadItToFileServer : Unexpected Current Status for State Transition => " + result.Current_Status;
+                HelperUtilsModule.logBadHttpRequestError("generateLCAndUploadItToFileServer", failureMessage, http_response);
+
+                return;
+            }
+
+            // Expected State Transition : Update the status of Record & Generate LC
+
+            else {
+
+                generateLCAndUpload(dbConnection, tradeAndLcTable_Name, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated,
+                    http_response)
+            }
+
+        }
+
+    });
+
+}
+
+
+/**
+ * 
+ * @param {any} dbConnection  : Connection to database
+ * @param {any} tradeAndLcTable_Name  : Name of Table ( Collection )
+ * @param {any} clientRequestWithParamsMap : Map of <K,V> Pairs ( Record ) used to generate LC
+ * @param {any} webClientRequest : Web Client Request API
+ * @param {any} statusToBeUpdated : Status of LC Request to be Updated
+ * @param { any } http_response: Http Response to be built based on LC Generation and Upload to file Server
+ *
+*/
+
+function generateLCAndUpload( dbConnection, tradeAndLcTable_Name, clientRequestWithParamsMap, webClientRequest, statusToBeUpdated,
+    http_response) {
+
+    // Generate LC based on Input Details
 
     var fileName = "LoC-Shipment-" + clientRequestWithParamsMap.get("taId") + clientRequestWithParamsMap.get("lcId") + ".pdf";
-
-    //pdfDoc.save(fileName);
 
     var fileData = generateLCFileBasedOnSelectedInput(clientRequestWithParamsMap);
     var dstFile = lcFilesDestination + fileName;
@@ -88,11 +193,6 @@ exports.generateLCAndUploadItToFileServer = function ( dbConnection,
         }
 
         console.log("generateLCAndUploadItToFileServer => Successfully wrote the data to PDF File");
-
-        /*
-        var successMessage = "generateLCAndUploadItToFileServer : Successfully wrote the data to PDF File";
-        buildSuccessResponse_ForLCGeneration(successMessage, "generateLC", http_response);
-        */
 
         var tradeId = clientRequestWithParamsMap.get("taId");
         var lcId = clientRequestWithParamsMap.get("lcId");
@@ -238,27 +338,4 @@ function buildSuccessResponse_ForLCGeneration(successMessage, webClientRequest, 
     http_response.end(lcGenerationResponse);
 }
 
-/**
- * 
- * @param {any} clientRequest  : Web Client Request
- * @param {any} failureMessage  : Failure Message Error Content
- * @param {any} http_StatusCode : Http Status code based on type of Error
- * @param {any} http_Response : Http Response thats gets built
- * 
-*/
-
-/*/
-function buildErrorResponse_Generic(clientRequest, failureMessage, http_StatusCode, http_Response) {
-
-    // build Error Response and attach it to Http_Response
-
-    var responseObject = null;
-
-    responseObject = { Request: clientRequest, Status: failureMessage };
-    var builtResponse = JSON.stringify(responseObject);
-
-    http_Response.writeHead(http_StatusCode, { 'Content-Type': 'application/json' });
-    http_Response.end(builtResponse);
-}
-/*/
 

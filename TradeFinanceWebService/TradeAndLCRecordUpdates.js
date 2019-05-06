@@ -147,7 +147,8 @@ function prepareLcDocumentObject(recordObjectMap) {
  * 
  */
 
-exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, bLcRequest, http_response) {
+exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection,
+    bLcRequest, http_response) {
 
     // Check if all the required fields are present before adding the record
 
@@ -185,21 +186,104 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
 
     } else {
 
-        prepareLcDocumentObject(recordObjectMap);
+        // Check the Current Status to be "Trade_Approved" Before placing LC_Request
 
-        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
+        var query_Object = new Object();
 
-        // Remove spaces from lc_Object values before adding to MongoDB
+        var tradeId = recordObjectMap.get("Trade_Id");
+        console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Check the current Status to be " +
+            "Trade_Approved before placing LC request : ");
 
-        lc_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(lc_Object);
-        addRecordToTradeAndLcDatabase(dbConnection,
-            collectionName,
-            lc_Object,
-            "RequestLC",
-            http_response);
+        // Build Query Based on input <k,v> pairs
+
+        if (tradeId != null && tradeId != undefined) {
+
+            query_Object.Trade_Id = tradeId;
+        }
+
+        // Find Record & Check Current Status
+
+        console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : " + collectionName + ", Trade_Id : " + tradeId);
+
+        if (Object.keys(query_Object).length < 1) {
+
+            var failureMessage = "Wrong Query/missing input query data : Couldn't find Record => " + " Trade_Id : " + tradeId;
+            buildErrorResponse_ForRecordUpdation(failureMessage, "RequestLC", http_response);
+
+            return;
+        }
+
+        // Query For the Existing Status and Validate the Appropriateness in Status Transition : Should be "Trade_Approved"
+
+        console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase => Checking the current status of Record for valid state Transition : ");
+
+        dbConnection.collection(collectionName).findOne(query_Object, function (err, result) {
+
+            if (err) {
+
+                console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Error while checking the current status of Record");
+
+                var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Error while checking the current status of Record";
+                HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                return;
+            }
+
+            var recordPresent = (result) ? "true" : "false";
+            if (recordPresent == "false") {
+
+                // Record Not Found : So Status Cann't be updated : Return Error
+
+                console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Record in Query not found");
+
+                var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Record in Query not found";
+                HelperUtilsModule.logBadHttpRequestError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                return;
+            }
+            else {
+
+                // Record Found : Check the validity of current Status : Should be "Trade_Approved"
+
+                console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : " +
+                    "Check the validity of current Status : Should be Trade_Approved");
+
+                // Unexpected State Transition 
+
+                if (result.Current_Status != "Trade_Approved") {
+
+                    console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Unexpected Current Status for State Transition => " + result.Current_Status);
+
+                    var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Unexpected Current Status for State Transition => " + result.Current_Status;
+                    HelperUtilsModule.logBadHttpRequestError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                    return;
+                }
+
+                // Expected State Transition : Update the status of Record
+
+                else {
+
+                    prepareLcDocumentObject(recordObjectMap);
+
+                    console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding LC Record of Num Of Pairs => " + lc_Object.length);
+
+                    // Remove spaces from lc_Object values before adding to MongoDB
+
+                    lc_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(lc_Object);
+                    addRecordToTradeAndLcDatabase(dbConnection,
+                        collectionName,
+                        lc_Object,
+                        "RequestLC",
+                        http_response);
+                }
+
+            }
+
+        });
+
     }
 
-    return true;
 }
 
 
@@ -387,7 +471,7 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
     expectedPreviousStatusMap.set("Payment_Requested", "Shipment_Accepted");
     expectedPreviousStatusMap.set("Payment_Made", "Payment_Requested");
 
-    if (expectedPreviousStatusMap.get(statusToBeUpdated) == currentStatus) {
+    if (expectedPreviousStatusMap.get(statusToBeUpdated) == currentStatus || expectedPreviousStatusMap.get(statusToBeUpdated) == null) {
 
         return true;
     } 
@@ -407,8 +491,8 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
  *
  */
 
-function updateStatusOfRecordInTradeAndLcDatabase(  dbConnection, collectionName, query_Object, document_Object,
-                                                    statusToBeUpdated, webClientRequest, http_response ) {
+function updateStatusOfRecordInTradeAndLcDatabase(dbConnection, collectionName, query_Object, document_Object,
+    statusToBeUpdated, webClientRequest, http_response) {
 
     // Parameter List String Building
 
@@ -465,6 +549,8 @@ function updateStatusOfRecordInTradeAndLcDatabase(  dbConnection, collectionName
             console.log("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : " +
                 "Check the validity of current Status using ExpectedPreviousStatusMap");
 
+            // Unexpected State Transition 
+
             if (checkValidityOfShipmentStatusTransition(statusToBeUpdated, result.Current_Status) == false) {
 
                 console.error("TradeAndLCRecordUpdates.updateStatusOfRecordInTradeAndLcDatabase : Unexpected Current Status for State Transition");
@@ -474,9 +560,38 @@ function updateStatusOfRecordInTradeAndLcDatabase(  dbConnection, collectionName
 
                 return;
             }
+
+            // Expected State Transition : Update the status of Record
+
+            else {
+
+                updateStatusOfRecord(dbConnection, collectionName, query_Object, document_Object, webClientRequest, http_response);
+            }
+
         }
 
     });
+
+}
+
+
+/**
+    * 
+    * @param {any} dbConnection  : Connection to database 
+    * @param {any} collectionName  : Name of Table ( Collection )
+    * @param {any} query_Object : Query object to retrieve the corresponding Record ( Record, Row in Table )
+    * @param {any} document_Object : Document object that needs to be updated ( Record, Row in Table )
+    * @param {any} webClientRequest : Status Change Request Name
+    * @param {any} http_response : http Response to be built based on the result
+    *
+*/
+
+function updateStatusOfRecord(  dbConnection, collectionName, query_Object, document_Object,
+                                webClientRequest, http_response )
+{
+
+    var paramList = "<=> Param List <=> " + " Trade_Identifier :" + query_Object.Trade_Id + " Lc_Identifier :" + query_Object.Lc_Id +
+        ", UserName: " + query_Object.UserName + ", Seller: " + query_Object.Seller + ", BankName: " + query_Object.Bank;
 
     // Update Status of Record in DB
 
