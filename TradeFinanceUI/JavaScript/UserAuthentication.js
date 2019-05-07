@@ -137,12 +137,8 @@ var UserAuthenticationModule = (function () {
                     //Parse the JSON Response Object
 
                     responseObject = JSON.parse(this.responseText);
+                    alert(" Request Content: " + responseObject.Request + ", Status Content: " + responseObject.Status);
 
-                    if (bDebug == true) {
-
-                        alert(" Request Content: " + responseObject.Request);
-                        alert(" Status Content: " + responseObject.Status);
-                    }
                 } else {
 
                     if (bDebug == true) {
@@ -150,6 +146,20 @@ var UserAuthenticationModule = (function () {
                         alert("Received intermediate success (200) response for userRegistration call :=> Status : " + this.status + " readyState : " + this.readyState);
                     }
                 }
+
+            // Invalid Client Request ( Incorrect User Details Like missing uniqueness  )
+
+            } else if (this.status == 400) {
+
+                if (this.readyState == 4) {
+
+                    alert("Received failure response from Server for userRegistration call");
+                    responseObject = JSON.parse(this.responseText);
+
+                    alert(responseObject.Status);
+                }
+
+            // All Other Errors
 
             } else {
 

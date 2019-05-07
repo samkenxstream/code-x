@@ -98,13 +98,78 @@ function prepareUserRegistrationObject(recordObjectMap) {
  *
  */
 
+exports.addUserRegistrationRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
+
+    // Check the uniqueness of UserName before registering the User Details Record
+
+    // Check if the request has UserName
+
+    if (recordObjectMap.get("UserName") == null || recordObjectMap.get("UserName") == undefined ) {
+
+        console.log("addUserRegistrationRecordToDatabase : Missing UserName in User Details Records");
+        var failureMessage = "Failure: Blank UserName in input Request";
+
+        buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+        return false;
+    }
+
+    // DB Query
+
+    var query = { UserName: recordObjectMap.get("UserName") };
+    console.log("addUserRegistrationRecordToDatabase => collectionName :" + collectionName + ", UserName :" + query.UserName);
+
+    // Validate Uniqueness of UserName in User Details database
+
+    dbConnection.collection(collectionName).findOne(query, function (err, result) {
+
+        if (err) {
+
+            console.error("UserAuthentication.addUserRegistrationRecordToDatabase : Internal Server Error while querying DB for UserName");
+
+            var failureMessage = "UserAuthentication.addUserRegistrationRecordToDatabase : Internal Server Error while querying DB for UserName";
+            HelperUtilsModule.logInternalServerError("addUserRegistrationRecordToDatabase", failureMessage, http_Response);
+
+            return false;
+        }
+
+        var recordPresent = (result) ? "true" : "false";
+
+        // Check for the presence of User Record
+        // Register if not present. Return Error if UserName Already Exists
+
+        if (recordPresent == "false") {
+
+            registerUserInUserDetailsDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response);
+
+        } else {
+
+            console.log("addUserRegistrationRecordToDatabase : UserName was already registered : " + query.UserName);
+            var failureMessage = "addUserRegistrationRecordToDatabase : UserName was already registered : " + query.UserName;
+
+            buildErrorResponse_ForUserAuthentication(failureMessage, http_Response);
+        }
+
+    });
+
+}
+
+/**
+    * 
+    * @param {any} dbConnection  : Connection to database
+    * @param {any} collectionName  : Name of Table ( Collection )
+    * @param {any} recordObjectMap : Map of <K,V> Pairs ( Record ), to be added to Shipment Database : Trade And LC Table
+    * @param {any} requiredDetailsCollection : required keys for record addition ( User Registration Record )
+    * @param {any} http_Response : Http Response thats gets built
+    *
+    */
+
 // ToDo : Store the Hash of the Password instead of PlainText 
 
-exports.addUserRegistrationRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
+ function registerUserInUserDetailsDatabase(dbConnection, collectionName, recordObjectMap, requiredDetailsCollection, http_Response) {
 
     var userRegistrationResponseObject = null;
 
-    console.log("addUserRegistrationRecordToDatabase : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id"));
+     console.log("registerUserInUserDetailsDatabase : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(User_Id) : " + recordObjectMap.get("User_Id"));
 
     // Check if all the required fields are present before adding the record
 
@@ -114,7 +179,7 @@ exports.addUserRegistrationRecordToDatabase = function (dbConnection, collection
 
         if (recordObjectMap.get(currentKey) == null || recordObjectMap.get(currentKey) == undefined) {
 
-            console.error("addUserRegistrationRecordToDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
+            console.error("registerUserInUserDetailsDatabase : Value corresponding to required Key doesn't exist => Required Key : " + currentKey);
 
             var failureMessage = "Failure: Required Key doesn't exist => " + currentKey;
             userRegistrationResponseObject = { Request: "UserRegistration", Status: failureMessage };
@@ -129,17 +194,17 @@ exports.addUserRegistrationRecordToDatabase = function (dbConnection, collection
 
     // Prepare "User Registration" Object and add them to UserDetails Database
 
-    console.log("addUserRegistrationRecordToDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.length);
+    console.log("registerUserInUserDetailsDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.size);
     var currentDocument_Object = prepareUserRegistrationObject(recordObjectMap);
 
-    console.log("addUserRegistrationRecordToDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + currentDocument_Object.length);
+     console.log("registerUserInUserDetailsDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + Object.keys(currentDocument_Object).length);
 
     // Check the userData_Object after value assignment
 
     if (bDebug == true) {
 
-        console.log("userData_Object values after converting from Map => ");
-        console.log("currentDocument_Object.UserType => " + currentDocument_Object.UserType);
+        console.log("registerUserInUserDetailsDatabase : userData_Object values after converting from Map => ");
+        console.log("registerUserInUserDetailsDatabase.currentDocument_Object.UserType => " + currentDocument_Object.UserType);
     }
 
     // Remove URL Spaces before adding the Record to User Details Database
@@ -353,13 +418,7 @@ function addRecordToUserDetailsDatabase_IfNotExists(dbConnection, collectionName
         if (recordPresent == "false") {
 
             console.log("addRecordToUserDetailsDatabase_IfNotExists : Record Not Found, Adding New Record => " + " UserName : " + document_Object.UserName);
-            mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object);
-
-            userRegistrationResponseObject = { Request: "UserRegistration", Status: "Registration Successful" };
-            var userRegistrationResponse = JSON.stringify(userRegistrationResponseObject);
-
-            http_Response.writeHead(200, { 'Content-Type': 'application/json' });
-            http_Response.end(userRegistrationResponse);
+            mongoDbCrudModule.directAdditionOfRecordToDatabase(dbConnection, collectionName, document_Object, "UserRegistration", http_Response);
 
         } else {
 

@@ -48,7 +48,7 @@ exports.directAdditionOfRecordToDatabase = function (dbConnection, collectionNam
 
         console.log("MongoDbCRUD.directAdditionOfRecordToDatabase : Successfully added the record to the Collection : " + collectionName);
 
-        var successMessage = "MongoDbCRUD.directAdditionOfRecordToDatabase : Successfully added the record to the Collection : " + collectionName;
+        var successMessage = "Successfully added the record to the Collection : " + collectionName;
         HelperUtilsModule.buildSuccessResponse_Generic(successMessage, clientRequest, http_response);
 
         console.log(result);
