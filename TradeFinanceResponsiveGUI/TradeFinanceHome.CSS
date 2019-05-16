@@ -1,0 +1,735 @@
+﻿
+/*************************************************************************************************************************************
+*************************************************************************************************************************************
+    
+    Home Page
+
+*************************************************************************************************************************************
+*************************************************************************************************************************************/
+
+.header {
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 35px;
+    background-color: #93827F;
+    height: 20%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 5%;
+    padding-top: 5%;
+    border: 2px solid;
+}
+
+.Application-Info {
+
+    color: #F8C471;
+    background-color: #6A3C47;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 80px;
+    padding-right: 40px;
+    font-family: Times New Roman;
+    font-size: 30px;
+    border: 2px solid;
+
+}
+
+.Hyper-Ledger-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    /*background-image: "GemsAndDiamonds.jpg";*/
+    border: 2px solid;
+    float: left;
+}
+
+.Smart-Contract-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    border: 2px solid;
+    float: left;
+}
+
+.Project-Theme-Container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    border: 2px solid;
+    float: left;
+}
+
+.header a.Current {
+    
+    font-size : 45px;
+}
+
+.Header-Home {
+
+    float: left;
+}
+
+.NavigationBar {
+
+    float : right;
+}
+
+.Login_NavigationBar {
+
+    float: left;
+}
+
+.Content_NavigationBar {
+
+    float: left;
+}
+
+.Login {
+    padding-right: 20px;
+}
+
+.SignUp {
+
+    padding-right: 20px;
+}
+
+.Buyer {
+    
+    padding-right : 20px;
+}
+
+.Buyer-Bank {
+    
+    padding-right : 20px;
+}
+
+.LoC-Status {
+    
+    padding-right : 20px;
+}
+
+.Seller {
+    
+    padding-right : 20px;
+}
+
+.Contact-Info {
+
+    padding-right: 20px;
+}
+
+.LeftBrowserBox {
+
+    color : #110604;
+    background-color : #7A5A64;
+    float : left;
+    padding-bottom : 100%;
+
+    border : 2px solid;
+}
+
+.NavigationBar1 {
+
+    float: left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
+.ContentBrowser {
+
+    float : left;
+    padding-left : 2%;
+}
+
+.logout_button {
+    
+    font-family: Times New Roman;
+    color: white;
+    background-color: #513C38;
+    font-size: 20px;
+    font-weight: bold;
+
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    
+    height: 55px;
+    width: 100px;
+    border: 1px solid thick brown;
+}
+
+/*************************************************************************************************************************************
+*************************************************************************************************************************************
+    
+    Login & Signup Containers
+
+*************************************************************************************************************************************
+*************************************************************************************************************************************/
+
+.dropdown {
+    position: relative;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Extra styles for the cancel button */
+
+.SignUp-Label {
+    color: #4F3934;
+    font-family: 'Times New Roman';
+}
+
+/* Extra styles for the Signup & Cancel Buttons */
+
+.Singup-Controls-Container {
+    padding-bottom: 20px;
+}
+
+.cancelbtn {
+    width: 150px;
+    float: left;
+    padding: 10px 18px;
+    background-color: #f44336;
+    border: groove 2px;
+}
+
+.signupbtn {
+    width: 150px;
+    float: left;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #50342E;
+    border: groove 2px;
+}
+
+.buffer-clearance {
+    float: left;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.bottom-buffer-clearance {
+    clear: left;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.cancelbtn_loginpage {
+    float: left;
+    width: 150px;
+    padding: 10px 18px;
+    background-color: #f44336;
+    border: groove 2px;
+}
+
+.remember-password-checkbox {
+    float: left;
+}
+
+.remember-password-label {
+    float: left;
+}
+
+/* Center the image and position the close button */
+
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+    position: relative;
+}
+
+img.avatar {
+    width: 15%;
+    border-radius: 50%;
+}
+
+.input-details-container {
+    padding: 16px;
+}
+
+span.psw {
+    float: right;
+    padding-top: 16px;
+}
+
+
+/* The Close Button (x) */
+.close {
+    position: absolute;
+    right: 25px;
+    top: 0;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: red;
+    cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+
+
+/* Contacts Info Page */
+
+.TeamMembers-Heading {
+
+    color : #30112E;
+    background-color : #76382B;
+    padding-top : 10px;
+}
+
+.Team-Info {
+
+    color : #594146;
+    background-color : #A48F8A;
+    padding-top : 10px;
+}
+
+
+/* Buyer */
+
+.Place-Shipment-Order {
+
+    color : #30112E;
+    background-color : #6A3C47;
+    padding-top : 10px;
+    padding-bottom : 10px;
+
+    border : 2px solid;
+}
+
+.Shipment-Label-Container {
+
+    color : #110604;
+    float : left;
+}
+
+.Shipment-Input-Container {
+
+    float : left;
+}
+
+.Shipment-Input-Details-Label-Container {
+
+    float : left;
+    padding-top : 290px;
+}
+
+.Shipment-Input-Details-Input-Container {
+
+    float : left;
+    padding-top : 295px;
+}
+
+.Shipment-Container-buffer {
+
+    float : left;
+}
+
+.Shipment-Submit-Input {
+
+    clear : left;
+}
+
+.Retrieve-LC-Details {
+
+    clear : left;
+}
+
+.Shipment-Submit-Input button.Shipment-Order-Submit-button{
+
+    clear : left;
+
+    font-family : Times New Roman;
+    color : #110604;
+    font-size : 20px;
+
+    padding-bottom:5px;
+    padding-top:5px;
+    padding-left:20px;
+    padding-right:20px;
+
+    border : 1px solid thick brown;
+}
+
+
+/* Letter of Credit Status Info Page */
+
+.LetterOfCredit-Status {
+
+    color : #30112E;
+    background-color : #76382B;
+    padding-top : 10px;
+}
+
+.LoC-Status-Info {
+
+    color : #594146;
+    background-color : #A48F8A;
+    padding-top : 10px;
+}
+
+.Loc-Details-Label-Container {
+
+    color : #110604;
+    float : left;
+}
+
+.Loc-Details-Status-Container {
+
+    float : left;
+}
+
+/* Shipment Status Info Page */
+
+.Shipment-Status {
+    color: #30112E;
+    background-color: #76382B;
+    padding-top: 10px;
+}
+
+.Shipment-Details1 {
+    color: #594146;
+    background-color: #A48F8A;
+    padding-top: 10px;
+}
+
+.Shipment-Details-Label-Container {
+    color: #110604;
+    float: left;
+}
+
+.Shipment-Details-Status-Container {
+    color: #594146;
+    float: left;
+}
+
+.Retrieve-TA-Details {
+    clear: left;
+}
+
+/* Buyer Bank Page : Show Shipment Order Details & Generate Letter of Credit */
+
+
+.Current-Shipment-Order-Details {
+    padding-top: 40px;
+}
+
+.Shipment-Order-Details-Header {
+
+    color : #30112E;
+    background-color : #6A3C47;
+    padding-top : 10px;
+    padding-bottom : 10px;
+
+    border : 2px solid;
+}
+
+.Shipment-Details-TableRow-Header {
+
+    color : #422319;
+    background-color : #D3A77E;
+    padding-top : 10px;
+    padding-bottom : 10px;
+    padding-left : 10px;
+    padding-right : 10px;
+
+}
+
+.Shipment-Details-TableHeader {
+
+    padding-top : 5px;
+    padding-bottom : 5px;
+    padding-left : 16px;
+    padding-right : 16px;
+
+}
+
+.Shipment-Details-TableRow-Content {
+
+    color : #422319;
+    background-color : #E7D8D9;
+    padding-top : 10px;
+    padding-bottom : 10px;
+    padding-left : 10px;
+    padding-right : 10px;
+
+}
+
+.Shipment-Details-Content {
+
+    padding-top : 5px;
+    padding-bottom : 5px;
+    padding-left : 16px;
+    padding-right : 16px;
+
+}
+
+.Generate-LoC-Button{
+
+    clear : left;
+
+    font-family : Times New Roman;
+    color : #110604;
+    font-size : 20px;
+
+    padding-bottom:5px;
+    padding-top:5px;
+    padding-left:20px;
+    padding-right:20px;
+
+    border : 1px solid thick brown;
+}
+
+.Shipment-Details-Content-Checkbox {
+
+    padding-top : 2px;
+    padding-bottom : 2px;
+    padding-left : 2px;
+    padding-right : 2px;
+
+    width : 15px;
+    height : 15px;
+
+}
+
+
+/* Seller Page - Monitor Trade, LC & ShipGoods */
+
+.Goods-Status-Details-Header {
+
+    color: #30112E;
+    background-color: #6A3C47;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 2px solid;
+}
+
+.RightBrowserBox {
+    float: left;
+    padding-left: 2%;
+}
+
+.Ship-Goods-And-Request-Payment {
+    color: #30112E;
+    background-color: #A48F8A;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 2px solid;
+}
+
+.NavigationBar_Vertical {
+    float: left;
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    padding-top: 50px;
+}
+
+.Ship-Goods-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Request-Payment-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+.Accept-Trade-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+.Accept-LC-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+.Retrieve-Shipments {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Retrieve-LC-Requests {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+/* Buyer Bank */
+
+
+.Retrieve-Shipment-Details {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Generate-LC-Button {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.File-Input-For-Lc-Upload {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 18px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 20px;
+    border: 1px solid thick brown;
+    background-color: saddlebrown;
+}
+
+.Upload-LC-Files-Button {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Upload-LC-Files-Details-Container {
+    clear: left;
+    padding-bottom: 20px;
+    padding-top: 45px;
+}
+
+.Make-Payment-To-Seller {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+/* Shipment Status */
+
+.Retrieve-TA-Details-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+.Accept-Shipment-Class {
+    clear: left;
+    font-family: Times New Roman;
+    color: #110604;
+    font-size: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid thick brown;
+}
+
+
+
+
+
+
+
+
