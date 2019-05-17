@@ -7,97 +7,6 @@
 *************************************************************************************************************************************
 *************************************************************************************************************************************/
 
-.header {
-    font-family: Times New Roman;
-    color: #110604;
-    font-size: 35px;
-    background-color: #93827F;
-    height: 20%;
-    padding-left: 5%;
-    padding-right: 5%;
-    padding-bottom: 5%;
-    padding-top: 5%;
-    border: 2px solid;
-}
-
-.Application-Info {
-
-    color: #F8C471;
-    background-color: #6A3C47;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 80px;
-    padding-right: 40px;
-    font-family: Times New Roman;
-    font-size: 30px;
-    border: 2px solid;
-
-}
-
-.Hyper-Ledger-Container {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    /*background-image: "GemsAndDiamonds.jpg";*/
-    border: 2px solid;
-    float: left;
-}
-
-.Smart-Contract-Container {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    
-    border: 2px solid;
-    float: left;
-}
-
-.Project-Theme-Container {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    
-    border: 2px solid;
-    float: left;
-}
-
-.header a.Current {
-    
-    font-size : 45px;
-}
-
-.Header-Home {
-
-    float: left;
-}
-
-.NavigationBar {
-
-    float : right;
-}
-
-.Login_NavigationBar {
-
-    float: left;
-}
-
-.Content_NavigationBar {
-
-    float: left;
-}
-
-.Login {
-    padding-right: 20px;
-}
-
-.SignUp {
-
-    padding-right: 20px;
-}
-
 .Buyer {
     
     padding-right : 20px;
@@ -194,7 +103,7 @@
 
 /* Extra styles for the Signup & Cancel Buttons */
 
-.Singup-Controls-Container {
+.Signup-Controls-Container {
     padding-bottom: 20px;
 }
 
