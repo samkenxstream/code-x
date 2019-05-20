@@ -66,14 +66,15 @@
     font-size: 20px;
     font-weight: bold;
 
-    padding-bottom: 5px;
-    padding-top: 5px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    padding-left: 1px;
+    padding-right: 1px;
     
     height: 55px;
     width: 100px;
     border: 1px solid thick brown;
+    border-radius: 20px;
 }
 
 /*************************************************************************************************************************************
