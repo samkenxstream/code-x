@@ -1,0 +1,264 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>TradeFinance Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            background-color: #B9B6B5;
+        }
+    </style>
+
+    <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+
+</head>
+
+
+<!--Buyer Page : Accept Shipment Delivery : Navigation Bar + Entire Content-->
+
+<body>
+
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <!--Navigation Bar Header-->
+
+    <div class="container-fluid">
+
+        <nav class="navbar navbar-inverse">
+
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+
+                    <a id="TradeFinance-HomePage" class="navbar-brand" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li>
+
+                        <!--Buyer : Drop down menu from Navigation-->
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="buyer-dropdown-button" data-toggle="dropdown" href="./TFAcceptShipment.html">Buyer</button>
+                            <button type="button" class="caret" id="buyer-dropdown-caret" data-toggle="dropdown" href="./TFAcceptShipment.html"></button>
+
+                            <ul class="dropdown-menu">
+
+                                <li> <a href="./TradeBuyer.html">RequestTrade</a> </li>
+                                <li> <a href="./TFBuyer.html">RequestLC</a> </li>
+                                <li> <a href="./TFLoCStatus.html">LC-Status</a> </li>
+                                <li> <a href="./TFShipmentStatus.html">ShipmentStatus</a> </li>
+                                <li> <a href="./TFAcceptShipment.html">AcceptShipment</a> </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!--Buyer : Contact-US-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="Contact-US-Page" href="./TFContactInfo.html">Contact-US</button>
+
+                        </div>
+
+                    </li>
+
+                    <!--Buyer : Logout Button-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-danger" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+                        </div>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+    <!--Buyer Page : Outer Layout : Accept Shipment Delivery-->
+
+    <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
+
+        <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
+
+            <!--Buyer Page : Accept Shipment Delivery-->
+
+            <form class="form-horizontal" id="Accept-Shipment-Delivery-Form">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="TA-Id-Input" required>
+
+                    </div>
+
+                </div>
+
+                <div class="Accept-shipment-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+
+                    <button type="submit" id="Accept-Shipment-Button" class="btn btn-primary">Accept Shipment Delivery</button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!--Buyer Page : Accept Shipment Delivery : Business Logic-->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
+    <script src="./JavaScripts/RetrieveUserDetails.js"></script>
+    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <script>
+
+        var bDebug = false;
+        var setAuthRefreshInterval = null;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
+        var currentUser_UserName = null;
+
+        $("#Accept-Shipment-Button").click(function () {
+
+            /****************************************************************************************
+                receiveShipment : Change the shipment status once the goods have been received
+            *****************************************************************************************/
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("TA-Id-Input").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+
+                // Include the current User's UserName in query
+                // Does the "Inclusiveness Check" ( Current User <=> Trade_Id ) automatically
+
+                currentUser_UserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
+                queryMap.set("UserName", currentUser_UserName);
+
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" Trade Agreement Id values are missing while Accepting Shipment : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "AcceptShipment");
+
+                // Status Change in HyperLedger
+
+                /*
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "receiveShipment");
+                */
+
+                document.getElementById("TA-Id-Input").value = null;
+            }
+
+        });
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve User Context on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+

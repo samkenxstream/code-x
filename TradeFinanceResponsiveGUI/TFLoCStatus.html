@@ -1,0 +1,411 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>TradeFinance Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            background-color: #B9B6B5;
+        }
+    </style>
+
+    <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+
+</head>
+
+
+<!--Buyer Page : LC Status : Navigation Bar + Entire Content-->
+
+<body>
+
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <div class="container-fluid">
+
+        <!--Navigation Bar Header-->
+
+        <nav class="navbar navbar-inverse">
+
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+
+                    <a id="TradeFinance-HomePage" class="navbar-brand" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li>
+
+                        <!--Buyer : Drop down menu from Navigation-->
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="buyer-dropdown-button" data-toggle="dropdown" href="./TFLocStatus.html">Buyer</button>
+                            <button type="button" class="caret" id="buyer-dropdown-caret" data-toggle="dropdown" href="./TFLocStatus.html"></button>
+
+                            <ul class="dropdown-menu">
+
+                                <li> <a href="./TradeBuyer.html">RequestTrade</a> </li>
+                                <li> <a href="./TFBuyer.html">RequestLC</a> </li>
+                                <li> <a href="./TFLoCStatus.html">LC-Status</a> </li>
+                                <li> <a href="./TFShipmentStatus.html">ShipmentStatus</a> </li>
+                                <li> <a href="./TFAcceptShipment.html">AcceptShipment</a> </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!--Buyer : Contact-US-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="Contact-US-Page" href="./TFContactInfo.html">Contact-US</button>
+
+                        </div>
+
+                    </li>
+
+                    <!--Buyer : Logout Button-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-danger" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+                        </div>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+    <!--Buyer Page : Outer Layout : LC Status + Extra Information-->
+
+    <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
+
+        <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
+
+            <!--Buyer Page : LC Id Input Details -->
+
+            <form class="form-horizontal" id="Retrieve-LC-Details-Form">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcId">LC Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" placeholder="Enter LC Id" id="LC-Id-Input" required>
+
+                    </div>
+
+                </div>
+
+                <div class="Retrieve-LC-Status-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+
+                    <button type="submit" id="Retrieve-LC-Details-Button" class="btn btn-primary">Retrieve LC Details</button>
+
+                </div>
+
+            </form>
+
+            <!--Buyer Page : LC Status Details Container -->
+
+            <form class="form-horizontal" id="Show-LC-Details-Form" style="clear:left; padding-top:2%">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Trade_Id_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcId">LC Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Loc_Id_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="buyer">Buyer</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Buyer_Name_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="seller">Seller</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Seller_Name_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="bank">Bank</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Buyer_Bank_Name_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipment">Shipment</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Shipment_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipmentCount">Shipment Count</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Shipment_Count_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcAmount">LC Amount</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Loc_Amount_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="expiryDate">Expiry Date</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Expiry_Date_Value" required>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcStatus">LC Status</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" disabled id="Loc_Details_Status_Value" required>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!--Buyer Page : LC Status Details Retrieval : Business Logic-->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusRetrieval.js"></script>
+    <script src="./JavaScripts/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScripts/RetrieveUserDetails.js"></script>
+    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <script>
+
+        var bDebug = false;
+        var currentUserName = null;
+        var currentUserType = null;
+        var setAuthRefreshInterval = null;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
+
+        $("#Retrieve-LC-Details-Button").click(function () {
+
+
+            /****************************************************************************************
+                RetrieveLcDetails : Retrieve the LC details from mongo db
+            *****************************************************************************************/
+
+            var lcId_value = document.getElementById("LC-Id-Input").value;
+
+            if (lcId_value == null) {
+
+                alert("lcId value must be entered to retrieve the LC Details");
+            }
+
+            // Retrieve the Lc Details from mongoDb
+
+            var Client_Request = "RetrieveLCDetails";
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
+            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Buyer : " + currentUserName);
+                alert("current UserType set during Page Load User Context : " + currentUserType);
+            }
+
+            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
+
+                TradeAndLC_StatusRetrievalModule.retrieveLCDetails_MongoDB(lcId_value, Client_Request, currentUserName, currentUserType);
+
+            } else {
+
+                TradeAndLC_StatusRetrievalModule.retrieveLCDetails_MongoDB(lcId_value, Client_Request, null, null);
+            }
+
+
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+            *****************************************************************************************/
+
+            /*
+            var API_Name = "getLC";
+            var lcDetailsRequestObject = { lcId: lcId_value };
+
+            LCStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(lcDetailsRequestObject, API_Name);
+            */
+
+            document.getElementById("LC-Id-Input").value = null;
+
+        });
+
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve User Context on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
+

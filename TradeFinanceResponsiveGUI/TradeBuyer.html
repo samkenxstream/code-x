@@ -35,11 +35,11 @@
 </head>
 
 
+<!--Buyer Page : Navigation Bar + Entire Content-->
+
 <body>
 
     <script src="./JavaScripts/UserAuthentication.js"></script>
-
-    <!--Buyer Page : Navigation Bar + Entire Content-->
 
     <div class="container-fluid">
 
@@ -132,7 +132,7 @@
 
                         <select class="form-control" id="Buyer-Input" required>
 
-                            <option value="Select">Select Buyer Input</option>
+                            <option value="Select">Select Buyer</option>
 
                         </select>
 
@@ -144,7 +144,7 @@
 
                         <select class="form-control" onchange='processSellerInputChange(event);' id="Seller-Input" required>
 
-                            <option value="Select">Select Seller Input</option>
+                            <option value="Select">Select Seller</option>
 
                         </select>
 
@@ -156,7 +156,7 @@
 
                         <select class="form-control" id="Shipment-Input" required>
 
-                            <option value="Select">Select Shipment Input</option>
+                            <option value="Select">Select Shipment</option>
 
                         </select>
 
@@ -187,6 +187,9 @@
             </div>
 
         </div>
+
+
+        <!--Buyer Page : Request Trade : Client Side Business Logic-->
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
         <script src="./JavaScripts/RetrieveUserDetails.js"></script>
