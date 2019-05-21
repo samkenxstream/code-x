@@ -34,7 +34,7 @@
 </head>
 
 
-<!--Buyer Page : Accept Shipment Delivery : Navigation Bar + Entire Content-->
+<!--Seller Page : Accept Generated LC : Navigation Bar + Entire Content-->
 
 <body>
 
@@ -43,6 +43,8 @@
     <!--Navigation Bar Header-->
 
     <div class="container-fluid">
+
+        <!--Navigation Bar Header-->
 
         <nav class="navbar navbar-inverse">
 
@@ -58,19 +60,20 @@
 
                     <li>
 
-                        <!--Buyer : Drop down menu from Navigation-->
+                        <!--Seller : Drop down menu from Navigation-->
 
                         <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
 
-                            <button type="button" class="btn btn-info" id="buyer-dropdown-button" data-toggle="dropdown" href="./TFAcceptShipment.html">Buyer&nbsp;&nbsp;<span class="caret" /></button>
+                            <button type="button" class="btn btn-info" id="Seller-dropdown-button" data-toggle="dropdown" href="./TFSellerLCAccept.html">Seller&nbsp;&nbsp;<span class="caret" /></button>
 
                             <ul class="dropdown-menu">
 
-                                <li> <a href="./TradeBuyer.html">RequestTrade</a> </li>
-                                <li> <a href="./TFBuyer.html">RequestLC</a> </li>
-                                <li> <a href="./TFLoCStatus.html">LC-Status</a> </li>
-                                <li> <a href="./TFShipmentStatus.html">ShipmentStatus</a> </li>
-                                <li> <a href="./TFAcceptShipment.html">AcceptShipment</a> </li>
+                                <li> <a href="./TradeSeller.html">ShowTrade</a> </li>
+                                <li> <a href="./TradeAccept.html">ApproveTrade</a> </li>
+                                <li> <a href="./TFSeller.html">ShowLC</a> </li>
+                                <li> <a href="./TFSellerLCAccept.html">ApproveLC</a> </li>
+                                <li> <a href="./TFShipGoods.html">ShipGoods</a> </li>
+                                <li> <a href="./TFRequestPayment.html">ReqPayment</a> </li>
 
                             </ul>
 
@@ -78,7 +81,7 @@
 
                     </li>
 
-                    <!--Buyer : Contact-US-->
+                    <!--Seller : Contact-US-->
 
                     <li>
 
@@ -90,7 +93,7 @@
 
                     </li>
 
-                    <!--Buyer : Logout Button-->
+                    <!--Seller : Logout Button-->
 
                     <li>
 
@@ -111,31 +114,31 @@
     </div>
 
 
-    <!--Buyer Page : Outer Layout : Accept Shipment Delivery-->
+    <!--Seller Page : Outer Layout : Accept Input LC Request + Extra Information-->
 
     <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
 
         <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
 
-            <!--Buyer Page : Accept Shipment Delivery-->
+            <!--Seller Page : Accept Generated LC-->
 
-            <form class="form-horizontal" id="Accept-Shipment-Delivery-Form">
+            <form class="form-horizontal" id="Accept-Generated-LC-Form">
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+                    <label class="control-label col-sm-2" for="lcId">LC Id</label>
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="TA-Id-Input" required>
+                        <input type="text" class="form-control" placeholder="Enter LC Id" id="LC-Id-Input" required>
 
                     </div>
 
                 </div>
 
-                <div class="Accept-shipment-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+                <div class="Accept-LC-Request-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
 
-                    <button type="submit" id="Accept-Shipment-Button" class="btn btn-primary">Accept Shipment Delivery</button>
+                    <button type="submit" id="Accept-LC-Button" class="btn btn-primary">Accept LC Request</button>
 
                 </div>
 
@@ -146,7 +149,7 @@
     </div>
 
 
-    <!--Buyer Page : Accept Shipment Delivery : Business Logic-->
+    <!--Seller Page : Accept Generated LC : Business Logic-->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
@@ -157,57 +160,61 @@
     <script>
 
         var bDebug = false;
-        var setAuthRefreshInterval = null;
         var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentUserName = null;
+        var setAuthRefreshInterval = null;
 
-        var currentUser_UserName = null;
+        /****************************************************************************************
+            Accept LC : Change the status of LC in mongo db by changing it to "LC Accepted"
+            Accept LC : Place HyperLedger API Call
+        *****************************************************************************************/
 
-        $("#Accept-Shipment-Button").click(function () {
+        $("#Accept-LC-Button").click(function () {
 
             /****************************************************************************************
-                receiveShipment : Change the shipment status once the goods have been received
+                acceptLC : Change the LC Status once it needs to be approved by Seller
             *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("TA-Id-Input").value;
+            var lcId_value = document.getElementById("LC-Id-Input").value;
 
             // Mongo DB call for Status Change
 
             var queryMap = new Map();
             var queryEmpty = true;
 
-            if (taId_value != null && taId_value != undefined) {
+            if (lcId_value != null && lcId_value != undefined) {
 
-                queryMap.set("Trade_Id", taId_value);
+                queryMap.set("Lc_Id", lcId_value);
 
-                // Include the current User's UserName in query
-                // Does the "Inclusiveness Check" ( Current User <=> Trade_Id ) automatically
+                // Include the current User's Name in query as Seller
+                // Does the "Inclusiveness Check" ( Current Seller <=> Trade_Id ) automatically
 
-                currentUser_UserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
-                queryMap.set("UserName", currentUser_UserName);
+                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+                queryMap.set("Seller", currentUserName);
 
                 queryEmpty = false;
             }
 
             if (queryEmpty == true) {
 
-                alert(" Trade Agreement Id values are missing while Accepting Shipment : ");
+                alert(" LC_Id values are missing while Accepting LC By Seller : ");
 
             } else {
 
                 // Status Change in MongoDB
 
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "AcceptShipment");
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveLCRequest");
 
                 // Status Change in HyperLedger
 
                 /*
                 var webServerPrefix = "/tfbc/";
-                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "receiveShipment");
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptLC");
                 */
 
-                document.getElementById("TA-Id-Input").value = null;
+                document.getElementById("LC-Id-Input").value = null;
             }
 
         });
@@ -238,7 +245,6 @@
             // Auto refresh page based on Periodic Authentication
 
             setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
-
         }
 
         /***************************************************************************************************************************
