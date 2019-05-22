@@ -1,0 +1,446 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>TradeFinance Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            background-color: #B9B6B5;
+        }
+    </style>
+
+    <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+</head>
+
+
+<!--Bank Page : View LC Requests From Buyers and Generate LC : Navigation Bar + Entire Content-->
+
+<body>
+
+
+    <!--Navigation Bar Header-->
+
+    <div class="container-fluid">
+
+        <nav class="navbar navbar-inverse">
+
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+
+                    <a id="TradeFinance-HomePage" class="navbar-brand" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li>
+
+                        <!--Bank : Drop down menu from Navigation-->
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="Seller-dropdown-button" data-toggle="dropdown" href="./TFBuyerBank.html">Bank&nbsp;&nbsp;<span class="caret" /></button>
+
+                            <ul class="dropdown-menu">
+
+                                <li> <a href="./TFBuyerBank.html">LC Requests</a> </li>
+                                <li> <a href="./TFBuyerBank-MakePayment.html">Make Payment</a> </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!--Bank : Contact-US-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="Contact-US-Page" href="./TFContactInfo.html">Contact-US</button>
+
+                        </div>
+
+                    </li>
+
+                    <!--Bank : Logout Button-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-danger" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+                        </div>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+    <!--Bank Page : Outer Layout : Show LC Requests + Extra Information-->
+
+    <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
+
+        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+
+            <!--Bank Page : Select LC Status : User Input-->
+
+            <form class="form-horizontal" id="Select-LC-Status-Form">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcStatus">LC Status</label>
+
+                    <div class="col-sm-10">
+
+                        <select class="form-control" id="Select-LC-Status" required>
+
+                            <option value="Select">Select LC Status</option>
+                            <option value="LCRequested">LC_Requested</option>
+                            <option value="LCGenerated">LC_Generated</option>
+                            <option value="LCApproved">LC_Approved</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="Retrieve-LC-Details-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+
+                    <button type="submit" id="Retrieve-Shipment-Details-Button" class="btn btn-primary">Retrieve LC Requests</button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!--Bank Page : LC Details display in Tabular format-->
+
+        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+
+            <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
+
+                <tr id="Shipment_Details_TableRow_Header" class="Shipment-Details-TableRow-Header">
+
+                    <th class="Shipment-Details-TableHeader">taId</th>
+                    <th class="Shipment-Details-TableHeader">lcId</th>
+                    <th class="Shipment-Details-TableHeader">Buyer</th>
+                    <th class="Shipment-Details-TableHeader">Bank</th>
+                    <th class="Shipment-Details-TableHeader">Seller</th>
+                    <th class="Shipment-Details-TableHeader">Shipment</th>
+                    <th class="Shipment-Details-TableHeader">ShipmentCount</th>
+                    <th class="Shipment-Details-TableHeader">ExpiryDate</th>
+                    <th class="Shipment-Details-TableHeader">Amount</th>
+                    <th class="Shipment-Details-TableHeader">Select</th>
+
+                </tr>
+
+            </table>
+
+            <div class="Generate-LC-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:6%; padding-bottom:6%">
+
+                <button type="submit" id="BuyerBank-Generate-LC-Button" class="btn btn-primary">Generate Letter Of Credit</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--Bank Page : Retrieve & Display LC Details: business logic-->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScripts/HTMLElements-HelperUtil.js"></script>
+    <script src="./JavaScripts/GenerateLCDetails.js"></script>
+    <script src="./JavaScripts/RetrieveAndFillLCDetails-Bank.js"></script>
+    <script src="./JavaScripts/HyperLedgerAPIWrapper.js"></script>
+    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScripts/RetrieveUserDetails.js"></script>
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <script>
+
+        var bDebug = false;
+        var currentBankName = null;
+        var currentUserName = null;
+        var setAuthRefreshInterval = null;
+
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+
+
+        /****************************************************************************************
+             RetrieveLcDetails : Retrieve the LC details of current buyer from mongo db
+        *****************************************************************************************/
+
+        $("#Retrieve-Shipment-Details-Button").click(function () {
+
+            // Retrieve the Lc Details from mongoDb
+
+            var Client_Request = "RetrieveAllRecords";
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
+
+            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Buyer_Bank_Shipment_Order_Details");
+
+            if (bDebug == true) {
+
+                alert("Existing Rows are removed from the Table");
+            }
+
+            // Retrieve LC_Request Details corresponding to Current Bank
+
+            currentBankName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+
+            if (bDebug == true) {
+
+                alert("currentBankName of the logged in Bank user : " + currentBankName);
+            }
+
+            if (currentBankName != null && currentBankName != undefined && currentBankName != "") {
+
+                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, currentBankName, "Bank");
+
+            } else {
+
+                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, null, null);
+            }
+
+            /****************************************************************************************
+                getLC : Place HyperLedger API Call
+                        ( Currently no API Exists to get all LC Requests of current buyer )
+            *****************************************************************************************/
+
+            //var API_Name = "getLC";
+            //httpRequestToHyperLedgerServer(lcId_value, API_Name);
+
+        });
+
+
+        /****************************************************************************************
+            Upload the Selected LC Files to the Server Data Location
+        *****************************************************************************************/
+
+        $("#Upload_LC_Files_Button").click(function () {
+
+            // Retrieve the Lc Details from mongoDb
+
+            GenerateLCModule.generateLCOnServerSide("GenerateLC", null);
+
+        });
+
+
+        /****************************************************************************************
+            Generate "Letter of Credit PDF files" for selected Shipment orders
+        *****************************************************************************************/
+
+        $("#BuyerBank-Generate-LC-Button").click(function () {
+
+            if (bDebug == true) {
+
+                alert("Generate LoC Button Event : Generating LC PDF Files");
+            }
+
+            // Get the shipment details of All the Selections in Table Rows
+
+            var tableElementRows = document.getElementById("Buyer_Bank_Shipment_Order_Details").rows;
+            var tableElementRowsLength = document.getElementById("Buyer_Bank_Shipment_Order_Details").rows.length;
+
+            if (bDebug == true) {
+
+                alert("tableElementRows : " + tableElementRows);
+                alert("tableElementRowsLength : " + tableElementRowsLength);
+            }
+
+            for (var i = 0; i < tableElementRowsLength; i++) {
+
+                var currentRowCells = tableElementRows[i].cells;
+                var shipmentLcSelectBoxValue = false;
+
+                if (bDebug == true) {
+
+                    alert("currentRow.SelectionCell : " + currentRowCells[9]);
+                    alert("shipmentId : " + currentRowCells[0].textContent);
+                    alert("currentRow.SelectionCell.Child : " + currentRowCells[9].childNodes[0]);
+                    alert("currentRow.SelectionCell.Child Node Type : " + currentRowCells[9].childNodes[0].type);
+                    alert("currentRow.SelectionBox.Child Node Value : " + currentRowCells[9].childNodes[0].checked);
+                }
+
+                if (currentRowCells[9].childNodes[0] != null) {
+
+                    shipmentLcSelectBoxValue = currentRowCells[9].childNodes[0].checked;
+                }
+
+                if (shipmentLcSelectBoxValue == true) {
+
+                    if (bDebug == true) {
+
+                        alert("shipmentId : " + currentRowCells[0].textContent);
+                    }
+
+                    // Retrieve the Shipment Details from Table Row Data
+
+                    var shipmentId = currentRowCells[0].textContent;
+                    var shipmentLcId = currentRowCells[1].textContent;
+                    var shipmentBuyer = currentRowCells[2].textContent;
+                    var shipmentBank = currentRowCells[3].textContent;
+                    var shipmentSeller = currentRowCells[4].textContent;
+                    var shipmentShipment = currentRowCells[5].textContent;
+                    var shipmentCount = currentRowCells[6].textContent;
+                    var shipmentExpiryDate = currentRowCells[7].textContent;
+                    var shipmentCreditAmount = currentRowCells[8].textContent;
+
+                    // Create Map with all Shipment Details
+
+                    var shipmentDetailsMap = new Map();
+
+                    shipmentDetailsMap.set("taId", shipmentId);
+                    shipmentDetailsMap.set("lcId", shipmentLcId);
+                    shipmentDetailsMap.set("buyer", shipmentBuyer);
+                    shipmentDetailsMap.set("bank", shipmentBank);
+                    shipmentDetailsMap.set("seller", shipmentSeller);
+                    shipmentDetailsMap.set("shipment", shipmentShipment);
+                    shipmentDetailsMap.set("count", shipmentCount);
+                    shipmentDetailsMap.set("expiryDate", shipmentExpiryDate);
+                    shipmentDetailsMap.set("creditAmount", shipmentCreditAmount);
+
+                    // Create PDF File with the Selected Input Content : Client Side
+
+                    GenerateLCModule.generateLCOnClientSide(shipmentDetailsMap);
+
+                    // Create PDF File with the Selected Input Content : Server Side
+
+                    GenerateLCModule.generateLCOnServerSide("GenerateLC", shipmentDetailsMap);
+
+                    /****************************************************************************************
+                        issueLC : Place HyperLedger API Call to change the LC Status after LC Generation
+                    *****************************************************************************************/
+                    /*
+                    var API_Name = "issueLC";
+                    var lcDetailsRequestObject = { lcId: shipmentLcId };
+
+                    if (shipmentLcId != null && shipmentLcId != undefined) {
+
+                        var LCStatusObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(lcDetailsRequestObject, API_Name);
+                    }
+                    */
+                }
+            }
+
+            // Toggle the selected boxes in the Table
+
+            HTMLElementsUtilModule.toggleSelectionBoxesInTable("Buyer_Bank_Shipment_Order_Details");
+
+        });
+
+
+        /****************************************************************************************
+            Fill the Details of Shiptment Based on Seller Input Selection
+        *****************************************************************************************/
+
+        function processLCStatusInputChange(event) {
+
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
+
+            if (Requested_LC_Status == "LC_Generated" || Requested_LC_Status == "LC_Approved") {
+
+                document.getElementById("BuyerBank-Generate-LC-Button").style.display = "none";
+
+            } else {
+
+                document.getElementById("BuyerBank-Generate-LC-Button").style.display = "inline";
+
+            }
+        }
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve the Bank Name on load in local cache: Used for further Queries
+
+            if (bDebug == true) {
+
+                alert("Before setting User Context Details : currentUserName : " + currentUserName);
+            }
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            if (bDebug == true) {
+
+                alert("currentBankName of the logged in Bank user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
+            }
+
+            // Auto refresh page based on Periodic Authentication
+
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+

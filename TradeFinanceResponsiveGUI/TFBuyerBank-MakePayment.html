@@ -30,15 +30,16 @@
     </style>
 
     <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+
+    <script src="./JavaScripts/UserAuthentication.js"></script>
 
 </head>
 
 
-<!--Seller Page : Show Trade Details : Navigation Bar + Entire Content-->
+<!--Bank Page : Make Payment to Seller After Shipment Delivery Acceptance by Buyer : Navigation Bar + Entire Content-->
 
 <body>
-
-    <script src="./JavaScripts/UserAuthentication.js"></script>
 
     <!--Navigation Bar Header-->
 
@@ -58,20 +59,16 @@
 
                     <li>
 
-                        <!--Seller : Drop down menu from Navigation-->
+                        <!--Bank : Drop down menu from Navigation-->
 
                         <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
 
-                            <button type="button" class="btn btn-info" id="Seller-dropdown-button" data-toggle="dropdown" href="./TradeSeller.html">Seller&nbsp;&nbsp;<span class="caret" /></button>
+                            <button type="button" class="btn btn-info" id="Seller-dropdown-button" data-toggle="dropdown" href="./TFBuyerBank-MakePayment.html">Bank&nbsp;&nbsp;<span class="caret" /></button>
 
                             <ul class="dropdown-menu">
 
-                                <li> <a href="./TradeSeller.html">ShowTrade</a> </li>
-                                <li> <a href="./TradeAccept.html">ApproveTrade</a> </li>
-                                <li> <a href="./TFSeller.html">ShowLC</a> </li>
-                                <li> <a href="./TFSellerLCAccept.html">ApproveLC</a> </li>
-                                <li> <a href="./TFShipGoods.html">ShipGoods</a> </li>
-                                <li> <a href="./TFRequestPayment.html">ReqPayment</a> </li>
+                                <li> <a href="./TFBuyerBank.html">LC Requests</a> </li>
+                                <li> <a href="./TFBuyerBank-MakePayment.html">Make Payment</a> </li>
 
                             </ul>
 
@@ -79,7 +76,7 @@
 
                     </li>
 
-                    <!--Seller : Contact-US-->
+                    <!--Bank : Contact-US-->
 
                     <li>
 
@@ -91,7 +88,7 @@
 
                     </li>
 
-                    <!--Seller : Logout Button-->
+                    <!--Bank : Logout Button-->
 
                     <li>
 
@@ -111,38 +108,44 @@
 
     </div>
 
-    <!--Seller Page : Outer Layout : Show Trade Details + Extra Information-->
+
+    <!--Bank Page : Outer Layout : Make Payment for a particular Trade + Extra Information-->
 
     <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
 
-        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+        <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
 
-            <!--Seller Page : Select Trade Status : User Input-->
+            <!--Bank Page : Make Payment for Completed Shipment : Input Details-->
 
-            <form class="form-horizontal" id="Select-Trade-Status-Form">
+            <form class="form-horizontal" id="Make-Payment-Input-Details-Form">
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="tradeStatus">Trade Status</label>
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
 
                     <div class="col-sm-10">
 
-                        <select class="form-control" id="Select-Trade-Status" required>
-
-                            <option value="TradeStatusSelection">Select Trade Status</option>
-                            <option value="TradeRequested">Trade_Requested</option>
-                            <option value="TradeApproved">Trade_Approved</option>
-                            <option value="TradeShipped">Trade_Shipped</option>
-
-                        </select>
+                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="TA-Id-Input" required>
 
                     </div>
 
                 </div>
 
-                <div class="Retrieve-Trade-Details-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+                <div class="form-group">
 
-                    <button type="submit" id="Retrieve-Trade-Details-Button" class="btn btn-primary">Retrieve Trade Requests</button>
+                    <label class="control-label col-sm-2" for="lcId">LC Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" placeholder="Enter LC Id" id="LC-Id-Input" required>
+
+                    </div>
+
+                </div>
+
+                <div class="Make-Payment-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+
+                    <button type="submit" id="Make-Payment-Button" class="btn btn-primary">Make Payment</button>
 
                 </div>
 
@@ -150,86 +153,84 @@
 
         </div>
 
-
-        <!--Seller Page : Trade Details display in Tabular format-->
-
-        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
-
-            <table id="Seller_Page_Trade_Details" class="Seller-Page-Trade-Details">
-
-                <tr class="Shipment-Details-TableRow-Header">
-
-                    <th class="Shipment-Details-TableHeader">TradeId</th>
-                    <th class="Shipment-Details-TableHeader">Buyer</th>
-                    <th class="Shipment-Details-TableHeader">Seller</th>
-                    <th class="Shipment-Details-TableHeader">Shipment</th>
-                    <th class="Shipment-Details-TableHeader">ShipmentCount</th>
-                    <th class="Shipment-Details-TableHeader">Amount</th>
-                    <th class="Shipment-Details-TableHeader">Status</th>
-                    <th class="Shipment-Details-TableHeader">Select</th>
-                </tr>
-
-            </table>
-
-        </div>
-
     </div>
 
 
-    <!--Seller Page : Trade Details Retrieval and Display : Business Logic-->
+    <!--Bank Page : Make Payment for Completed Shipment : Business Logic-->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScripts/HTMLElements-HelperUtil.js"></script>
-    <script src="./JavaScripts/RetrieveTradeDetails.js"></script>
-    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
+    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
 
     <script>
 
         var bDebug = false;
-
         var webServerPrefix = "http://127.0.0.1:3500/?";
-        var currentSellerName = null;
         var setAuthRefreshInterval = null;
+        var currentUserName = null;
 
         /****************************************************************************************
-            RetrieveTradeDetails : Retrieve the Trade details of current seller from mongo db
+            Make Payment :  Update Status in Mongo DB &
+                            Place HyperLedger API Call
         *****************************************************************************************/
 
-        $("#Retrieve-Trade-Details-Button").click(function () {
+        $("#Make-Payment-Button").click(function () {
 
-            var Client_Request = "RetrieveAllRecords";
+            /****************************************************************************************
+                Make Payment : Change the status of LC in both "Mongo DB and HyperLedger"
+            *****************************************************************************************/
 
-            // Get the Selected Option & remove the existing rows
+            // Prepare Http Request from Form-data and send the request
 
-            var TradeStatusOptions = document.getElementById('Select-Trade-Status').options;
-            var Requested_Trade_Status = TradeStatusOptions[document.getElementById('Select-Trade-Status').selectedIndex].textContent;
+            var taId_value = document.getElementById("TA-Id-Input").value;
+            var lcId_value = document.getElementById("LC-Id-Input").value;
 
-            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Seller_Page_Trade_Details");
+            // Mongo DB call for Status Change
 
-            if (bDebug == true) {
+            var queryMap = new Map();
+            var queryEmpty = true;
 
-                alert("Existing Rows are removed from the Table");
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
             }
 
-            //RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status);
-            // Retrieve the Trades as per selected Trade Status
+            if (lcId_value != null && lcId_value != undefined) {
 
-            currentSellerName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
-
-            if (bDebug == true) {
-
-                alert("current Name of the logged in Seller : " + currentSellerName);
+                queryMap.set("Lc_Id", lcId_value);
+                queryEmpty = false;
             }
 
-            if (currentSellerName != null && currentSellerName != undefined && currentSellerName != "") {
+            if (queryEmpty == true) {
 
-                RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status, currentSellerName, "Seller");
+                alert(" (Trade Agreement Id & lcId)  values are missing while Making the Payment : ");
 
             } else {
 
-                RetrieveTradeDetailsModule.retrieveTradeRecordsForCurrentSeller(Client_Request, Requested_Trade_Status, null, null);
+                // Include the current User's Name in query as Bank
+                // Does the "Inclusiveness Check" ( Current Bank <=> Trade_Id ) automatically
+
+                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+                queryMap.set("Bank", currentUserName);
+
+                // Status Change in MongoDB
+
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "MakePayment");
+
+                // Status Change in HyperLedger
+
+                /*
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "makePayment");
+                */
+
+                document.getElementById("TA-Id-Input").value = null;
+                document.getElementById("LC-Id-Input").value = null;
+
             }
 
         });
@@ -257,11 +258,6 @@
             RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
                 "RetrieveUserDetailsBasedOnUserName");
 
-            if (bDebug == true) {
-
-                alert("current Name of the logged in Seller user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
-            }
-
             // Auto refresh page based on Periodic Authentication
 
             setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
@@ -285,5 +281,4 @@
 </body>
 
 </html>
-
 
