@@ -121,7 +121,7 @@
                     <div class="form-group">
 
                         <label for="tradeId">Trade Id</label>
-                        <input type="text" class="form-control" placeholder="Id Updated Automatically" id="Label_Trade_Id" required>
+                        <input type="text" class="form-control" placeholder="Id Updated Automatically" id="TradeId" disabled>
 
                     </div>
 
@@ -199,7 +199,7 @@
 
         <script>
 
-            bDebug = false;
+            var bDebug = false;
             var setIntervalVar = null;
             var setAuthRefreshInterval = null;
             var webServerPrefix = "http://127.0.0.1:3500/?";
@@ -212,6 +212,11 @@
             }
 
             $("#Shipment-Order-Submit").click(function () {
+
+                if (bDebug == true) {
+
+                    alert("Form Submit Button Click with id " + "Shipment-Order-Submit" + " processed through jquery..Processing Trade-Request");
+                }
 
                 var todaysDate = new Date();
                 var uniqueTradeId = "TA_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
@@ -306,11 +311,6 @@
                 FlowControlGlobalsModule.bFirstTimeAuthentication = false;
                 UserAuthenticationModule.authenticateUserOnPageLoad();
 
-                // Current Page Display
-
-                //document.getElementById("Login-Navigation-bar").style.display = "none";
-                //document.getElementById("TradeFinance-HomePage").style.display = "none";
-
                 // Process completion event : Initialize it to false
 
                 FlowControlGlobalsModule.tradeBuyerInputProcessed = false;
@@ -386,6 +386,11 @@
             *****************************************************************************************/
 
             function processSellerInputChange(event) {
+
+                if (bDebug == true) {
+
+                    alert("processSellerInputChange : Onchange event processed from form element :");
+                }
 
                 // Build Query
 

@@ -106,7 +106,6 @@
         </nav>
 
 
-
         <!--Buyer Page : Outer Layout : LC Request Form Info + Extra Information-->
 
         <div class="container-fluid" id="Outer_Container_Layout">
@@ -128,7 +127,7 @@
                     <div class="form-group">
 
                         <label for="lcId">LC Id</label>
-                        <input type="text" class="form-control" placeholder="Id Updated Automatically" id="Label_LC_Id_Output" required>
+                        <input type="text" class="form-control" placeholder="Id Updated Automatically" id="Label_LC_Id_Output">
 
                     </div>
 
@@ -213,6 +212,9 @@
                         <select class="form-control" id="Currency-Unit" required>
 
                             <option value="Select">Select Currency Unit</option>
+                            <option value="usd">USD</option>
+                            <option value="inr">INR</option>
+                            <option value="euro">EURO</option>
 
                         </select>
 
@@ -225,13 +227,13 @@
 
                     </div>
 
-                    <div class="Shipment-LC-Submit-Container" style="float:left; padding-left:15%; padding-right:15%; padding-top:5%; padding-bottom:5%">
-
-                        <button type="submit" id="Shipment-Order-Submit" class="btn btn-primary">Request LC</button>
-
-                    </div>
-
                 </form>
+
+                <div class="Shipment-LC-Submit-Container" style="float:left; padding-left:15%; padding-right:15%; padding-top:5%; padding-bottom:5%">
+
+                    <button type="submit" id="Shipment-Order-Submit" class="btn btn-primary">Request LC</button>
+
+                </div>
 
             </div>
 

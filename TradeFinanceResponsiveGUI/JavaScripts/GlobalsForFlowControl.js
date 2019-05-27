@@ -27,6 +27,8 @@ var FlowControlGlobalsModule = (function () {
 
     var bFirstTimeAuthentication = true;
 
+    var bFirstTimePageLoad_ShipmentStatus = true;
+
     /****************************************************************************************
         Reveal private methods & variables
     *****************************************************************************************/
@@ -54,7 +56,11 @@ var FlowControlGlobalsModule = (function () {
 
         // User Context of Current User
 
-        bFirstTimeAuthentication: bFirstTimeAuthentication
+        bFirstTimeAuthentication: bFirstTimeAuthentication,
+
+        // Avoid multiple User Context Setting queries during Page Refresh After Data submission
+
+        bFirstTimePageLoad_ShipmentStatus: bFirstTimePageLoad_ShipmentStatus
 
     };
 

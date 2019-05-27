@@ -119,7 +119,7 @@
 
             <!--Buyer Page : Trade Id Input Details -->
 
-            <form class="form-horizontal" id="Retrieve-Trade-Details-Form">
+            <form class="form-horizontal" id="Retrieve-Trade-Details-Form" action="">
 
                 <div class="form-group">
 
@@ -127,19 +127,19 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="TA-Id-Input" required>
+                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="TA-Id-Input">
 
                     </div>
 
                 </div>
 
-                <div class="Retrieve-Trade-Status-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
-
-                    <button type="submit" id="Retrieve-TA-Details-Button" class="btn btn-primary">Retrieve Trade Details</button>
-
-                </div>
-
             </form>
+
+            <div class="Retrieve-Trade-Status-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+
+                <button type="submit" id="Retrieve-TA-Details-Button" class="btn btn-primary">Retrieve Trade Details</button>
+
+            </div>
 
             <!--Buyer Page : Trade Status Details Container -->
 
@@ -151,7 +151,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_TA_Id_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_TA_Id_Value" disabled> </textarea>
 
                     </div>
 
@@ -163,7 +163,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Buyer_Name_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Buyer_Name_Value" disabled> </textarea>
 
                     </div>
 
@@ -175,7 +175,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Seller_Name_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Seller_Name_Value" disabled> </textarea>
 
                     </div>
 
@@ -187,7 +187,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Shipment_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Value" disabled> </textarea>
 
                     </div>
 
@@ -199,7 +199,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Shipment_Count_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Count_Value" disabled> </textarea>
 
                     </div>
 
@@ -211,7 +211,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Amount_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Amount_Value" disabled> </textarea>
 
                     </div>
 
@@ -223,7 +223,7 @@
 
                     <div class="col-sm-10">
 
-                        <input type="text" class="form-control" disabled id="Shipment_Details_Status_Value" required>
+                        <textarea class="form-control" id="Shipment_Details_Status_Value" disabled> </textarea>
 
                     </div>
 
@@ -255,6 +255,10 @@
 
         $("#Retrieve-TA-Details-Button").click(function () {
 
+            if (bDebug == true) {
+
+                alert("Retrieve-TA-Details-Button click processed through JQuery Events : ");
+            }
 
             /****************************************************************************************
                 RetrieveTradeDetails : Retrieve the details from mongo db
@@ -313,19 +317,31 @@
             // Authenticate On Page Load : Through Current User Context
 
             FlowControlGlobalsModule.bFirstTimeAuthentication = false;
-            UserAuthenticationModule.authenticateUserOnPageLoad();
 
-            // Build Query
+            if (bDebug == true) {
 
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+                alert("FlowControlGlobalsModule.bFirstTimePageLoad_ShipmentStatus during page load : " + FlowControlGlobalsModule.bFirstTimePageLoad_ShipmentStatus);
+            }
 
-            var queryMap = new Map();
-            queryMap.set("UserName", currentUserName);
+            if (FlowControlGlobalsModule.bFirstTimePageLoad_ShipmentStatus == true) {
 
-            // Retrieve User Context on load in local cache: Used for further Queries
+                UserAuthenticationModule.authenticateUserOnPageLoad();
 
-            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
-                "RetrieveUserDetailsBasedOnUserName");
+                // Build Query
+
+                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+                var queryMap = new Map();
+                queryMap.set("UserName", currentUserName);
+
+                // Retrieve User Context on load in local cache: Used for further Queries
+
+                RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                    "RetrieveUserDetailsBasedOnUserName");
+
+                FlowControlGlobalsModule.bFirstTimePageLoad_ShipmentStatus = false;
+
+            }
 
             // Auto refresh page based on Periodic Authentication
 

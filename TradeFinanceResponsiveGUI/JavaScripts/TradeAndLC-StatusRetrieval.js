@@ -121,6 +121,11 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
         xmlhttp.onreadystatechange = function () {
 
+            if (bDebug == true) {
+
+                alert("Intermediate Success Response While Placing RetrieveTradeDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+            }
+
             if (this.status == 200) {
 
                 if (this.readyState == 4) {
@@ -181,7 +186,19 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
     function fillTheShipmentStatusDetailsPage(TradeDetails_ResponseObject) {
 
-        document.getElementById("Shipment_Details_TA_Id_Value").innerHTML = TradeDetails_ResponseObject.Trade_Id;
+        if (bDebug == true) {
+
+            alert("fillTheShipmentStatusDetailsPage : Trade_Id => " + TradeDetails_ResponseObject.Trade_Id);
+            alert("fillTheShipmentStatusDetailsPage : Buyer => " + TradeDetails_ResponseObject.Buyer);
+        }
+
+        document.getElementById("Shipment_Details_TA_Id_Value").textContent = TradeDetails_ResponseObject.Trade_Id;
+
+        if (bDebug == true) {
+
+            alert("document.getElementById.Shipment_Details_TA_Id_Value.innerHTML => " + document.getElementById("Shipment_Details_TA_Id_Value").value);
+        }
+
         document.getElementById("Shipment_Details_Buyer_Name_Value").innerHTML = TradeDetails_ResponseObject.Buyer;
         document.getElementById("Shipment_Details_Seller_Name_Value").innerHTML = TradeDetails_ResponseObject.Seller;
         document.getElementById("Shipment_Details_Shipment_Value").innerHTML = TradeDetails_ResponseObject.Shipment;

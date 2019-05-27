@@ -10,6 +10,11 @@ var TradeAndLC_DatabaseUpdateModule = (function () {
 
     function saveTradeDetailsInMongoDB(tradeRequestRecord, Client_Request) {
 
+        if (bDebug == true) {
+
+            alert("saveTradeDetailsInMongoDB : Build and send Request Trade http rest api call :");
+        }
+
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
