@@ -5,7 +5,7 @@ var FlowControlGlobalsModule = (function () {
     // Page Refresh Globals : After Completion of processing
 
     var inputDataProcessingEventInterval = 250;
-    var periodicAuthenticationRefreshEventInterval = 4000;
+    var periodicAuthenticationRefreshEventInterval = 300000;
 
     var tradeBuyerInputProcessed = false;
     var lcBuyerInputProcessed = false;

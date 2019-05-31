@@ -558,6 +558,18 @@ http.createServer(function (req, res) {
 
                     break;
 
+                case "RejectTrade":
+
+                    var statusToBeUpdated = "Trade_Rejected";
+                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                        tradeAndLcTable_Name,
+                        clientRequestWithParamsMap,
+                        webClientRequest,
+                        statusToBeUpdated,
+                        res);
+
+                    break;
+
                 case "ApproveLCRequest":
 
                     var statusToBeUpdated = "LC_Approved";

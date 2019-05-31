@@ -463,6 +463,7 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
 
     expectedPreviousStatusMap.set("Trade_Requested", null);
     expectedPreviousStatusMap.set("Trade_Approved", "Trade_Requested");
+    expectedPreviousStatusMap.set("Trade_Rejected", "Trade_Requested");
     expectedPreviousStatusMap.set("LC_Requested", null);
     expectedPreviousStatusMap.set("LC_Generated", null);
     expectedPreviousStatusMap.set("LC_Approved", "LC_Generated");
@@ -792,6 +793,8 @@ exports.handleQueryResults = function (err, queryResult, req, res, queryType) {
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(queryResponse_JSON_String);
+
+    console.log("handleQueryResults: Written Success response for input query : " + queryResponse_JSON_String);
 }
 
 

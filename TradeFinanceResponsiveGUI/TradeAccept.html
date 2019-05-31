@@ -118,7 +118,7 @@
 
     <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
 
-        <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
+        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
 
             <!--Buyer Page : Accept Shipment Delivery-->
 
@@ -136,9 +136,106 @@
 
                 </div>
 
-                <div class="Accept-Trade-Request-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+            </form>
 
-                    <button type="submit" id="Accept-Trade-Button" class="btn btn-primary">Accept Trade Request</button>
+            <!-- Seller Page : "Trade Acceptance & Generate Trade Agreement" Submit button container -->
+
+            <div class="Accept-Trade-Request-Submission-Container row" style="padding-top:3%; padding-bottom:3%">
+
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Accept-Trade-Button" class="btn btn-primary col-sm-2">Accept Trade</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Reject-Trade-Button" class="btn btn-danger col-sm-2">Reject Trade</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Generate-TradeAgreement-Button" class="btn btn-warning  col-sm-3 container-fluid">Generate Trade Agreement</button>
+
+            </div>
+
+            <!-- Seller Page : Show Trade Details before Generating Trade Agreement -->
+
+            <form class="form-horizontal" id="Show-Trade-Details-Form" style="clear:left; padding-top:2%">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_TA_Id_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="buyer">Buyer</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Buyer_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="seller">Seller</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Seller_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipment">Shipment</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipmentCount">Shipment Count</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Count_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="creditAmount">Credit Amount</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Amount_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeStatus">Trade Status</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Status_Value" disabled> </textarea>
+
+                    </div>
 
                 </div>
 
@@ -152,12 +249,18 @@
     <!--Seller Page : Accept Trade Request : Business Logic-->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusRetrieval.js"></script>
     <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
 
     <script>
+
+        var bDebug = false;
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentUserName = null;
+        var setAuthRefreshInterval = null;
 
         /****************************************************************************************
 
@@ -166,16 +269,7 @@
 
         *****************************************************************************************/
 
-        var bDebug = false;
-        var webServerPrefix = "http://127.0.0.1:3500/?";
-        var currentUserName = null;
-        var setAuthRefreshInterval = null;
-
         $("#Accept-Trade-Button").click(function () {
-
-            /****************************************************************************************
-                acceptTrade : Change the shipment status once trade reaches acceptability
-            *****************************************************************************************/
 
             // Prepare Http Request from Form-data and send the request
 
@@ -217,9 +311,119 @@
                 */
 
                 document.getElementById("Trade-Id-Input").value = null;
+
+                retrieveTradeDetails(taId_value);
             }
 
         });
+
+        /****************************************************************************************
+
+        Reject Trade : Change the status of Trade Agreement in mongo db by changing it to "Trade Rejected"
+        Reject Trade : Place HyperLedger API Call
+
+        *****************************************************************************************/
+
+        $("#Reject-Trade-Button").click(function () {
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            if (bDebug == true) {
+
+                alert("Rejecting trade with trade Id : " + taId_value);
+            }
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+
+                // Include the current User's Name in query as Seller
+                // Does the "Inclusiveness Check" ( Current Seller <=> Trade_Id ) automatically
+
+                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+                queryMap.set("Seller", currentUserName);
+
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert(" Trade Agreement Id values are missing while Rejecting Trade : ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "RejectTrade");
+
+                // Status Change in HyperLedger
+
+                /*
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptTrade");
+                */
+
+                document.getElementById("Trade-Id-Input").value = null;
+
+                retrieveTradeDetails(taId_value);
+            }
+
+        });
+
+
+        /****************************************************************************************
+            retrieveTradeDetails : Retrieve the details of trade from mongo db
+        *****************************************************************************************/
+
+        function retrieveTradeDetails(taid_value) {
+
+            if (taid_value == null) {
+
+                alert("retrieveTradeDetails: taId value must be entered to retrieve the Trade Details");
+                return;
+            }
+
+            // Retrieve the Trade Details from mongoDb
+
+            var Client_Request = "RetrieveTradeDetails";
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Buyer : " + currentUserName);
+                alert("current UserType set during Page Load User Context : " + currentUserType);
+            }
+
+            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
+
+            } else {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
+            }
+
+            /****************************************************************************************
+                getTA : Place HyperLedger API Call
+            *****************************************************************************************/
+
+            /*
+            var API_Name = "getTA";
+            var tradeDetailsRequestObject = { taId: taid_value };
+
+            tradeStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsRequestObject, API_Name);
+            */
+
+        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references
