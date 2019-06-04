@@ -65,13 +65,15 @@ function prepareUserRegistrationObject(recordObjectMap) {
     // Prepare User Registration Object for MongoDB consumption
 
     console.log("prepareUserRegistrationObject : recordObjectMap.get(UserType) : " + recordObjectMap.get("UserType") + ", recordObjectMap.get(UserName) : " + recordObjectMap.get("UserName"));
-
     userData_Object.UserType = recordObjectMap.get("UserType");
-    console.log("prepareUserRegistrationObject : After Assignment => userData_Object.UserType : " + userData_Object.UserType);
 
     userData_Object._id = recordObjectMap.get("User_Id");
     userData_Object.Name = recordObjectMap.get("Name");
     userData_Object.Shipment = recordObjectMap.get("Shipment");
+
+    console.log("prepareUserRegistrationObject : userData_Object.AffiliatedBank : " + userData_Object.AffiliatedBank);
+    userData_Object.AffiliatedBank = recordObjectMap.get("AffiliatedBank");
+
     userData_Object.Location = recordObjectMap.get("Location");
     userData_Object.Email = recordObjectMap.get("Email");
     userData_Object.Address = recordObjectMap.get("Address");
@@ -197,7 +199,7 @@ exports.addUserRegistrationRecordToDatabase = function (dbConnection, collection
     console.log("registerUserInUserDetailsDatabase => prepareUserRegistrationObject : Num Of  <k,v> Pairs of recordObjectMap => " + recordObjectMap.size);
     var currentDocument_Object = prepareUserRegistrationObject(recordObjectMap);
 
-     console.log("registerUserInUserDetailsDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + Object.keys(currentDocument_Object).length);
+    console.log("registerUserInUserDetailsDatabase : All <K,V> pairs are present, Adding User Registration Record of Num Of  <k,v> Pairs => " + Object.keys(currentDocument_Object).length);
 
     // Check the userData_Object after value assignment
 

@@ -164,8 +164,9 @@ function buildUserDBRecord_JSON(queryResult) {
     queryResult = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryResult);
 
     queryResponse_JSON = {
-        "UserType": queryResult.UserType, "Name": queryResult.Name, "Shipment": queryResult.Shipment, "Location": queryResult.Location,
-        "Email": queryResult.Email, "Address": queryResult.Address, "UserName": queryResult.UserName, "Password": queryResult.Password
+        "UserType": queryResult.UserType, "Name": queryResult.Name, "Shipment": queryResult.Shipment,
+        "AffiliatedBank": queryResult.AffiliatedBank, "Location": queryResult.Location, "Email": queryResult.Email,
+        "Address": queryResult.Address, "UserName": queryResult.UserName, "Password": queryResult.Password
     };
 
     return queryResponse_JSON;

@@ -156,164 +156,165 @@ http.createServer(function (req, res) {
             else {
 
                 console.log("Successfully connected to UserDetails MongoDb : " + mongoUserDetailsDbUrl);
-            }
 
-            // Database Creation
+                // Database Creation
 
-            console.log("Creating / Retrieving User Details Database : ");
-            dbConnection_UserDetails_Database = db.db(userDetails_DatabaseName);
+                console.log("Creating / Retrieving User Details Database : ");
+                dbConnection_UserDetails_Database = db.db(userDetails_DatabaseName);
 
-            // Table( Collection ) Creation
+                // Table( Collection ) Creation
 
-            dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
+                dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
 
-                if (err) {
+                    if (err) {
 
-                    console.error("TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
-                        + userDetails_TableName);
+                        console.error("TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                            + userDetails_TableName);
 
-                    var failureMessage = "TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
-                        + userDetails_TableName;
-                    HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+                        var failureMessage = "TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                            + userDetails_TableName;
+                        HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
 
+                        return;
+                    }
+
+                    console.log("Successfully created / retrieved collection (userDetailsCollection)");
+                    console.log("Created / retrieved Collection ( Table ) : Now taking care of User Registration and Authentication");
+                });
+
+                // Redirect the web Requests based on Query Key => Client_Request
+
+                var registrationResult = true;
+
+                switch (webClientRequest) {
+
+                    case "UserRegistration":
+
+                        console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(UserName) : ", clientRequestWithParamsMap.get("UserName"));
+
+                        if (UserAuthenticationModule.addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
+                            userDetails_TableName,
+                            clientRequestWithParamsMap,
+                            userRegistrationData_RequiredFields,
+                            res)) {
+
+                            console.log("Web Service: Switch Statement : Successfully Registered the User");
+                            registrationResult = true;
+
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failure while Registering the User");
+                            registrationResult = false;
+
+                        }
+
+                        break;
+
+                    case "UserAuthentication":
+
+                        if (UserAuthenticationModule.validateUserCredentials(dbConnection_UserDetails_Database,
+                            userDetails_TableName,
+                            clientRequestWithParamsMap,
+                            res)) {
+
+                            console.log("Web Service: Switch Statement : Successfully Authenticated the User");
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failed to Authenticate the User");
+                        }
+
+                        break;
+
+                    case "RetrieveUsersBasedOnType":
+
+                        console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
+                        var userType = clientRequestWithParamsMap.get("UserType");
+
+                        // Build Query
+
+                        var queryMap = new Map();
+
+                        if (userType != null && userType != undefined) {
+
+                            queryMap.set("UserType", userType);
+
+                        } else {
+
+                            console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType");
+
+                            var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType";
+                            HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                            break;
+                        }
+
+                        if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
+                            userDetails_TableName,
+                            queryMap,
+                            UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
+                            res)) {
+
+                            console.log("Web Service: Switch Statement : Successfully Retrieved the required Type Of Users");
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failed to Retrieve the required Type Of Users");
+                        }
+
+                        break;
+
+                    case "RetrieveUserDetailsBasedOnUserName":
+
+                        console.log("Inside User Registration & Auth Switch : RetrieveUserDetailsBasedOnUserName : UserName : " + clientRequestWithParamsMap.get("UserName"));
+                        var userName = clientRequestWithParamsMap.get("UserName");
+
+                        // Build Query
+
+                        var queryMap = new Map();
+
+                        if (userName != null && userName != undefined) {
+
+                            queryMap.set("UserName", userName);
+
+                        } else {
+
+                            console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName");
+
+                            var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName";
+                            HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                            break;
+                        }
+
+                        // DB query & Reponse Building
+
+                        if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
+                            userDetails_TableName,
+                            queryMap,
+                            UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
+                            res)) {
+
+                            console.log("Web Service: Switch Statement : Successfully Retrieved the required User Details");
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failed to Retrieve the required User Details");
+                        }
+
+                        break;
+
+                    default:
+
+                        console.error("Inappropriate Web Client Request received...exiting");
+
+                        var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
+                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                        break;
                 }
 
-                console.log("Successfully created / retrieved collection (userDetailsCollection)");
-                console.log("Created / retrieved Collection ( Table ) : Now taking care of User Registration and Authentication");
-            });
-
-
-            // Redirect the web Requests based on Query Key => Client_Request
-
-            var registrationResult = true;
-
-            switch (webClientRequest) {
-
-                case "UserRegistration":
-
-                    console.log("Adding User Registration Record to Database => clientRequestWithParamsMap.get(UserName) : ", clientRequestWithParamsMap.get("UserName") );
-
-                    if (UserAuthenticationModule.addUserRegistrationRecordToDatabase(dbConnection_UserDetails_Database,
-                        userDetails_TableName,
-                        clientRequestWithParamsMap,
-                        userRegistrationData_RequiredFields,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully Registered the User");
-                        registrationResult = true;
-
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failure while Registering the User");
-                        registrationResult = false;
-
-                    }
-
-                    break;
-
-                case "UserAuthentication":
-
-                    if (UserAuthenticationModule.validateUserCredentials(dbConnection_UserDetails_Database,
-                        userDetails_TableName,
-                        clientRequestWithParamsMap,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully Authenticated the User");
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failed to Authenticate the User");
-                    }
-
-                    break;
-
-                case "RetrieveUsersBasedOnType":
-
-                    console.log("Inside User Registration & Auth Switch : UserType of Client request : " + clientRequestWithParamsMap.get("UserType"));
-                    var userType = clientRequestWithParamsMap.get("UserType");
-
-                    // Build Query
-
-                    var queryMap = new Map();
-
-                    if (userType != null && userType != undefined) {
-
-                        queryMap.set("UserType", userType);
-
-                    } else {
-
-                        console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType");
-
-                        var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserType";
-                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
-
-                        break;
-                    }
-
-                    if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
-                        userDetails_TableName,
-                        queryMap,
-                        UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully Retrieved the required Type Of Users");
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failed to Retrieve the required Type Of Users");
-                    }
-
-                    break;
-
-                case "RetrieveUserDetailsBasedOnUserName":
-
-                    console.log("Inside User Registration & Auth Switch : RetrieveUserDetailsBasedOnUserName : UserName : " + clientRequestWithParamsMap.get("UserName"));
-                    var userName = clientRequestWithParamsMap.get("UserName");
-
-                    // Build Query
-
-                    var queryMap = new Map();
-
-                    if (userName != null && userName != undefined) {
-
-                        queryMap.set("UserName", userName);
-
-                    } else {
-
-                        console.error("TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName");
-
-                        var failureMessage = "TradeFinanceWebService : RetrieveUsersBasedOnType WebClientRequest doesn't support any other query apart from UserName";
-                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
-
-                        break;
-                    }
-
-                    // DB query & Reponse Building
-
-                    if (UserRecordsQueryAndUpdatesModule.retrieveUserDetails(dbConnection_UserDetails_Database,
-                        userDetails_TableName,
-                        queryMap,
-                        UserRecordsQueryAndUpdatesModule.handleUserDatabaseQueryResults,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully Retrieved the required User Details");
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failed to Retrieve the required User Details");
-                    }
-
-                    break;
-
-                default:
-
-                    console.error("Inappropriate Web Client Request received...exiting");
-
-                    var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
-                    HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
-
-                    break;
             }
 
         });
@@ -340,319 +341,324 @@ http.createServer(function (req, res) {
 
             }
             else {
+
                 console.log("Successfully connected to MongoDb : " + mongoDbUrl);
-            }
 
-            // Database Creation
+                // Database Creation
 
-            console.log("Creating Trade and LC Information Database : ");
-            dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
+                console.log("Creating Trade and LC Information Database : ");
+                dbConnection_TradeAndLcDatabase = db.db(shipmentDatabase_Name);
 
-            // Table( Collection ) Creation
-            // ToDo: Check if the Table already exists and bail-out if it does 
+                // Table( Collection ) Creation
+                // ToDo: Check if the Table already exists and bail-out if it does 
 
-            dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
+                dbConnection_TradeAndLcDatabase.createCollection(tradeAndLcTable_Name, function (err, result) {
 
-                if (err) {
+                    if (err) {
 
-                    console.error("TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
-                        + tradeAndLcTable_Name);
+                        console.error("TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
+                            + tradeAndLcTable_Name);
 
-                    var failureMessage = "TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
-                        + tradeAndLcTable_Name;
-                    HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+                        var failureMessage = "TradeFinanceWebService.createServer : Error while creating Collection ( Table ) in shipmentTradeAndLc mongoDb :"
+                            + tradeAndLcTable_Name;
+                        HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
+                    }
+
+                    console.log("Successfully created collection (tradeAndLcCollection) : " + tradeAndLcTable_Name);
+                    console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
+                });
+
+
+                // Redirect the web Requests based on Query Key => Client_Request
+
+                switch (webClientRequest) {
+
+                    case "RequestTrade":
+
+                        if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            tradeDetailsRequiredFields,
+                            false,
+                            res,
+                            userDetails_DatabaseName,
+                            userDetails_TableName,
+                            mongoClient,
+                            mongoUserDetailsDbUrl)) {
+
+                            console.log("Web Service: Switch Statement : Successfully added Record for Trade");
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
+                        }
+
+                        break;
+
+                    case "RequestLC":
+
+                        if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            lcDetailsRequiredFields,
+                            true,
+                            res)) {
+
+                            console.log("Web Service: Switch Statement : Successfully added Record for LC");
+                        }
+                        else {
+
+                            console.error("Web Service: Switch Statement : Failure while adding Record for LC");
+                        }
+
+                        break;
+
+                    // Retrieve Records : Generic
+
+                    case "RetrieveAllRecords":
+
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            null,
+                            null,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
+                        break;
+
+                    case "RetrieveTradeDetails":
+
+                        var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            tradeId,
+                            null,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details");
+                        break;
+
+                    case "RetrieveLCDetails":
+
+                        var lcId = clientRequestWithParamsMap.get("Lc_Id");
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            null,
+                            lcId,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details");
+                        break;
+
+                    // Retrieve Records : Based on User
+
+                    case "RetrieveTradeDetailsBasedOnUser":
+
+                        var userName = clientRequestWithParamsMap.get("UserName");
+                        var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+
+                        // Build Query
+
+                        var queryMap = new Map();
+
+                        if (userName != null && userName != undefined) {
+
+                            queryMap.set("UserName", userName);
+                        }
+
+                        if (tradeId != null && tradeId != undefined) {
+
+                            queryMap.set("Trade_Id", tradeId);
+                        }
+
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            queryMap,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            "TradeDetailsBasedOnUser",
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details for User : " + userName);
+                        break;
+
+                    case "RetrieveLCDetailsBasedOnUser":
+
+                        var userName = clientRequestWithParamsMap.get("UserName");
+                        var lcId = clientRequestWithParamsMap.get("Lc_Id");
+
+                        // Build Query
+
+                        var queryMap = new Map();
+
+                        if (userName != null && userName != undefined) {
+
+                            queryMap.set("UserName", userName);
+                        }
+
+                        if (lcId != null && lcId != undefined) {
+
+                            queryMap.set("Lc_Id", lcId);
+                        }
+
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            queryMap,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            "LCDetailsBasedOnUser",
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details for User : " + userName);
+                        break;
+
+                    case "RetrieveAllRecordsBasedOnUser":
+
+                        var userName = clientRequestWithParamsMap.get("UserName");
+
+                        // Build Query
+
+                        var queryMap = new Map();
+
+                        if (userName != null && userName != undefined) {
+
+                            queryMap.set("UserName", userName);
+                        }
+
+                        mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            queryMap,
+                            TradeAndLCRecordsUpdateModule.handleQueryResults,
+                            "AllRecordsBasedOnUser",
+                            req,
+                            res);
+
+                        console.log("Web Service: Switch Statement : Successfully retrieved the Record details for User : " + userName);
+                        break;
+
+                    // Status Retrieval
+
+                    case "GetCurrentStatus":
+
+                        break;
+
+                    // Approvals and Shipment processing ( Status Change based on User Input Query )
+
+                    case "ApproveTrade":
+
+                        var statusToBeUpdated = "Trade_Approved";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "RejectTrade":
+
+                        var statusToBeUpdated = "Trade_Rejected";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "ApproveLCRequest":
+
+                        var statusToBeUpdated = "LC_Approved";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "StartShipment":
+
+                        var statusToBeUpdated = "Trade_Shipped";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "AcceptShipment":
+
+                        var statusToBeUpdated = "Shipment_Accepted";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "RequestPayment":
+
+                        var statusToBeUpdated = "Payment_Requested";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "MakePayment":
+
+                        var statusToBeUpdated = "Payment_Made";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "GenerateLC":
+
+                        // Update the Status to be "LC_Generated" in Mongo DB
+
+                        var statusToBeUpdated = "LC_Generated";
+                        generateLCModule.generateLCAndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    default:
+
+                        console.error("Inappropriate Web Client Request received...exiting");
+
+                        var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
+                        HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
+
+                        break;
 
                 }
-
-                console.log("Successfully created collection (tradeAndLcCollection) : " + tradeAndLcTable_Name);
-                console.log("Create Collection ( Table ) : Now Inserting Document ( Row :=> Trade & Letter Of Credit Details )");
-            });
-
-
-            // Redirect the web Requests based on Query Key => Client_Request
-
-            switch (webClientRequest) {
-
-                case "RequestTrade":
-
-                    if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        tradeDetailsRequiredFields,
-                        false,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully added Record for Trade");
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failure while adding Record for Trade");
-                    }
-
-                    break;
-
-                case "RequestLC":
-
-                    if (TradeAndLCRecordsUpdateModule.addTradeAndLcRecordToDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        lcDetailsRequiredFields,
-                        true,
-                        res)) {
-
-                        console.log("Web Service: Switch Statement : Successfully added Record for LC");
-                    }
-                    else {
-
-                        console.error("Web Service: Switch Statement : Failure while adding Record for LC");
-                    }
-
-                    break;
-
-                // Retrieve Records : Generic
-
-                case "RetrieveAllRecords":
-
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        null,
-                        null,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved all the existing records");
-                    break;
-
-                case "RetrieveTradeDetails":
-
-                    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        tradeId,
-                        null,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details");
-                    break;
-
-                case "RetrieveLCDetails":
-
-                    var lcId = clientRequestWithParamsMap.get("Lc_Id");
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        null,
-                        lcId,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details");
-                    break;
-
-                // Retrieve Records : Based on User
-
-                case "RetrieveTradeDetailsBasedOnUser":
-
-                    var userName = clientRequestWithParamsMap.get("UserName");
-                    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
-
-                    // Build Query
-
-                    var queryMap = new Map();
-
-                    if (userName != null && userName != undefined) {
-
-                        queryMap.set("UserName", userName);
-                    }
-
-                    if (tradeId != null && tradeId != undefined) {
-
-                        queryMap.set("Trade_Id", tradeId);
-                    }
-
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        queryMap,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        "TradeDetailsBasedOnUser",
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved the Trade Record details for User : " + userName);
-                    break;
-
-                case "RetrieveLCDetailsBasedOnUser":
-
-                    var userName = clientRequestWithParamsMap.get("UserName");
-                    var lcId = clientRequestWithParamsMap.get("Lc_Id");
-
-                    // Build Query
-
-                    var queryMap = new Map();
-
-                    if (userName != null && userName != undefined) {
-
-                        queryMap.set("UserName", userName);
-                    }
-
-                    if (lcId != null && lcId != undefined) {
-
-                        queryMap.set("Lc_Id", lcId);
-                    }
-
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        queryMap,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        "LCDetailsBasedOnUser",
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved the LC Record details for User : " + userName);
-                    break;
-
-                case "RetrieveAllRecordsBasedOnUser":
-
-                    var userName = clientRequestWithParamsMap.get("UserName");
-
-                    // Build Query
-
-                    var queryMap = new Map();
-
-                    if (userName != null && userName != undefined) {
-
-                        queryMap.set("UserName", userName);
-                    }
-
-                    mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase_BasedOnUser(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        queryMap,
-                        TradeAndLCRecordsUpdateModule.handleQueryResults,
-                        "AllRecordsBasedOnUser",
-                        req,
-                        res);
-
-                    console.log("Web Service: Switch Statement : Successfully retrieved the Record details for User : " + userName);
-                    break;
-
-                // Status Retrieval
-
-                case "GetCurrentStatus":
-
-                    break;
-
-                // Approvals and Shipment processing ( Status Change based on User Input Query )
-
-                case "ApproveTrade":
-
-                    var statusToBeUpdated = "Trade_Approved";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-
-                case "RejectTrade":
-
-                    var statusToBeUpdated = "Trade_Rejected";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-
-                case "ApproveLCRequest":
-
-                    var statusToBeUpdated = "LC_Approved";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-
-                case "StartShipment":
-    
-                    var statusToBeUpdated = "Trade_Shipped";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-    
-                case "AcceptShipment":
-    
-                    var statusToBeUpdated = "Shipment_Accepted";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-    
-                case "RequestPayment":
-    
-                    var statusToBeUpdated = "Payment_Requested";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-    
-                case "MakePayment":
-    
-                    var statusToBeUpdated = "Payment_Made";
-                    TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-
-                case "GenerateLC":
-
-                    // Update the Status to be "LC_Generated" in Mongo DB
-
-                    var statusToBeUpdated = "LC_Generated";
-                    generateLCModule.generateLCAndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
-                        tradeAndLcTable_Name,
-                        clientRequestWithParamsMap,
-                        webClientRequest,
-                        statusToBeUpdated,
-                        res);
-
-                    break;
-
-                default:
-
-                    console.error("Inappropriate Web Client Request received...exiting");
-
-                    var failureMessage = "TradeFinanceWebService : Inappropriate Web Client Request received...exiting";
-                    HelperUtilsModule.logBadHttpRequestError("TradeFinanceWebService", failureMessage, res);
-
-                    break;
-
             }
 
         });

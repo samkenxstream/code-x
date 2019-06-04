@@ -42,6 +42,7 @@ var UserAuthenticationModule = (function () {
         var userType_Value = document.getElementById("User-Type").value;
         var name_Value = document.getElementById("User-Name").value;
         var shipment_Value = document.getElementById("User-Shipment").value;
+        var affiliated_Bank_Value = document.getElementById("Affiliated-Bank").value;
         var location_Value = document.getElementById("User-Location").value;
         var email_Value = document.getElementById("User-Email").value;
         var address_Value = document.getElementById("User-Address").value;
@@ -52,7 +53,8 @@ var UserAuthenticationModule = (function () {
         // Validations for "required / necessary" values
 
         if (userId_Value == null || userType_Value == null || name_Value == null || location_Value == null
-            || email_Value == null || userName_Value == null || password_Value == null || repeatPassword_Value == null) {
+            || email_Value == null || userName_Value == null || password_Value == null || repeatPassword_Value == null ||
+            affiliated_Bank_Value == null) {
 
             alert("one or many of the required input values are missing for User Registration : please try again");
             return;
@@ -82,11 +84,12 @@ var UserAuthenticationModule = (function () {
 
         // Save the details in mongoDb
 
-        var userRegistration_Keys = ["UserType", "User_Id", "Name", "Shipment", "Location", "Email", "Address", "UserName", "Password"];
-        var userRegistration_Values = [userType_Value, userId_Value, name_Value, shipment_Value, location_Value, email_Value, address_Value, userName_Value, password_Value];
+        var userRegistration_Keys = ["UserType", "User_Id", "Name", "Shipment", "AffiliatedBank", "Location", "Email", "Address", "UserName", "Password"];
+        var userRegistration_Values = [userType_Value, userId_Value, name_Value, shipment_Value, affiliated_Bank_Value, location_Value, email_Value, address_Value, userName_Value, password_Value];
         var userRegistrationRecord = new Map();
 
         for (var index = 0; index < userRegistration_Keys.length; index++) {
+
             userRegistrationRecord.set(userRegistration_Keys[index], userRegistration_Values[index]);
         }
 

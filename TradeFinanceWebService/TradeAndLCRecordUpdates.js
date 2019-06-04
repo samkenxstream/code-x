@@ -50,6 +50,7 @@ var bDebug = false;
 var HelperUtilsModule = require('./HelperUtils');
 var mongoDbCrudModule = require('./MongoDbCRUD');
 
+
 /**************************************************************************
  **************************************************************************
  **************************************************************************
@@ -91,6 +92,11 @@ function prepareTradeDocumentObject(recordObjectMap) {
     if ( recordObjectMap.get("UserName") != null && recordObjectMap.get("UserName") != undefined ) {
 
         trade_Object.UserName = recordObjectMap.get("UserName");
+    }
+
+    if (recordObjectMap.get("SellerBank") != null && recordObjectMap.get("SellerBank") != undefined) {
+
+        trade_Object.SellerBank = recordObjectMap.get("SellerBank");
     }
 
     trade_Object.Current_Status = "Trade_Requested";
@@ -148,7 +154,7 @@ function prepareLcDocumentObject(recordObjectMap) {
  */
 
 exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, recordObjectMap, requiredDetailsCollection,
-    bLcRequest, http_response) {
+    bLcRequest, http_response, userDetails_DatabaseName, userDetails_TableName, mongoClient, mongoUserDetailsDbUrl) {
 
     // Check if all the required fields are present before adding the record
 
@@ -169,20 +175,145 @@ exports.addTradeAndLcRecordToDatabase = function (dbConnection, collectionName, 
 
     // Prepare Trade | LC Document Objects and add them to Shipment Database
 
+    var http_StatusCode = null;
+
     if (!bLcRequest) {
 
-        prepareTradeDocumentObject(recordObjectMap);
+        /************** Option 1 : Pull data with periodic Polling ( Try : Anyway required for disjoint databases )********************
 
-        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
+         ************************************************************: Think of solution that works for parallel requests ********
+         ************************************************************: For now Make the code ready for concurrency using worker threads ********
 
-        // Remove spaces from trade_object values before adding to MongoDB
+         // Wait for Internal Data retrieval Before Adding the Trade Record to the database
 
-        trade_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(trade_Object);
-        addRecordToTradeAndLcDatabase(dbConnection,
-            collectionName,
-            trade_Object,
-            "RequestTrade",
-            http_response);
+         => reset flag to spin for user data; ( Global Data )
+         => wait loop for user data with max timer;
+         => If bank not found, default to some default global value
+
+         *****************************************************************************************************************************
+
+         ************** Option 2 : Try with multi level Call-backs *******************************************************************/
+
+        // Connect to User Details Database
+
+        mongoClient.connect(mongoUserDetailsDbUrl, function (err, db) {
+
+            console.log("Inside the connection to User Details Mongo DB");
+
+            if (err != null) {
+
+                console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Server Error while connecting to UserDetails mongo db on local server :"
+                    + mongoUserDetailsDbUrl);
+
+                var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Server Error while connecting to UserDetails mongo db on local server :"
+                    + mongoUserDetailsDbUrl;
+                HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                return;
+
+            } else {
+
+                console.log("Successfully connected to UserDetails MongoDb : " + mongoUserDetailsDbUrl);
+                var dbConnection_UserDetails_Database = db.db(userDetails_DatabaseName);
+
+                if (dbConnection_UserDetails_Database == null || dbConnection_UserDetails_Database == undefined) {
+
+                    console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: DB Connection to User Details Database failed : " + userDetails_DatabaseName);
+                    var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: DB Connection to User Details Database failed : " + userDetails_DatabaseName;
+
+                    HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                    return;
+                }
+
+                // Retrieve Seller Bank Details and Add to the Trade data
+
+                var sellerName = recordObjectMap.get("Seller");
+
+                // query the user details db & Retrieve the Seller Bank
+
+                var queryObject = { Name: sellerName };
+
+                // Remove the blank spaces before querying the Seller User Record
+
+                queryObject = HelperUtilsModule.removeUrlSpacesFromObjectValues(queryObject);
+
+                console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: Connected to User Details DB: " + userDetails_DatabaseName);
+                console.log("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: Retrieving Seller User Record for Seller: " + sellerName);
+                console.log("queryObject below");
+                console.log(queryObject);
+
+                // Table( Collection ) Creation : Connection ( If Already created )
+
+                dbConnection_UserDetails_Database.createCollection(userDetails_TableName, function (err, result) {
+
+                    if (err) {
+
+                        console.error("TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                            + userDetails_TableName);
+
+                        var failureMessage = "TradeFinanceWebService.createServer : Error while creating / retrieving Collection ( Table ) in User Details mongoDb : "
+                            + userDetails_TableName;
+                        HelperUtilsModule.logInternalServerError("TradeFinanceWebService.createServer", failureMessage, res);
+
+                        return;
+                    }
+
+                    console.log("Created / Retrieved Collection ( Table ) : Now taking care of Reteiving Seller Record");
+
+                    dbConnection_UserDetails_Database.collection(userDetails_TableName).findOne(queryObject, function (err, result) {
+
+                        if (err) {
+
+                            console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: Internal Server Error while querying for User Records based on Name");
+                            var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase: Internal Server Error while querying for User Records";
+
+                            HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                            return;
+                        }
+
+                        console.log("retrieveUserDetails : Successfully retrieved user record based on Seller Name");
+
+                        if (result == null || result == undefined) {
+
+                            console.error("TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Null Result returned while querying user Records");
+                            var failureMessage = "TradeAndLCRecordUpdates.addTradeAndLcRecordToDatabase : Null Result returned while querying user Records";
+
+                            HelperUtilsModule.logInternalServerError("addTradeAndLcRecordToDatabase", failureMessage, http_response);
+
+                            return;
+                        }
+
+                        console.log(result);
+
+                        // Retrieve Seller Bank
+
+                        var sellerBank = result.AffiliatedBank;
+                        recordObjectMap.set("SellerBank", sellerBank);
+
+                        // Prepare the Trade Object and add to the Trade Details Database
+
+                        prepareTradeDocumentObject(recordObjectMap);
+
+                        console.log("addTradeAndLcRecordToDatabase : All <K,V> pairs are present, Adding Trade Record of Num Of Pairs => " + trade_Object.length);
+
+                        // Remove spaces from trade_object values before adding to MongoDB
+
+                        trade_Object = HelperUtilsModule.removeUrlSpacesFromObjectValues(trade_Object);
+                        addRecordToTradeAndLcDatabase(dbConnection,
+                            collectionName,
+                            trade_Object,
+                            "RequestTrade",
+                            http_response);
+
+                    });
+
+                });
+
+            }
+
+        });
 
     } else {
 
@@ -722,6 +853,11 @@ function buildTradeRecord_JSON(queryResult) {
         queryResponse_JSON.UserName = queryResult.UserName;
     }
 
+    if (queryResult.SellerBank != null && queryResult.SellerBank != undefined) {
+
+        queryResponse_JSON.SellerBank = queryResult.SellerBank;
+    }
+
     return queryResponse_JSON;
 }
 
@@ -756,6 +892,11 @@ function buildLcRecord_JSON(queryResult) {
     if (queryResult.UserName != null && queryResult.UserName != undefined) {
 
         queryResponse_JSON.UserName = queryResult.UserName;
+    }
+
+    if (queryResult.SellerBank != null && queryResult.SellerBank != undefined) {
+
+        queryResponse_JSON.SellerBank = queryResult.SellerBank;
     }
 
     return queryResponse_JSON;
