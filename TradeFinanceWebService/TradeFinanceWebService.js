@@ -24,12 +24,16 @@
 
 var http = require('http');
 var url = require('url');
+
 var generateLCModule = require('./GenerateLC');
+var generateTradeAgreementModule = require('./GenerateTradeAgreement');
+
 var mongoDbCrudModule = require('./MongoDbCRUD');
+var HelperUtilsModule = require('./HelperUtils');
+
 var UserAuthenticationModule = require('./UserAuthentication');
 var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
 var UserRecordsQueryAndUpdatesModule = require('./UserRecordsQueryAndUpdates');
-var HelperUtilsModule = require('./HelperUtils');
 
 // Define globals as per JSPDF Inclusion Usage/Syntax
 
@@ -645,6 +649,17 @@ http.createServer(function (req, res) {
                             clientRequestWithParamsMap,
                             webClientRequest,
                             statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "GenerateTradeAgreement":
+
+                        // Generate Trade Agreement and Upload it to Server
+
+                        generateTradeAgreementModule.generateTradeAgreement_AndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
                             res);
 
                         break;

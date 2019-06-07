@@ -201,6 +201,7 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
         document.getElementById("Shipment_Details_Buyer_Name_Value").innerHTML = TradeDetails_ResponseObject.Buyer;
         document.getElementById("Shipment_Details_Seller_Name_Value").innerHTML = TradeDetails_ResponseObject.Seller;
+        document.getElementById("Shipment_Details_Seller_Bank_Value").innerHTML = TradeDetails_ResponseObject.SellerBank;
         document.getElementById("Shipment_Details_Shipment_Value").innerHTML = TradeDetails_ResponseObject.Shipment;
         document.getElementById("Shipment_Details_Shipment_Count_Value").innerHTML = TradeDetails_ResponseObject.ShipmentCount;
         document.getElementById("Shipment_Details_Amount_Value").innerHTML = TradeDetails_ResponseObject.Amount;
