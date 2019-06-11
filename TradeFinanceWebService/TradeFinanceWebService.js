@@ -603,6 +603,42 @@ http.createServer(function (req, res) {
 
                         break;
 
+                    case "LoadShipment":
+
+                        var statusToBeUpdated = "Shipment_Loaded";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "ApproveCustomsCheck":
+
+                        var statusToBeUpdated = "Customs_Approved";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
+                    case "RejectCustomsCheck":
+
+                        var statusToBeUpdated = "Customs_Rejected";
+                        TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            webClientRequest,
+                            statusToBeUpdated,
+                            res);
+
+                        break;
+
                     case "AcceptShipment":
 
                         var statusToBeUpdated = "Shipment_Accepted";

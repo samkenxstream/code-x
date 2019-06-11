@@ -1,0 +1,480 @@
+﻿
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>TradeFinance Smart Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="TradeFinanceHome.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            background-color: #B9B6B5;
+        }
+    </style>
+
+    <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+
+</head>
+
+
+<!--CustomsAuthority Page : Approve Shipment through "COO & BOL" : Navigation Bar + Entire Content-->
+
+<body>
+
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <div class="container-fluid">
+
+        <!--Navigation Bar Header-->
+
+        <nav class="navbar navbar-inverse">
+
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+
+                    <a id="TradeFinance-HomePage" class="navbar-brand" href="./TradeFinanceHome.html">TradeFinanceHome</a>
+
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li>
+
+                        <!--Customs Authority : Drop down menu from Navigation-->
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="CustomsAuthority-dropdown-button" data-toggle="dropdown" href="./TFCustomsAuthority.html">CustomsAuthority&nbsp;&nbsp;<span class="caret" /></button>
+
+                            <ul class="dropdown-menu">
+
+                                <li> <a href="./TFCustomsAuthority.html">Authorize Shipment</a> </li>
+                                <li> <a href="./TFRetrieveCustomsDocs.html">Retrieve Customs Documents</a> </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!--Customs Authority : Contact-US-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-info" id="Contact-US-Page" href="./TFContactInfo.html">Contact-US</button>
+
+                        </div>
+
+                    </li>
+
+                    <!--Customs Authority : Logout Button-->
+
+                    <li>
+
+                        <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
+
+                            <button type="button" class="btn btn-danger" id="logout-button" onclick='UserAuthenticationModule.processLogOffEvent(event);'>Logout</button>
+
+                        </div>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+    <!--Customs Authority : Outer Layout : Authorize Shipment + Extra Information-->
+
+    <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
+
+        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+
+            <!--Customs-Authority Page : View "Shipment & Import Tax" details along with Payment Status-->
+
+            <form class="form-horizontal" id="Customs-Clearance-Check-Form">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <input type="text" class="form-control" placeholder="Enter Trade Id" id="Trade-Id-Input" required>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- Customs Authority Page : "View Trade & Import Tax Status Details" Submit button container -->
+
+            <div class="View-Trade-ImportTax-Details-Submission-Container row" style="padding-top:3%; padding-bottom:3%">
+
+                <button type="submit" id="View-ImportTax-Status-Button" class="btn btn-primary col-sm-2">View ImportTax Status</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Calculate-ImportTax-Button" class="btn btn-primary col-sm-2">Calculate Import Tax</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Approve-Customs-Check-Button" class="btn btn-warning col-sm-3">Approve Customs Check</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Reject-Customs-Check-Button" class="btn btn-warning  col-sm-2 container-fluid">Reject Customs Check</button>
+
+            </div>
+
+            <!-- Customs-Authority Page : Show Trade & Import Tax Details -->
+
+            <form class="form-horizontal" id="Show-Trade-ImportTax-Details-Form" style="clear:left; padding-top:2%">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_TA_Id_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="buyer">Buyer</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Buyer_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="seller">Seller</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Seller_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipment">Shipment</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipmentCount">Shipment Count</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Shipment_Count_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="creditAmount">Credit Amount</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Amount_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeStatus">Trade Status</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Status_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="importTaxAmount">Import Duty</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Import_Duty_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="importTaxStatus">Import Duty Status</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Import_Duty_Status_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!--Customs Authority Page : Show "Trade & Import Tax" Details : Business Logic-->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
+    <script src="./JavaScripts/HTMLElements-HelperUtil.js"></script>
+    <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
+    <script src="./JavaScripts/RetrieveUserDetails.js"></script>
+    <script src="./JavaScripts/UserAuthentication.js"></script>
+
+    <script>
+
+        var bDebug = false;
+
+        var webServerPrefix = "http://127.0.0.1:3500/?";
+        var currentCustomsAuthorityName = null;
+        var setAuthRefreshInterval = null;
+
+        /***********************************************************************************************************
+    
+        View Import Tax Status : View Shipment & Import Tax Details
+    
+        ************************************************************************************************************/
+
+        $("#View-ImportTax-Status-Button").click(function () {
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert("Trade Agreement Id values are missing while Clearing Customs : ");
+
+            } else {
+
+                document.getElementById("Trade-Id-Input").value = null;
+                retrieveTradeDetailsWrapper(taId_value);
+            }
+
+        });
+
+        /***********************************************************************************************************
+    
+        Calculate ImportTax : Calculates the import Tax and updates the Trade Record along with current status
+    
+        ************************************************************************************************************/
+
+        $("#Calculate-ImportTax-Button").click(function () {
+
+        });
+
+        /***********************************************************************************************************
+         
+            Approve Customs : Clear the customs at Port of Entry
+
+        *************************************************************************************************************/
+
+        $("#Approve-Customs-Check-Button").click(function () {
+
+            updateCustomsClearanceStatusWrapper("ApproveCustomsCheck");
+        });
+
+        /***********************************************************************************************************
+         
+            Reject Customs : Reject the customs at Port of Entry
+
+        *************************************************************************************************************/
+
+        $("#Reject-Customs-Check-Button").click(function () {
+
+            updateCustomsClearanceStatusWrapper("RejectCustomsCheck");
+        });
+
+        /******************************************************************************************************
+         *
+            updateCustomsClearanceStatusWrapper : Updates the Customs Clearance status in Mongo DB
+                                                : And places HyperLedger Status Change Call
+         *
+        ******************************************************************************************************/
+
+        function updateCustomsClearanceStatusWrapper(customsCheckStatus) {
+
+            // Prepare Http Request from Form-data and send the request
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            // Mongo DB call for Status Change
+
+            var queryMap = new Map();
+            var queryEmpty = true;
+
+            if (taId_value != null && taId_value != undefined) {
+
+                queryMap.set("Trade_Id", taId_value);
+                queryEmpty = false;
+            }
+
+            if (queryEmpty == true) {
+
+                alert("Trade Agreement Id values are missing while updating customs check status: ");
+
+            } else {
+
+                // Status Change in MongoDB
+
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, customsCheckStatus);
+
+                // Status Change in HyperLedger
+
+                /*
+                var webServerPrefix = "/tfbc/";
+                TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, customsCheckStatus);
+                */
+
+                document.getElementById("Trade-Id-Input").value = null;
+            }
+
+        }
+
+        /******************************************************************************************************
+            retrieveTradeDetailsWrapper : Retrieve the details of trade from mongo db
+                                        : Any Stake-Holder specific business logic can be written here
+        ******************************************************************************************************/
+
+        function retrieveTradeDetailsWrapper(taid_value) {
+
+            if (taid_value == null || taid_value == undefined) {
+
+                alert("retrieveTradeDetailsWrapper: taId value must be entered to retrieve the Trade Details");
+                return;
+            }
+
+            // Retrieve the Trade Details from mongoDb
+
+            var Client_Request = "RetrieveTradeDetails";
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
+
+            } else {
+
+                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
+            }
+
+        }
+
+        /****************************************************************************************
+            Login & Logout functionality : Hide and display the Internal content references
+        *****************************************************************************************/
+
+        window.onload = function (event) {
+
+            // Authenticate On Page Load : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            //UserAuthenticationModule.authenticateUserOnPageLoad();
+
+            // Build Query
+
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+
+            var queryMap = new Map();
+            queryMap.set("UserName", currentUserName);
+
+            // Retrieve the Customs_Authority Name on load in local cache: Used for further Queries
+
+            RetrieveUserDetails_Module.retrieveUserDetailsAnd_SetContext(webServerPrefix, queryMap,
+                "RetrieveUserDetailsBasedOnUserName");
+
+            if (bDebug == true) {
+
+                alert("current Name of the logged in Customs-Authority user : " + window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key));
+            }
+
+            // Auto refresh page based on Periodic Authentication
+
+            //setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+        }
+
+        /***************************************************************************************************************************
+            authenticateUserPeriodically : Periodic Authentication of User And Page refresh based on result
+        ****************************************************************************************************************************/
+
+        function authenticateUserPeriodically() {
+
+            // Authenticate Periodically : Through Current User Context
+
+            FlowControlGlobalsModule.bFirstTimeAuthentication = false;
+            UserAuthenticationModule.authenticateUserOnPageLoad();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+

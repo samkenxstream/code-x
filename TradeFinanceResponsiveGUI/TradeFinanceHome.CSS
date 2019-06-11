@@ -362,24 +362,22 @@ span.psw {
     border : 2px solid;
 }
 
-.Shipment-Details-TableRow-Header {
-
-    color : #422319;
-    background-color : #D3A77E;
-    padding-top : 10px;
-    padding-bottom : 10px;
-    padding-left : 10px;
-    padding-right : 10px;
-
+.Shipment-Details-TableRow-Header, .LC-Details-TableRow-Header {
+    
+    color: #422319;
+    background-color: #D3A77E;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
-.Shipment-Details-TableHeader {
+.Shipment-Details-TableHeader, .LC-Details-TableHeader {
 
-    padding-top : 5px;
-    padding-bottom : 5px;
-    padding-left : 16px;
-    padding-right : 16px;
-
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 .Shipment-Details-TableRow-Content {
