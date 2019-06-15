@@ -30,6 +30,7 @@
     </style>
 
     <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
 
 </head>
 
@@ -118,7 +119,7 @@
 
     <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
 
-        <div class="container-fluid" style="padding-left:20%; padding-right:20%; padding-top:2%">
+        <div class="container-fluid" style="padding-left:10%; padding-right:15%; padding-top:2%">
 
             <!--Seller Page : Ship Goods Based on Input Details-->
 
@@ -150,24 +151,134 @@
 
             </form>
 
-            <div class="Ship-Goods-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
+            <div class="Ship-Goods-Submission-Container" style="padding-top:5%; padding-bottom:3%">
 
-                <button type="submit" id="Ship-Goods-Button" class="btn btn-primary">Ship Goods</button>
+                <label class="col-sm-2"> </label>
+                <button type="submit" id="Ship-Goods-Button" class="btn btn-primary col-sm-2">Ship Goods</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Retrieve-Trade-Details-Button" class="btn btn-default col-sm-2">Retrieve Trade Details</button>
+                <label class="col-sm-1"> </label>
+                <button type="submit" id="Generate-Certificate-Of-Origin-Button" class="btn btn-warning col-sm-2 container-fluid">Generate Origin Cert</button>
 
             </div>
+
+            <!-- "Certificate of Origin" Details : Show Trade Details corresponding to "Certificate of Origin" -->
+
+            <form class="form-horizontal" id="Show-COO-Details-Form" style="clear:left; padding-top:6%">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="tradeId">Trade Id</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_TA_Id_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcId">LC Id</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_LC_Id_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="buyer">Buyer</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Buyer_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="seller">Seller</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Seller_Name_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipment">Shipment</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Shipment_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="shipmentCount">Shipment Count</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Shipment_Count_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="sellerLocation">Seller Location</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Seller_Location_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="sellerAddress">Seller Address</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="COO_Details_Seller_Address_Value" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+            </form>
 
         </div>
 
     </div>
 
 
-    <!--Seller Page : Ship Goods based on processed input : Business Logic-->
+    <!--Seller Page : Ship Goods based on processed input & Generate COO (Certificate of Origin) : Business Logic-->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusRetrieval.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/GenerateCertificateOfOrigin.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
 
     <script>
 
@@ -274,6 +385,127 @@
             }
 
         });
+
+        /****************************************************************************************
+        Retrieve Trade Details : Required for COO Generation
+                                 Along with Seller/Manufacturer's location details
+        *****************************************************************************************/
+
+        $("#Retrieve-Trade-Details-Button").click(function () {
+
+            // Gather inputs
+
+            var taId_value = document.getElementById("Trade-Id-Input").value;
+
+            // Retrieve Trade Details
+
+            var statusFormDetailsMap = new Map();
+
+            statusFormDetailsMap.set("TA_Element_Id", "COO_Details_TA_Id_Value");
+            statusFormDetailsMap.set("Buyer_Element_Id", "COO_Details_Buyer_Name_Value");
+            statusFormDetailsMap.set("Seller_Element_Id", "COO_Details_Seller_Name_Value");
+            statusFormDetailsMap.set("Shipment_Element_Id", "COO_Details_Shipment_Value");
+            statusFormDetailsMap.set("ShipmentCount_Element_Id", "COO_Details_Shipment_Count_Value");
+
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetailsWrapper(taId_value, false, statusFormDetailsMap);
+
+            // Fill the details of Seller Location & Address
+
+            document.getElementById("COO_Details_LC_Id_Value").innerHTML =
+                document.getElementById("LC-Id-Input").value;
+            document.getElementById("COO_Details_Seller_Location_Value").innerHTML =
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Location_Key);
+            document.getElementById("COO_Details_Seller_Address_Value").innerHTML =
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Address_Key);
+
+            // Reset Input Text Fields
+
+            document.getElementById("Trade-Id-Input").value = null;
+            document.getElementById("LC-Id-Input").value = null;
+
+        });
+
+        /****************************************************************************************
+            Generate "Certificate of Origin" PDF file based on "Trade Details & Seller Details"
+        *****************************************************************************************/
+
+        $("#Generate-Certificate-Of-Origin-Button").click(function () {
+
+            if (bDebug == true) {
+
+                alert("Generate Certificate of Origin Button Event : Generating COO PDF File");
+            }
+
+            // Retrieve the Trade Details corresponding to currrent Trade
+
+            var taIdValue = document.getElementById("COO_Details_TA_Id_Value").textContent;
+            var lcIdValue = document.getElementById("COO_Details_LC_Id_Value").textContent;
+            var buyerValue = document.getElementById("COO_Details_Buyer_Name_Value").textContent;
+            var sellerValue = document.getElementById("COO_Details_Seller_Name_Value").textContent;
+            var shipmentValue = document.getElementById("COO_Details_Shipment_Value").textContent;
+            var shipmentCountValue = document.getElementById("COO_Details_Shipment_Count_Value").textContent;
+
+            // Retrieve the Seller Details ( Current User )
+
+            var sellerLocation = document.getElementById("COO_Details_Seller_Location_Value").textContent;
+            var sellerAddress = document.getElementById("COO_Details_Seller_Address_Value").textContent;
+
+            // Check for required content
+
+            if (HelperUtilsModule.valueDefined(taIdValue) && HelperUtilsModule.valueDefined(lcIdValue) &&
+                HelperUtilsModule.valueDefined(buyerValue) && HelperUtilsModule.valueDefined(sellerValue) &&
+                HelperUtilsModule.valueDefined(shipmentValue) && HelperUtilsModule.valueDefined(shipmentCountValue) &&
+                HelperUtilsModule.valueDefined(sellerLocation) && HelperUtilsModule.valueDefined(sellerAddress)) {
+
+                if (bDebug == true) {
+
+                    alert("All the values required for COO are present..Generating COO");
+                }
+
+            } else {
+
+                alert("One of the values required for COO wasn't retrieved..Please retrieve Trade details");
+                return;
+            }
+
+            // Create Map with all Details required for COO
+
+            var certOriginDetailsMap = new Map();
+
+            certOriginDetailsMap.set("taId", taIdValue);
+            certOriginDetailsMap.set("lcId", lcIdValue);
+            certOriginDetailsMap.set("shipment", shipmentValue);
+            certOriginDetailsMap.set("shipmentCount", shipmentCountValue);
+            certOriginDetailsMap.set("buyer", buyerValue);
+            certOriginDetailsMap.set("seller", sellerValue);
+
+            certOriginDetailsMap.set("manufacturerLocation", sellerLocation);
+            certOriginDetailsMap.set("manufacturerAddress", sellerAddress);
+
+            // Create PDF File with the Selected Input Content : Client Side
+
+            GenerateCertificateOfOriginModule.GenerateCertificateOfOriginOnClientSide(certOriginDetailsMap);
+
+            // Create PDF File with the Selected Input Content : Server Side
+
+            GenerateCertificateOfOriginModule.GenerateCertificateOfOriginOnServerSide("GenerateCertificateOfOrigin", certOriginDetailsMap);
+
+            /******************************************************************************************************
+                generateCertificateOfOrigin : Place HyperLedger API Call to generate CertificateOfOrigin
+            *******************************************************************************************************/
+
+            /*
+            var API_Name = "generateCertificateOfOrigin";
+            var certificateOfOriginDetailsObject = { taId: taIdValue };
+
+            if (taIdValue != null && taIdValue != undefined) {
+
+                var certificateOfOriginStatusObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(certificateOfOriginDetailsObject, API_Name);
+            }
+            */
+
+        });
+
 
     </script>
 

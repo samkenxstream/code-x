@@ -27,6 +27,7 @@ var url = require('url');
 
 var generateLCModule = require('./GenerateLC');
 var generateTradeAgreementModule = require('./GenerateTradeAgreement');
+var generateCertOriginModule = require('./GenerateCertificateOfOrigin');
 
 var mongoDbCrudModule = require('./MongoDbCRUD');
 var HelperUtilsModule = require('./HelperUtils');
@@ -694,6 +695,17 @@ http.createServer(function (req, res) {
                         // Generate Trade Agreement and Upload it to Server
 
                         generateTradeAgreementModule.generateTradeAgreement_AndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            res);
+
+                        break;
+
+                    case "GenerateCertificateOfOrigin":
+
+                        // Generate Trade Agreement and Upload it to Server
+
+                        generateCertOriginModule.generateCertificateOfOrigin_AndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
                             clientRequestWithParamsMap,
                             res);

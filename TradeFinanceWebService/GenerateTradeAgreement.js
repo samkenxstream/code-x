@@ -30,7 +30,6 @@ global.btoa = () => { };
 var fileSystemModule = require('fs');
 var jsPdfModule = require('jspdf');
 var HelperUtilsModule = require('./HelperUtils');
-//var TradeAndLCRecordsUpdateModule = require('./TradeAndLCRecordUpdates');
 
 var bDebug = false;
 
@@ -63,13 +62,13 @@ exports.generateTradeAgreement_AndUploadItToFileServer = function (dbConnection,
     clientRequestWithParamsMap,
     http_response) {
 
-    // Check the Current Status to be "LC_Requested" Before placing LC Generation Request
+    // Check the Current Status to be "Trade_Approved" Before placing TradeAgreement Document
 
     var query_Object = new Object();
 
     var tradeId = clientRequestWithParamsMap.get("taId");
     console.log("GenerateTradeAgreement.generateTradeAgreementAndUploadItToFileServer : Check the current Status to be " +
-        "Trade_Approved before generating LC : ");
+        "Trade_Approved before generating Trade agreement : ");
 
     // Build Query Based on input <k,v> pairs
 

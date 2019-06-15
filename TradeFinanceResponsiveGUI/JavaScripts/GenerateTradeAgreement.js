@@ -85,19 +85,13 @@ var GenerateTradeAgreementModule = (function () {
 
     function GenerateTradeAgreementOnWebClientEnd(tradeDetailsMap) {
 
-        // Create LC : PDF File
+        // Create Trade Agreement : PDF File
 
         var pdfDoc = new jsPDF();
 
-        // Generate Pdf Doc
+        // Date String
 
-        var todaysDate = new Date();
-        var todaysMonth = parseInt(todaysDate.getMonth().toString());
-        todaysMonth += 1;
-        var todaysYear = parseInt(todaysDate.getYear().toString());
-        todaysYear += 1900;
-
-        var dateString = "Date : " + todaysDate.getDate().toString() + "-" + todaysMonth.toString() + "-" + todaysYear.toString();
+        var dateString = HelperUtilsModule.returnTodaysDateString();
         pdfDoc.text(135, 30, dateString);
 
         // Place
@@ -134,7 +128,7 @@ var GenerateTradeAgreementModule = (function () {
             + tradeDetailsMap.get("amount") + " .Payment will be processed to " + tradeDetailsMap.get("sellerBank") + " by " +
             tradeDetailsMap.get("buyer") + ".";
 
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeAgreement_Paragraph1, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeAgreement_Paragraph1, maxCharsInLine, spaceBetweenLines);
         Y_CoOrdinate += bufferBetweenParagraphs;
 
         // Second Paragraph Content
@@ -142,56 +136,34 @@ var GenerateTradeAgreementModule = (function () {
         var tradeAgreement_Paragraph2 = "Payment would be credit to seller bank account registered in " + tradeDetailsMap.get("sellerBank") +
             " once the shipment gets delivered.";
 
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeAgreement_Paragraph2, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeAgreement_Paragraph2, maxCharsInLine, spaceBetweenLines);
         Y_CoOrdinate += bufferBetweenParagraphs;
 
         // Trade Details
 
         var tradeDetails_Header = "Shipment Details";
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Header, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Header, maxCharsInLine, spaceBetweenLines);
         Y_CoOrdinate += spaceBetweenLines;
 
         var tradeDetails_Buyer = "Buyer : " + tradeDetailsMap.get("buyer");
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Buyer, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Buyer, maxCharsInLine, spaceBetweenLines);
 
         var tradeDetails_Seller = "Seller : " + tradeDetailsMap.get("seller");
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Seller, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Seller, maxCharsInLine, spaceBetweenLines);
 
         var tradeDetails_Shipment = "Shipment Details : " + tradeDetailsMap.get("shipment");
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Shipment, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Shipment, maxCharsInLine, spaceBetweenLines);
 
         var tradeDetails_SellerBank = "Seller Bank : " + tradeDetailsMap.get("sellerBank");
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_SellerBank, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_SellerBank, maxCharsInLine, spaceBetweenLines);
 
         var tradeDetails_Amount = "Amount : " + tradeDetailsMap.get("amount");
-        Y_CoOrdinate = printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Amount, maxCharsInLine, spaceBetweenLines);
+        Y_CoOrdinate = HelperUtilsModule.printParagraphToPDFDocument(pdfDoc, X_CoOrdinate, Y_CoOrdinate, tradeDetails_Amount, maxCharsInLine, spaceBetweenLines);
 
-        // Generate LC
+        // Generate TradeAgreement
 
         var fileName = "TradeAgreement-" + tradeDetailsMap.get("taId") + ".pdf";
         pdfDoc.save(fileName);
-
-    }
-
-    /****************************************************************************************
-        Prints paragraph into the document by splitting it based on input parameters
-    *****************************************************************************************/
-
-    function printParagraphToPDF(pdfDoc, X_CoOrdinate, Y_CoOrdinate, strParagraph, maxCharsInLine, spaceBetweenLines) {
-
-        var totalLenth = strParagraph.length;
-        var startPos = 0;
-
-        while (startPos < totalLenth) {
-
-            var currentLine = strParagraph.substr(startPos, maxCharsInLine);
-            pdfDoc.text(X_CoOrdinate, Y_CoOrdinate, currentLine);
-
-            Y_CoOrdinate += spaceBetweenLines;
-            startPos += maxCharsInLine;
-        }
-
-        return Y_CoOrdinate;
 
     }
 

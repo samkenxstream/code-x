@@ -99,11 +99,26 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
     }
 
-    /****************************************************************************************
+    /***************************************************************************************************************
         Retrieve Trade Details : Retrieve the trade details from mongo DB based on Trade_Id
-    *****************************************************************************************/
+
+     *
+     * @param {any} Trade_Id  : Trade Agreement Id Value
+     * @param {any} Client_Request  : Web Client Request for Mongo DB
+     * @param {any} currentUser : Current User Name from User-Context
+     * @param {any} currentUserType : Current User Type from User-Context
+     * @param {optional} statusFormDetailsMap : Form Document Element IDs where the Trade Details need to be filled
+     *
+
+    ****************************************************************************************************************/
 
     function retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request, currentUser, currentUserType) {
+
+        retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request, currentUser, currentUserType, null);
+
+    }
+
+    function retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request, currentUser, currentUserType, statusFormDetailsMap) {
 
         var xmlhttp;
         var httpRequestString = webServerPrefix;
@@ -145,7 +160,7 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
                         if (currentUser == responseObject[currentUserType]) {
 
-                            fillTheShipmentStatusDetailsPage(responseObject);
+                            fillTheShipmentStatusDetailsPage(responseObject, statusFormDetailsMap);
 
                         } else {
 
@@ -180,34 +195,103 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
     }
 
-    /****************************************************************************************
+    /********************************************************************************************************************************
         Shipment Status Details Page : Fill the Shipment Details based on Response
-    *****************************************************************************************/
+
+     *
+     * @param {any} TradeDetails_ResponseObject : Trade Details Response Object retrieved by Web Client Request
+     * @param {optional} statusFormDetailsMap : Form Document Element IDs where the Trade Details need to be filled
+     *
+
+    **********************************************************************************************************************************/
 
     function fillTheShipmentStatusDetailsPage(TradeDetails_ResponseObject) {
 
-        if (bDebug == true) {
-
-            alert("fillTheShipmentStatusDetailsPage : Trade_Id => " + TradeDetails_ResponseObject.Trade_Id);
-            alert("fillTheShipmentStatusDetailsPage : Buyer => " + TradeDetails_ResponseObject.Buyer);
-        }
-
-        document.getElementById("Shipment_Details_TA_Id_Value").textContent = TradeDetails_ResponseObject.Trade_Id;
-
-        if (bDebug == true) {
-
-            alert("document.getElementById.Shipment_Details_TA_Id_Value.innerHTML => " + document.getElementById("Shipment_Details_TA_Id_Value").value);
-        }
-
-        document.getElementById("Shipment_Details_Buyer_Name_Value").innerHTML = TradeDetails_ResponseObject.Buyer;
-        document.getElementById("Shipment_Details_Seller_Name_Value").innerHTML = TradeDetails_ResponseObject.Seller;
-        document.getElementById("Shipment_Details_Seller_Bank_Value").innerHTML = TradeDetails_ResponseObject.SellerBank;
-        document.getElementById("Shipment_Details_Shipment_Value").innerHTML = TradeDetails_ResponseObject.Shipment;
-        document.getElementById("Shipment_Details_Shipment_Count_Value").innerHTML = TradeDetails_ResponseObject.ShipmentCount;
-        document.getElementById("Shipment_Details_Amount_Value").innerHTML = TradeDetails_ResponseObject.Amount;
-        document.getElementById("Shipment_Details_Status_Value").innerHTML = TradeDetails_ResponseObject.Current_Status;
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_TA_Id_Value", TradeDetails_ResponseObject.Trade_Id);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Buyer_Name_Value", TradeDetails_ResponseObject.Buyer);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Seller_Name_Value", TradeDetails_ResponseObject.Seller);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Seller_Bank_Value", TradeDetails_ResponseObject.SellerBank);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Shipment_Value", TradeDetails_ResponseObject.Shipment);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Shipment_Count_Value", TradeDetails_ResponseObject.ShipmentCount);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Amount_Value", TradeDetails_ResponseObject.Amount);
+        HelperUtilsModule.fillDataInDocumentElement("Shipment_Details_Status_Value", TradeDetails_ResponseObject.Current_Status);
 
     }
+
+    function fillTheShipmentStatusDetailsPage(TradeDetails_ResponseObject, statusFormDetailsMap) {
+
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "TA_Element_Id", TradeDetails_ResponseObject.Trade_Id);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "Buyer_Element_Id", TradeDetails_ResponseObject.Buyer);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "Seller_Element_Id", TradeDetails_ResponseObject.Seller);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "SellerBank_Element_Id", TradeDetails_ResponseObject.SellerBank);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "Shipment_Element_Id", TradeDetails_ResponseObject.Shipment);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "ShipmentCount_Element_Id", TradeDetails_ResponseObject.ShipmentCount);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "Amount_Element_Id", TradeDetails_ResponseObject.Amount);
+        HelperUtilsModule.fillDataInDocumentElementThroughMap(statusFormDetailsMap, "TradeStatus_Element_Id", TradeDetails_ResponseObject.Current_Status);
+
+    }
+
+    /*************************************************************************************************************
+        retrieveTradeDetailsWrapper : Wrapper for Trade Details Retrieval
+                                      With the ability to display the status details in given "Form Details Map"
+
+     *
+     * @param {any} taid_value  : Trade Agreement Id Value
+     * @param {any} bPlaceHyperLederCall  : if true, place HyperLedger call in addition to Mongo DB Call
+     * @param {any} statusFormDetailsMap : Form Document Element IDs where the Trade Details need to be filled
+     *
+
+    **************************************************************************************************************/
+
+    function retrieveTradeDetailsWrapper(taid_value, bPlaceHyperLederCall, statusFormDetailsMap) {
+
+        if ( !HelperUtilsModule.valueDefined(taid_value) ) {
+
+            alert("TradeAndLC-StatusRetrieval.retrieveTradeDetailsWrapper: taId value must be entered to retrieve the Trade Details");
+            return;
+        }
+
+        // Retrieve the Trade Details from mongoDb
+
+        var Client_Request = "RetrieveTradeDetails";
+
+        currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+        currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+
+        if (bDebug == true) {
+
+            alert("current Name of the logged in User : " + currentUserName);
+            alert("current UserType set in User Context during Page Load : " + currentUserType);
+        }
+
+        if ( HelperUtilsModule.valueDefined(currentUserName) && HelperUtilsModule.valueDefined(currentUserType) ) {
+
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB( taid_value, Client_Request, currentUserName,
+                currentUserType, statusFormDetailsMap);
+
+        } else {
+
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null, statusFormDetailsMap);
+        }
+
+        /****************************************************************************************
+            getTA : Place HyperLedger API Call
+        *****************************************************************************************/
+
+        if (bPlaceHyperLederCall == true) {
+
+        /*
+         
+            var API_Name = "getTA";
+            var tradeDetailsRequestObject = { taId: taid_value };
+
+            tradeStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsRequestObject, API_Name);
+        */
+
+        }
+
+    }
+
 
     /****************************************************************************************
         Reveal private methods 
@@ -216,7 +300,8 @@ var TradeAndLC_StatusRetrievalModule = (function () {
     return {
 
         retrieveLCDetails_MongoDB: retrieveLcDetails_FromMongoDB,
-        retrieveTradeDetails_MongoDB: retrieveTradeDetails_FromMongoDB
+        retrieveTradeDetails_MongoDB: retrieveTradeDetails_FromMongoDB,
+        retrieveTradeDetailsWrapper: retrieveTradeDetailsWrapper
 
     };
 
