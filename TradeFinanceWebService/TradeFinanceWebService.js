@@ -28,6 +28,7 @@ var url = require('url');
 var generateLCModule = require('./GenerateLC');
 var generateTradeAgreementModule = require('./GenerateTradeAgreement');
 var generateCertOriginModule = require('./GenerateCertificateOfOrigin');
+var generateBillOfLadingModule = require('./GenerateBillOfLading');
 
 var mongoDbCrudModule = require('./MongoDbCRUD');
 var HelperUtilsModule = require('./HelperUtils');
@@ -703,9 +704,20 @@ http.createServer(function (req, res) {
 
                     case "GenerateCertificateOfOrigin":
 
-                        // Generate Trade Agreement and Upload it to Server
+                        // Generate Certificate of Origin and Upload it to Server
 
                         generateCertOriginModule.generateCertificateOfOrigin_AndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
+                            tradeAndLcTable_Name,
+                            clientRequestWithParamsMap,
+                            res);
+
+                        break;
+
+                    case "GenerateBillOfLading":
+
+                        // Generate Bill of Lading and Upload it to Server
+
+                        generateBillOfLadingModule.generateBillOfLading_AndUploadItToFileServer(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
                             clientRequestWithParamsMap,
                             res);

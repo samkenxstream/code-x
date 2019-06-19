@@ -54,7 +54,9 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
                     } else {
 
-                        alert("Incorrect User Name/Type in current User Context");
+                        alert("Either of currentUser or currentUserType values are null/undefined");
+                        fillTheLCStatusDetailsPage(responseObject);
+
                     }
 
                 } else {
@@ -169,7 +171,9 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
                     } else {
 
-                        alert("Incorrect User Name/Type in current User Context");
+                        alert("Either of currentUser or currentUserType values are null/undefined");
+                        fillTheShipmentStatusDetailsPage(responseObject, statusFormDetailsMap);
+
                     }
 
                 } else {
@@ -266,10 +270,20 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
         if ( HelperUtilsModule.valueDefined(currentUserName) && HelperUtilsModule.valueDefined(currentUserType) ) {
 
+            if (bDebug == true) {
+
+                alert("currentUserName : " + currentUserName + " ,currentUserType : " + currentUserType);
+            }
+
             TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB( taid_value, Client_Request, currentUserName,
                 currentUserType, statusFormDetailsMap);
 
         } else {
+
+            if (bDebug == true) {
+
+                alert("User Name & User Type values are null");
+            }
 
             TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null, statusFormDetailsMap);
         }

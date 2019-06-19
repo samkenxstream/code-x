@@ -29,6 +29,7 @@
     </style>
 
     <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
 
 </head>
 
@@ -137,6 +138,8 @@
                 <label class="col-sm-1"> </label>
                 <button type="submit" id="Load-Shipment-Button" class="btn btn-primary col-sm-2">Load Shipment</button>
                 <label class="col-sm-1"> </label>
+                <button type="submit" id="Retrieve-Trade-Details-Button" class="btn btn-default col-sm-2">Retrieve Trade Details</button>
+                <label class="col-sm-1"> </label>
                 <button type="submit" id="Generate-BillOfLading-Button" class="btn btn-warning  col-sm-3 container-fluid">Generate Bill Of Lading</button>
 
             </div>
@@ -183,18 +186,6 @@
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="sellerBank">SellerBank</label>
-
-                    <div class="col-sm-10">
-
-                        <textarea class="form-control" id="Shipment_Details_Seller_Bank_Value" disabled> </textarea>
-
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-
                     <label class="control-label col-sm-2" for="shipment">Shipment</label>
 
                     <div class="col-sm-10">
@@ -219,11 +210,11 @@
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="creditAmount">Credit Amount</label>
+                    <label class="control-label col-sm-2" for="tradeStatus">Trade Status</label>
 
                     <div class="col-sm-10">
 
-                        <textarea class="form-control" id="Shipment_Details_Amount_Value" disabled> </textarea>
+                        <textarea class="form-control" id="Shipment_Details_Trade_Status_Value" disabled> </textarea>
 
                     </div>
 
@@ -231,11 +222,35 @@
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="tradeStatus">Trade Status</label>
+                    <label class="control-label col-sm-2" for="carrierName">Carrier Name</label>
 
                     <div class="col-sm-10">
 
-                        <textarea class="form-control" id="Shipment_Details_Status_Value" disabled> </textarea>
+                        <textarea class="form-control" id="Shipment_Details_Carrier_Name" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="carrierLocation">Carrier Location</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Carrier_Location" disabled> </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="carrierAddress">Carrier Address</label>
+
+                    <div class="col-sm-10">
+
+                        <textarea class="form-control" id="Shipment_Details_Carrier_Address" disabled> </textarea>
 
                     </div>
 
@@ -257,6 +272,11 @@
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusRetrieval.js"></script>
+    <script src="./JavaScripts/WebClientRequestHelperUtils.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
+    <script src="./JavaScripts/PDFDocGeneration-HelperUtils.js"></script>
+    <script src="./JavaScripts/GenerateBillOfLading.js"></script>
 
     <script>
 
@@ -267,10 +287,10 @@
         var setAuthRefreshInterval = null;
 
         /***********************************************************************************************************
-    
+
         Load Shipment : Change the status of Trade / Shipment in mongo db by changing it to "Shipment_Loaded"
         Load Shipment : Place HyperLedger API Call
-    
+
         ************************************************************************************************************/
 
         $("#Load-Shipment-Button").click(function () {
@@ -287,13 +307,6 @@
             if (taId_value != null && taId_value != undefined) {
 
                 queryMap.set("Trade_Id", taId_value);
-
-                // Include the current User's Name in query as Carrier
-                // Does the "Inclusiveness Check" ( Current Carrier <=> Trade_Id ) automatically
-
-                currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
-                queryMap.set("Carrier", currentUserName);
-
                 queryEmpty = false;
             }
 
@@ -316,101 +329,129 @@
 
                 document.getElementById("Trade-Id-Input").value = null;
 
-                retrieveTradeDetailsWrapper(taId_value);
             }
 
         });
 
+
         /****************************************************************************************
-            retrieveTradeDetailsWrapper : Retrieve the details of trade from mongo db
-                                        : Any user specific business logic can be written here
+        Retrieve Trade Details : Required for BOL Generation
+                                 Along with Carrier's details
         *****************************************************************************************/
 
-        function retrieveTradeDetailsWrapper(taid_value) {
+        $("#Retrieve-Trade-Details-Button").click(function () {
 
-            if (taid_value == null) {
+            // Gather inputs
 
-                alert("retrieveTradeDetailsWrapper: taId value must be entered to retrieve the Trade Details");
-                return;
-            }
+            var taId_value = document.getElementById("Trade-Id-Input").value;
 
-            // Retrieve the Trade Details from mongoDb
+            // Retrieve Trade Details
 
-            var Client_Request = "RetrieveTradeDetails";
+            var statusFormDetailsMap = new Map();
 
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
-            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
+            statusFormDetailsMap.set("TA_Element_Id", "Shipment_Details_TA_Id_Value");
+            statusFormDetailsMap.set("Buyer_Element_Id", "Shipment_Details_Buyer_Name_Value");
+            statusFormDetailsMap.set("Seller_Element_Id", "Shipment_Details_Seller_Name_Value");
+            statusFormDetailsMap.set("Shipment_Element_Id", "Shipment_Details_Shipment_Value");
+            statusFormDetailsMap.set("ShipmentCount_Element_Id", "Shipment_Details_Shipment_Count_Value");
+            statusFormDetailsMap.set("TradeStatus_Element_Id", "Shipment_Details_Trade_Status_Value");
 
-            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetailsWrapper(taId_value, false, statusFormDetailsMap);
 
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
+            // Fill the details of Seller Location & Address
 
-            } else {
+            document.getElementById("Shipment_Details_Carrier_Name").innerHTML =
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+            document.getElementById("Shipment_Details_Carrier_Location").innerHTML =
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Location_Key);
+            document.getElementById("Shipment_Details_Carrier_Address").innerHTML =
+                window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Address_Key);
 
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
-            }
+            // Reset Input Text Fields
 
-            /****************************************************************************************
-                getTA : Place HyperLedger API Call
-            *****************************************************************************************/
+            document.getElementById("Trade-Id-Input").value = null;
 
-            /*
-            var API_Name = "getTA";
-            var tradeDetailsRequestObject = { taId: taid_value };
-
-            tradeStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsRequestObject, API_Name);
-            */
-
-        }
+        });
 
         /****************************************************************************************
-            Generate "Bill of Lading" PDF file based on Trade Details
+            Generate "Bill Of Lading" PDF file based on "Trade Details & Carrier Details"
         *****************************************************************************************/
 
         $("#Generate-BillOfLading-Button").click(function () {
 
-            // Get the Trade Details corresponding to Loaded Shipment
+            if (bDebug == true) {
+
+                alert("Generate Bill of Lading Button Event : Generating BOL PDF File");
+            }
+
+            // Retrieve the Trade Details corresponding to currrent Trade
 
             var taIdValue = document.getElementById("Shipment_Details_TA_Id_Value").textContent;
             var buyerValue = document.getElementById("Shipment_Details_Buyer_Name_Value").textContent;
             var sellerValue = document.getElementById("Shipment_Details_Seller_Name_Value").textContent;
-            var sellerBankValue = document.getElementById("Shipment_Details_Seller_Bank_Value").textContent;
             var shipmentValue = document.getElementById("Shipment_Details_Shipment_Value").textContent;
             var shipmentCountValue = document.getElementById("Shipment_Details_Shipment_Count_Value").textContent;
-            var shipmentPriceValue = document.getElementById("Shipment_Details_Amount_Value").textContent;
-            var shipmentStatusValue = document.getElementById("Shipment_Details_Status_Value").textContent;
+            var tradeStatusValue = document.getElementById("Shipment_Details_Trade_Status_Value").textContent;
 
-            // Create Map with all Shipment Details
+            // Retrieve the Carrier Details ( Current User )
 
-            var tradeDetailsMap = new Map();
+            var carrierName = document.getElementById("Shipment_Details_Carrier_Name").textContent;
+            var carrierLocation = document.getElementById("Shipment_Details_Carrier_Location").textContent;
+            var carrierAddress = document.getElementById("Shipment_Details_Carrier_Address").textContent;
 
-            tradeDetailsMap.set("taId", taIdValue);
-            tradeDetailsMap.set("buyer", buyerValue);
-            tradeDetailsMap.set("seller", sellerValue);
-            tradeDetailsMap.set("sellerBank", sellerBankValue);
-            tradeDetailsMap.set("shipment", shipmentValue);
-            tradeDetailsMap.set("shipmentCount", shipmentCountValue);
-            tradeDetailsMap.set("amount", shipmentPriceValue);
-            tradeDetailsMap.set("shipmentStatus", shipmentStatusValue);
+            // Check for required content
+
+            if (HelperUtilsModule.valueDefined(taIdValue) && HelperUtilsModule.valueDefined(carrierName) &&
+                HelperUtilsModule.valueDefined(buyerValue) && HelperUtilsModule.valueDefined(sellerValue) &&
+                HelperUtilsModule.valueDefined(shipmentValue) && HelperUtilsModule.valueDefined(shipmentCountValue) &&
+                HelperUtilsModule.valueDefined(tradeStatusValue) && HelperUtilsModule.valueDefined(carrierLocation) &&
+                HelperUtilsModule.valueDefined(carrierAddress)) {
+
+                if (bDebug == true) {
+
+                    alert("All the values required for BOL are present..Generating BOL");
+                }
+
+            } else {
+
+                alert("One of the values required for BOL wasn't retrieved..Please retrieve Trade details");
+                return;
+            }
+
+            // Create Map with all Details required for BOL
+
+            var BillOfLadingDetailsMap = new Map();
+
+            BillOfLadingDetailsMap.set("taId", taIdValue);
+            BillOfLadingDetailsMap.set("shipment", shipmentValue);
+            BillOfLadingDetailsMap.set("shipmentCount", shipmentCountValue);
+            BillOfLadingDetailsMap.set("buyer", buyerValue);
+            BillOfLadingDetailsMap.set("seller", sellerValue);
+            BillOfLadingDetailsMap.set("tradeStatus", tradeStatusValue);
+
+            BillOfLadingDetailsMap.set("carrierName", carrierName);
+            BillOfLadingDetailsMap.set("carrierLocation", carrierLocation);
+            BillOfLadingDetailsMap.set("carrierAddress", carrierAddress);
 
             // Create PDF File with the Selected Input Content : Client Side
 
-            GenerateBillOfLadingModule.GenerateBillOfLadingOnClientSide(tradeDetailsMap);
+            GenerateBillOfLadingModule.GenerateBillOfLadingOnClientSide(BillOfLadingDetailsMap);
 
             // Create PDF File with the Selected Input Content : Server Side
 
-            GenerateBillOfLadingModule.GenerateBillOfLadingOnServerSide("GenerateBillOfLading", tradeDetailsMap);
+            WebClientRequestHelperModule.webClientRequestAPIWrapper("GenerateBillOfLading", BillOfLadingDetailsMap);
 
-            /****************************************************************************************
-                generateBillOfLading : Place HyperLedger API Call to generate Bill Of Lading
-            *****************************************************************************************/
+            /******************************************************************************************************
+                generateBillOfLading : Place HyperLedger API Call to generate BillOfLading
+            *******************************************************************************************************/
+
             /*
             var API_Name = "generateBillOfLading";
-            var tradeDetailsObject = { taId: taIdValue };
+            var billOfLadingDetailsObject = { taId: taIdValue };
 
             if (taIdValue != null && taIdValue != undefined) {
 
-                var billOfLadingStatusObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsObject, API_Name);
+                var billOfLadingStatusObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(billOfLadingDetailsObject, API_Name);
             }
             */
 
@@ -447,7 +488,7 @@
 
             // Auto refresh page based on Periodic Authentication
 
-            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+            //setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
         }
 
         /***************************************************************************************************************************

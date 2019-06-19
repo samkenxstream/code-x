@@ -583,8 +583,16 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
 
 /**
  * 
- * Status Transition :    Trade_Requested => Trade_Approved => LC_Requested => LC_Generated => LC_Approved
- *                        => Trade_Shipped => Shipment_Accepted => Payment_Requested => Payment_Made.
+ * @param {String} statusToBeUpdated : status of the Record to be updated
+ * @param {String} currentStatus     : current Status of the record 
+ *
+ * Status Transition ( Acceptance Transitions )  :  Trade_Requested => Trade_Approved => LC_Requested => LC_Generated => 
+ *                                                  LC_Approved_Seller => LC_Approved => Trade_Shipped => Shipment_Loaded => 
+ *                                                  Customs_Approved => Shipment_Accepted => Payment_Requested => Payment_Made
+ *
+ * Status Transition ( Rejection Transitions )  :  Trade_Requested => Trade_Rejected
+ *                                                 LC_Generated LC_Approved_Seller => LC_Rejected
+ *                                                 Shipment_Loaded => Customs_Rejected
  *
 */
 
@@ -595,15 +603,39 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
     expectedPreviousStatusMap.set("Trade_Requested", null);
     expectedPreviousStatusMap.set("Trade_Approved", "Trade_Requested");
     expectedPreviousStatusMap.set("Trade_Rejected", "Trade_Requested");
+
     expectedPreviousStatusMap.set("LC_Requested", null);
     expectedPreviousStatusMap.set("LC_Generated", null);
-    expectedPreviousStatusMap.set("LC_Approved", "LC_Generated");
+    expectedPreviousStatusMap.set("LC_Approved_Seller", "LC_Generated");
+    expectedPreviousStatusMap.set("LC_Approved", "LC_Approved_Seller");
+    expectedPreviousStatusMap.set("LC_Rejected", "LC_Generated LC_Approved_Seller");
+
     expectedPreviousStatusMap.set("Trade_Shipped", "LC_Approved");
-    expectedPreviousStatusMap.set("Shipment_Accepted", "Trade_Shipped");
+    expectedPreviousStatusMap.set("Shipment_Loaded", "Trade_Shipped");
+    expectedPreviousStatusMap.set("Customs_Approved", "Shipment_Loaded");
+    expectedPreviousStatusMap.set("Customs_Rejected", "Shipment_Loaded");
+
+    expectedPreviousStatusMap.set("Shipment_Accepted", "Customs_Approved");
     expectedPreviousStatusMap.set("Payment_Requested", "Shipment_Accepted");
     expectedPreviousStatusMap.set("Payment_Made", "Payment_Requested");
 
-    if (expectedPreviousStatusMap.get(statusToBeUpdated) == currentStatus || expectedPreviousStatusMap.get(statusToBeUpdated) == null) {
+    var expectedStatus = expectedPreviousStatusMap.get(statusToBeUpdated);
+
+    if (expectedStatus.includes(" ")) {
+
+        var expectedStatusStrArray = expectedStatus.split(" ");
+
+        for (var currentObtainedStatus of expectedStatusStrArray) {
+
+            if (currentObtainedStatus == currentStatus) {
+
+                return true;
+            }
+        }
+
+        return false;
+
+    } else if (expectedStatus == currentStatus || expectedStatus == null) {
 
         return true;
     } 

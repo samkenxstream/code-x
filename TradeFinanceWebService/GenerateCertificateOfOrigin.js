@@ -1,9 +1,9 @@
 
 /*************************************************************************
  * 
+ *   Certificate of Origin PDF document Generation on Server Side
  * 
- * 
- *************************************************************************/
+**************************************************************************/
 
 'use strict';
 
@@ -55,8 +55,6 @@ var certificateOfOriginFilesDestination = "./CertificateOfOriginFiles/";
  * @param {any} dbConnection  : Connection to database
  * @param {any} tradeAndLcTable_Name  : Name of Table ( Collection )
  * @param {any} clientRequestWithParamsMap : Map of <K,V> Pairs ( Record ) used to generate COO
- * @param {any} webClientRequest : Web Client Request API
- * @param {any} statusToBeUpdated : Status of LC Request to be Updated
  * @param { any } http_response: Http Response to be built based on CertificateOfOrigin Generation and Upload to file Server
  *
 */
@@ -126,7 +124,7 @@ function generateCertificateOfOriginAndUpload(clientRequestWithParamsMap, http_r
 
 function generateCertificateOfOriginFileBasedOnSelectedInput(clientRequestWithParamsMap) {
 
-    // Create Trade Agreement : PDF File
+    // Create Certificate of Origin : PDF File
 
     var pdfDoc = new jsPdfModule();
 
