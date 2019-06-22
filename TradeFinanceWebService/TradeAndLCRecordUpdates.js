@@ -511,11 +511,12 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
     var userName = clientRequestWithParamsMap.get("UserName");
     var sellerName = clientRequestWithParamsMap.get("Seller");
     var bankName = clientRequestWithParamsMap.get("Bank");
+    var sellerBank = clientRequestWithParamsMap.get("SellerBank");
 
     // Parameter List String Building
 
     var paramList = "<=> Param List <=> " + "Trade_Id: " + tradeId + ", Lc_Id: " + lcId +
-        ", UserName: " + userName + ", Seller: " + sellerName + ", Bank: " + bankName;
+        ", UserName: " + userName + ", Seller: " + sellerName + ", Bank: " + bankName + ", SellerBank: " + sellerBank;
 
     console.log("updateRecordStatusInTradeAndLcDatabase : Updating the status : " + statusToBeUpdated + paramList);
 
@@ -544,6 +545,11 @@ exports.updateRecordStatusInTradeAndLcDatabase = function (dbConnection, collect
     if (bankName != null && bankName != undefined) {
 
         query_Object.Bank = bankName;
+    }
+
+    if (sellerBank != null && sellerBank != undefined) {
+
+        query_Object.SellerBank = sellerBank;
     }
 
     // Check to make sure the presence of atleast one query
@@ -621,7 +627,11 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
 
     var expectedStatus = expectedPreviousStatusMap.get(statusToBeUpdated);
 
-    if (expectedStatus.includes(" ")) {
+    if (expectedStatus == null) {
+
+        return true;
+
+    } else if (expectedStatus.includes(" ")) {
 
         var expectedStatusStrArray = expectedStatus.split(" ");
 
@@ -635,7 +645,7 @@ function checkValidityOfShipmentStatusTransition(statusToBeUpdated, currentStatu
 
         return false;
 
-    } else if (expectedStatus == currentStatus || expectedStatus == null) {
+    } else if (expectedStatus == currentStatus) {
 
         return true;
     } 

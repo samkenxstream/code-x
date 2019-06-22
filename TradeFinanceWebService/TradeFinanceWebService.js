@@ -426,8 +426,9 @@ http.createServer(function (req, res) {
 
                         mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
-                            null,
-                            null,
+                            //null,
+                            //null,
+                            clientRequestWithParamsMap,
                             TradeAndLCRecordsUpdateModule.handleQueryResults,
                             req,
                             res);
@@ -437,11 +438,12 @@ http.createServer(function (req, res) {
 
                     case "RetrieveTradeDetails":
 
-                        var tradeId = clientRequestWithParamsMap.get("Trade_Id");
+                        //var tradeId = clientRequestWithParamsMap.get("Trade_Id");
                         mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
-                            tradeId,
-                            null,
+                            //tradeId,
+                            //null,
+                            clientRequestWithParamsMap,
                             TradeAndLCRecordsUpdateModule.handleQueryResults,
                             req,
                             res);
@@ -451,11 +453,12 @@ http.createServer(function (req, res) {
 
                     case "RetrieveLCDetails":
 
-                        var lcId = clientRequestWithParamsMap.get("Lc_Id");
+                        //var lcId = clientRequestWithParamsMap.get("Lc_Id");
                         mongoDbCrudModule.retrieveRecordFromTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
-                            null,
-                            lcId,
+                            //null,
+                            //lcId,
+                            clientRequestWithParamsMap,
                             TradeAndLCRecordsUpdateModule.handleQueryResults,
                             req,
                             res);
@@ -583,7 +586,22 @@ http.createServer(function (req, res) {
 
                     case "ApproveLCRequest":
 
-                        var statusToBeUpdated = "LC_Approved";
+                        var statusToBeUpdated = null;
+
+                        if (HelperUtilsModule.valueDefined(clientRequestWithParamsMap.get("SellerBank"))) {
+
+                            statusToBeUpdated = "LC_Approved";
+
+                        } else if (clientRequestWithParamsMap.get("Seller")) {
+
+                            statusToBeUpdated = "LC_Approved_Seller";
+
+                        } else {
+
+                            statusToBeUpdated = "Inappropriate_Status";
+
+                        }
+
                         TradeAndLCRecordsUpdateModule.updateRecordStatusInTradeAndLcDatabase(dbConnection_TradeAndLcDatabase,
                             tradeAndLcTable_Name,
                             clientRequestWithParamsMap,

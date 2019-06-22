@@ -27,6 +27,7 @@
         body {
             background-color: #B9B6B5;
         }
+
     </style>
 
     <script src="https://github.com/ethereum/web3.js/tree/develop/dist/web3.min.js"></script>
@@ -63,12 +64,13 @@
 
                         <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
 
-                            <button type="button" class="btn btn-info" id="Seller-dropdown-button" data-toggle="dropdown" href="./TFBuyerBank.html">Bank&nbsp;&nbsp;<span class="caret" /></button>
+                            <button type="button" class="btn btn-info" id="bank-dropdown-button" data-toggle="dropdown" href="./TFBuyerBank.html">Bank&nbsp;&nbsp;<span class="caret" /></button>
 
                             <ul class="dropdown-menu">
 
                                 <li> <a href="./TFBuyerBank.html">LC Requests</a> </li>
                                 <li> <a href="./TFBuyerBank-MakePayment.html">Make Payment</a> </li>
+                                <li> <a href="./TFSellerBank.html">Approve LC</a> </li>
 
                             </ul>
 
@@ -150,7 +152,7 @@
 
         <!--Bank Page : LC Details display in Tabular format-->
 
-        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+        <div class="container-fluid" style="padding-left:5%; padding-right:5%; padding-top:2%">
 
             <table id="Buyer_Bank_Shipment_Order_Details" class="Buyer-Bank-Shipment-Order-Details">
 
@@ -159,8 +161,9 @@
                     <th class="Shipment-Details-TableHeader">taId</th>
                     <th class="Shipment-Details-TableHeader">lcId</th>
                     <th class="Shipment-Details-TableHeader">Buyer</th>
-                    <th class="Shipment-Details-TableHeader">Bank</th>
+                    <th class="Shipment-Details-TableHeader">BuyerBank</th>
                     <th class="Shipment-Details-TableHeader">Seller</th>
+                    <th class="Shipment-Details-TableHeader">SellerBank</th>
                     <th class="Shipment-Details-TableHeader">Shipment</th>
                     <th class="Shipment-Details-TableHeader">ShipmentCount</th>
                     <th class="Shipment-Details-TableHeader">ExpiryDate</th>
@@ -191,6 +194,7 @@
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
 
     <script>
 
@@ -210,7 +214,7 @@
 
             // Retrieve the Lc Details from mongoDb
 
-            var Client_Request = "RetrieveAllRecords";
+            var Client_Request = "RetrieveLCDetails";
             var LCStatusOptions = document.getElementById('Select-LC-Status').options;
             var Requested_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
 
@@ -230,14 +234,22 @@
                 alert("currentBankName of the logged in Bank user : " + currentBankName);
             }
 
-            if (currentBankName != null && currentBankName != undefined && currentBankName != "") {
+            // Build the Query based on selected LC Status
 
-                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, currentBankName, "Bank");
+            var queryMap = new Map();
+
+            if (HelperUtilsModule.valueDefined(Requested_LC_Status)) {
+
+                queryMap.set("LC_Status", Requested_LC_Status);
 
             } else {
 
-                RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, Requested_LC_Status, null, null);
+                queryMap.set("LC_Status", "LC_Requested");
+
             }
+            queryMap.set("Bank", currentBankName);
+
+            RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, queryMap, "Buyer_Bank_Shipment_Order_Details");
 
             /****************************************************************************************
                 getLC : Place HyperLedger API Call
@@ -288,20 +300,21 @@
             for (var i = 0; i < tableElementRowsLength; i++) {
 
                 var currentRowCells = tableElementRows[i].cells;
+                var selectionBoxIndexInTable = currentRowCells.length - 1;
                 var shipmentLcSelectBoxValue = false;
 
                 if (bDebug == true) {
 
-                    alert("currentRow.SelectionCell : " + currentRowCells[9]);
+                    alert("currentRow.SelectionCell : " + currentRowCells[selectionBoxIndexInTable]);
                     alert("shipmentId : " + currentRowCells[0].textContent);
-                    alert("currentRow.SelectionCell.Child : " + currentRowCells[9].childNodes[0]);
-                    alert("currentRow.SelectionCell.Child Node Type : " + currentRowCells[9].childNodes[0].type);
-                    alert("currentRow.SelectionBox.Child Node Value : " + currentRowCells[9].childNodes[0].checked);
+                    alert("currentRow.SelectionCell.Child : " + currentRowCells[selectionBoxIndexInTable].childNodes[0]);
+                    alert("currentRow.SelectionCell.Child Node Type : " + currentRowCells[selectionBoxIndexInTable].childNodes[0].type);
+                    alert("currentRow.SelectionBox.Child Node Value : " + currentRowCells[selectionBoxIndexInTable].childNodes[0].checked);
                 }
 
-                if (currentRowCells[9].childNodes[0] != null) {
+                if (currentRowCells[selectionBoxIndexInTable].childNodes[0] != null) {
 
-                    shipmentLcSelectBoxValue = currentRowCells[9].childNodes[0].checked;
+                    shipmentLcSelectBoxValue = currentRowCells[selectionBoxIndexInTable].childNodes[0].checked;
                 }
 
                 if (shipmentLcSelectBoxValue == true) {
@@ -318,10 +331,11 @@
                     var shipmentBuyer = currentRowCells[2].textContent;
                     var shipmentBank = currentRowCells[3].textContent;
                     var shipmentSeller = currentRowCells[4].textContent;
-                    var shipmentShipment = currentRowCells[5].textContent;
-                    var shipmentCount = currentRowCells[6].textContent;
-                    var shipmentExpiryDate = currentRowCells[7].textContent;
-                    var shipmentCreditAmount = currentRowCells[8].textContent;
+                    var sellerBank = currentRowCells[5].textContent;
+                    var shipmentShipment = currentRowCells[6].textContent;
+                    var shipmentCount = currentRowCells[7].textContent;
+                    var shipmentExpiryDate = currentRowCells[8].textContent;
+                    var shipmentCreditAmount = currentRowCells[9].textContent;
 
                     // Create Map with all Shipment Details
 
@@ -332,6 +346,7 @@
                     shipmentDetailsMap.set("buyer", shipmentBuyer);
                     shipmentDetailsMap.set("bank", shipmentBank);
                     shipmentDetailsMap.set("seller", shipmentSeller);
+                    shipmentDetailsMap.set("sellerBank", sellerBank);
                     shipmentDetailsMap.set("shipment", shipmentShipment);
                     shipmentDetailsMap.set("count", shipmentCount);
                     shipmentDetailsMap.set("expiryDate", shipmentExpiryDate);

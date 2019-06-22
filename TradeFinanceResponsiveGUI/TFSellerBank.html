@@ -62,10 +62,12 @@
 
                         <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
 
-                            <button type="button" class="btn btn-info" id="SellerBank-dropdown-button" data-toggle="dropdown" href="./TFSellerBank.html">SellerBank&nbsp;&nbsp;<span class="caret" /></button>
+                            <button type="button" class="btn btn-info" id="SellerBank-dropdown-button" data-toggle="dropdown" href="./TFSellerBank.html">Bank&nbsp;&nbsp;<span class="caret" /></button>
 
                             <ul class="dropdown-menu">
 
+                                <li> <a href="./TFBuyerBank.html">LC Requests</a> </li>
+                                <li> <a href="./TFBuyerBank-MakePayment.html">Make Payment</a> </li>
                                 <li> <a href="./TFSellerBank.html">Approve LC</a> </li>
 
                             </ul>
@@ -113,11 +115,36 @@
 
         <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
 
-            <!--Seller Bank Page : Show Generated LC's and assigned to current Seller Bank-->
+
+            <!--SellerBank Page : Show LC Details assigned to current SellerBank based on Selected Status-->
+
+            <form class="form-horizontal" id="Select-LC-Status-Form">
+
+                <div class="form-group">
+
+                    <label class="control-label col-sm-2" for="lcStatus">LC Status</label>
+
+                    <div class="col-sm-10">
+
+                        <select class="form-control" id="Select-LC-Status" required>
+
+                            <option value="Select">Select LC Status</option>
+                            <option value="LCGenerated">LC_Generated</option>
+                            <option value="LCApprovedServer">LC_Approved_Seller</option>
+                            <option value="LCApproved">LC_Approved</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </form>
+
 
             <div class="Retrieve-LC-Details-Submission-Container" style="float:left; padding-left:12%; padding-right:12%; padding-top:3%; padding-bottom:3%">
 
-                <button type="submit" id="Retrieve-Generated-LC-Details-Button" class="btn btn-primary">Retrieve Generated LCs</button>
+                <button type="submit" id="Retrieve-SellerBank-LC-Details-Button" class="btn btn-primary">Retrieve LCS For Approval</button>
 
             </div>
 
@@ -125,9 +152,9 @@
 
         <!--Seller Bank Page : Generated LC Details ( For Current Seller Bank ) display in Tabular format-->
 
-        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+        <div class="container-fluid" style="padding-left:5%; padding-right:5%; padding-top:2%">
 
-            <table id="Seller_Bank_Generated_LC_Details" class="Seller-Bank-Generated-LC-Details">
+            <table id="Seller_Bank_LC_Details" class="Seller-Bank-LC-Details">
 
                 <tr id="LC_Details_TableRow_Header" class="LC-Details-TableRow-Header">
 
@@ -137,8 +164,8 @@
                     <th class="LC-Details-TableHeader">BuyerBank</th>
                     <th class="LC-Details-TableHeader">Seller</th>
                     <th class="LC-Details-TableHeader">SellerBank</th>
-                    <th class="LC-Details-TableHeader">LC</th>
-                    <th class="LC-Details-TableHeader">LCCount</th>
+                    <th class="LC-Details-TableHeader">Shipment</th>
+                    <th class="LC-Details-TableHeader">ShipmentCount</th>
                     <th class="LC-Details-TableHeader">ExpiryDate</th>
                     <th class="LC-Details-TableHeader">Amount</th>
                     <th class="LC-Details-TableHeader">Select</th>
@@ -157,7 +184,7 @@
 
     </div>
 
-    <!--Seller Bank Page : Retrieve & Display Generated LC Details: business logic-->
+    <!--Seller Bank Page : Retrieve & Display LC Details based on Current Status: business logic-->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="./JavaScripts/HTMLElements-HelperUtil.js"></script>
@@ -167,6 +194,8 @@
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusUpdate.js"></script>
 
     <script>
 
@@ -179,24 +208,25 @@
 
 
         /********************************************************************************************************************
-             RetrieveLcDetails : Retrieve the Generated LC details "assigned to Current Seller for approval" from mongo db
+             RetrieveLcDetails : Retrieve the LC details "assigned to Current Seller" based on selected status from mongo db
         ********************************************************************************************************************/
 
-        $("#Retrieve-Generated-LC-Details-Button").click(function () {
+        $("#Retrieve-SellerBank-LC-Details-Button").click(function () {
 
             // Retrieve the Lc Details from mongoDb
 
             var Client_Request = "RetrieveLCDetails";
-            /*** See if RetrieveLCDetails Solves the purpose with Query differentiation ( Optional Key value pairs ) ***/
+            var LCStatusOptions = document.getElementById('Select-LC-Status').options;
+            var Selected_LC_Status = LCStatusOptions[document.getElementById('Select-LC-Status').selectedIndex].textContent;
 
-            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Seller_Bank_Generated_LC_Details");
+            HTMLElementsUtilModule.removeAllTheExistingRowsFromTable("Seller_Bank_LC_Details");
 
             if (bDebug == true) {
 
                 alert("Existing Rows are removed from the Table");
             }
 
-            // Retrieve LC_Request Details corresponding to Current Bank
+            // Retrieve LC Details corresponding to Current Seller Bank
 
             currentSellerBankName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
 
@@ -205,12 +235,22 @@
                 alert("currentBankName of the logged in Seller Bank user : " + currentSellerBankName);
             }
 
+            // Build the Query based on selected LC Status
 
             var queryMap = new Map();
-            queryMap.set("LC_Status", "LC_Generated");
+
+            if (HelperUtilsModule.valueDefined(Selected_LC_Status)) {
+
+                queryMap.set("LC_Status", Selected_LC_Status);
+
+            } else {
+
+                queryMap.set("LC_Status", "LC_Approved_Seller");
+
+            }
             queryMap.set("SellerBank", currentSellerBankName);
 
-            RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, queryMap);
+            RetrieveAndFillLCDetailsBank_Module.retrieveLCRecords_Bank(Client_Request, queryMap, "Seller_Bank_LC_Details");
 
             /****************************************************************************************
                 getLC : Place HyperLedger API Call
@@ -222,6 +262,114 @@
 
         });
 
+        /****************************************************************************************
+            Generate "Letter of Credit PDF files" for selected Shipment orders
+        *****************************************************************************************/
+
+        $("#SellerBank-Approve-LC-Button").click(function () {
+
+            if (bDebug == true) {
+
+                alert("Approve LC button : Approving LC After Seller approval");
+            }
+
+            // Get the shipment details of All the Selections in Table Rows
+
+            var tableElementRows = document.getElementById("Seller_Bank_LC_Details").rows;
+            var tableElementRowsLength = tableElementRows.length;
+
+            if (bDebug == true) {
+
+                alert("tableElementRows : " + tableElementRows);
+                alert("tableElementRowsLength : " + tableElementRowsLength);
+            }
+
+            for (var i = 0; i < tableElementRowsLength; i++) {
+
+                var currentRowCells = tableElementRows[i].cells;
+                var selectionBoxIndexInTable = currentRowCells.length - 1;
+                var shipmentLcSelectBoxValue = false;
+
+                if (bDebug == true) {
+
+                    alert("currentRow.SelectionCell : " + currentRowCells[selectionBoxIndexInTable]);
+                    alert("shipmentId : " + currentRowCells[0].textContent);
+                    alert("currentRow.SelectionCell.Child : " + currentRowCells[selectionBoxIndexInTable].childNodes[0]);
+                    alert("currentRow.SelectionCell.Child Node Type : " + currentRowCells[selectionBoxIndexInTable].childNodes[0].type);
+                    alert("currentRow.SelectionBox.Child Node Value : " + currentRowCells[selectionBoxIndexInTable].childNodes[0].checked);
+                }
+
+                if (currentRowCells[selectionBoxIndexInTable].childNodes[0] != null) {
+
+                    shipmentLcSelectBoxValue = currentRowCells[selectionBoxIndexInTable].childNodes[0].checked;
+                }
+
+                if (shipmentLcSelectBoxValue == true) {
+
+                    if (bDebug == true) {
+
+                        alert("shipmentId : " + currentRowCells[0].textContent);
+                    }
+
+                    // Retrieve the Shipment Details from Table Row Data
+
+                    var shipmentId = currentRowCells[0].textContent;
+                    var shipmentLcId = currentRowCells[1].textContent;
+
+                    // Mongo DB call for Status Change
+
+                    var queryMap = new Map();
+
+                    if (HelperUtilsModule.valueDefined(shipmentId)) {
+
+                        queryMap.set("taId", shipmentId);
+
+                    }
+
+                    if (HelperUtilsModule.valueDefined(shipmentLcId)) {
+
+                        queryMap.set("Lc_Id", shipmentLcId);
+
+                    }
+
+                    // Include the current User's Name in query as SellerBank
+                    // Does the "Inclusiveness Check" ( Current SellerBank <=> Trade_Id ) automatically
+
+                    currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
+
+                    if (HelperUtilsModule.valueDefined(currentUserName)) {
+
+                        queryMap.set("SellerBank", currentUserName);
+
+                    }
+
+                    if (!HelperUtilsModule.valueDefined(queryMap.get("taId")) && !HelperUtilsModule.valueDefined(queryMap.get("Lc_Id"))) {
+
+                        alert("At least one of Trade | LC Id's should be present in the query : ");
+
+                    } else {
+
+                        // Status Change in MongoDB
+
+                        TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord(webServerPrefix, queryMap, "ApproveLCRequest");
+
+                        // Status Change in HyperLedger
+
+                        /*
+                        var webServerPrefix = "/tfbc/";
+                        TradeAndLC_StatusUpdateModule.changeStatusOfTradeAndLcRecord_HyperLedger(webServerPrefix, queryMap, "acceptLC");
+                        */
+
+                    }
+
+                }
+            }
+
+            // Toggle the selected boxes in the Table
+
+            HTMLElementsUtilModule.toggleSelectionBoxesInTable("Seller_Bank_LC_Details");
+
+        });
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references

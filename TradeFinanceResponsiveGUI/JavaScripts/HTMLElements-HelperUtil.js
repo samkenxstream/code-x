@@ -33,6 +33,8 @@ var HTMLElementsUtilModule = (function () {
 
         var tableElementRows = document.getElementById(tableId).rows;
         var tableElementRowsLength = document.getElementById(tableId).rows.length;
+        var currentRowCells = tableElementRows[0].cells;
+        var selectionBoxIndexInTable = currentRowCells.length - 1;
 
         if (bDebug == true) {
 
@@ -44,14 +46,15 @@ var HTMLElementsUtilModule = (function () {
 
             if (bDebug == true) {
 
-                alert("currentRow.SelectionCell.Child : " + tableElementRows[i].cells[9].childNodes[0]);
-                alert("currentRow.SelectionCell.Child Node Type : " + tableElementRows[i].cells[9].childNodes[0].type);
-                alert("currentRow.SelectionBox.Child Node Value : " + tableElementRows[i].cells[9].childNodes[0].checked);
+                alert("currentRow.SelectionCell.Child : " + tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0]);
+                alert("currentRow.SelectionCell.Child Node Type : " + tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0].type);
+                alert("currentRow.SelectionBox.Child Node Value : " + tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0].checked);
             }
 
-            if (tableElementRows[i].cells[9].childNodes[0] != null && tableElementRows[i].cells[9].childNodes[0].checked == true) {
+            if (tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0] != null &&
+                tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0].checked == true) {
 
-                tableElementRows[i].cells[9].childNodes[0].checked = false;
+                tableElementRows[i].cells[selectionBoxIndexInTable].childNodes[0].checked = false;
             }
         }
 

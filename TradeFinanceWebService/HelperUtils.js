@@ -277,3 +277,23 @@ exports.removeStartingAndTrailingSpacesFromMapValues = function (inputMap) {
     return inputMap;
 }
 
+
+/**
+ * 
+ * @param {any} inputValue : Value whose definition needs to be verified
+ * 
+ * @returns {boolean}  true/false  : True if value is defined, false otherwise
+ * 
+*/
+
+exports.valueDefined = function (inputValue) {
+
+
+    if (inputValue == null || inputValue == undefined) {
+
+        return false;
+    }
+
+    return true;
+}
+
