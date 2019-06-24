@@ -327,6 +327,8 @@
 
                 document.getElementById("Trade-Id-Input").value = null;
 
+                // Retrieve Trade Details
+
                 retrieveTradeDetails(taId_value);
             }
 
@@ -455,46 +457,22 @@
             retrieveTradeDetails : Retrieve the details of trade from mongo db
         *****************************************************************************************/
 
-        function retrieveTradeDetails(taid_value) {
+        function retrieveTradeDetails(taId_value) {
 
-            if (taid_value == null) {
+            // Retrieve Trade Details
 
-                alert("retrieveTradeDetails: taId value must be entered to retrieve the Trade Details");
-                return;
-            }
+            var statusFormDetailsMap = new Map();
 
-            // Retrieve the Trade Details from mongoDb
+            statusFormDetailsMap.set("TA_Element_Id", "Shipment_Details_TA_Id_Value");
+            statusFormDetailsMap.set("Buyer_Element_Id", "Shipment_Details_Buyer_Name_Value");
+            statusFormDetailsMap.set("Seller_Element_Id", "Shipment_Details_Seller_Name_Value");
+            statusFormDetailsMap.set("SellerBank_Element_Id", "Shipment_Details_Seller_Bank_Value");
+            statusFormDetailsMap.set("Shipment_Element_Id", "Shipment_Details_Shipment_Value");
+            statusFormDetailsMap.set("ShipmentCount_Element_Id", "Shipment_Details_Shipment_Count_Value");
+            statusFormDetailsMap.set("Amount_Element_Id", "Shipment_Details_Amount_Value");
+            statusFormDetailsMap.set("TradeStatus_Element_Id", "Shipment_Details_Status_Value");
 
-            var Client_Request = "RetrieveTradeDetails";
-
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
-            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
-
-            if (bDebug == true) {
-
-                alert("current Name of the logged in Buyer : " + currentUserName);
-                alert("current UserType set during Page Load User Context : " + currentUserType);
-            }
-
-            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
-
-            } else {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
-            }
-
-            /****************************************************************************************
-                getTA : Place HyperLedger API Call
-            *****************************************************************************************/
-
-            /*
-            var API_Name = "getTA";
-            var tradeDetailsRequestObject = { taId: taid_value };
-
-            tradeStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsRequestObject, API_Name);
-            */
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetailsWrapper(taId_value, false, statusFormDetailsMap);
 
         }
 
@@ -538,7 +516,6 @@
             UserAuthenticationModule.authenticateUserOnPageLoad();
 
         }
-
 
     </script>
 

@@ -34,7 +34,8 @@ var UserAuthenticationModule = (function () {
     function processUserRegistration(event) {
 
         var todaysDate = new Date();
-        var uniqueUserId = "UserId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString() + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
+        var uniqueUserId = "UserId_" + todaysDate.getYear().toString() + todaysDate.getMonth().toString() + todaysDate.getDate().toString()
+            + todaysDate.getHours().toString() + todaysDate.getMinutes().toString() + todaysDate.getSeconds().toString();
 
         // Prepare Http Request from Form data for User Registration
 
@@ -138,6 +139,7 @@ var UserAuthenticationModule = (function () {
 
                     responseObject = JSON.parse(this.responseText);
                     alert(" Request Content: " + responseObject.Request + ", Status Content: " + responseObject.Status);
+                    document.location.replace("./TradeFinanceHome.html");
 
                 } else {
 
@@ -326,12 +328,6 @@ var UserAuthenticationModule = (function () {
     function filterDisplayBasedOnLoggedInUser( ) {
 
         // Hide Login Navigation & Display Content Navigation
-
-        /*
-        document.getElementById("Content-Navigation-bar").style.display = "initial";
-        document.getElementById("Login-Navigation-bar").style.display = "none";
-        document.getElementById("TradeFinance-HomePage").style.display = "none";
-        */
 
         // Set User Context
 

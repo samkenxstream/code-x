@@ -175,7 +175,7 @@ exports.retrieveRecordFromTradeAndLcDatabase = function (dbConnection, collectio
     var queryObject = new Object();
     var queryType = "AllRecords";
 
-    var tradeId = clientRequestWithParamsMap.get("taId");
+    var tradeId = clientRequestWithParamsMap.get("Trade_Id");
     var lcId = clientRequestWithParamsMap.get("Lc_Id");
     var lcStatus = clientRequestWithParamsMap.get("LC_Status");
     var sellerBank = clientRequestWithParamsMap.get("SellerBank");

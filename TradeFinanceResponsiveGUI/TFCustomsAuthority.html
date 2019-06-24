@@ -112,7 +112,7 @@
 
     <div class="container-fluid" id="Outer_Container_Layout" style="padding-bottom:4%">
 
-        <div class="container-fluid" style="padding-left:15%; padding-right:15%; padding-top:2%">
+        <div class="container-fluid" id="inner-container" style="padding-left:15%; padding-right:15%; padding-top:2%">
 
             <!--Customs-Authority Page : View "Shipment & Import Tax" details along with Payment Status-->
 
@@ -212,7 +212,7 @@
 
                 <div class="form-group">
 
-                    <label class="control-label col-sm-2" for="creditAmount">Credit Amount</label>
+                    <label class="control-label col-sm-2" for="creditAmount">Price</label>
 
                     <div class="col-sm-10">
 
@@ -246,18 +246,6 @@
 
                 </div>
 
-                <div class="form-group">
-
-                    <label class="control-label col-sm-2" for="importTaxStatus">Import Duty Status</label>
-
-                    <div class="col-sm-10">
-
-                        <textarea class="form-control" id="Shipment_Import_Duty_Status_Value" disabled> </textarea>
-
-                    </div>
-
-                </div>
-
             </form>
 
         </div>
@@ -273,6 +261,8 @@
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/TradeAndLC-StatusRetrieval.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
 
     <script>
 
@@ -281,54 +271,61 @@
         var webServerPrefix = "http://127.0.0.1:3500/?";
         var currentCustomsAuthorityName = null;
         var setAuthRefreshInterval = null;
+        var importTaxPercentage = 10;
 
         /***********************************************************************************************************
-    
+
         View Import Tax Status : View Shipment & Import Tax Details
-    
+
         ************************************************************************************************************/
 
         $("#View-ImportTax-Status-Button").click(function () {
 
-            // Prepare Http Request from Form-data and send the request
+            // Gather inputs
 
             var taId_value = document.getElementById("Trade-Id-Input").value;
 
-            // Mongo DB call for Status Change
+            // Retrieve Trade Details
 
-            var queryMap = new Map();
-            var queryEmpty = true;
+            var statusFormDetailsMap = new Map();
 
-            if (taId_value != null && taId_value != undefined) {
+            statusFormDetailsMap.set("TA_Element_Id", "Shipment_Details_TA_Id_Value");
+            statusFormDetailsMap.set("Buyer_Element_Id", "Shipment_Details_Buyer_Name_Value");
+            statusFormDetailsMap.set("Seller_Element_Id", "Shipment_Details_Seller_Name_Value");
+            statusFormDetailsMap.set("Shipment_Element_Id", "Shipment_Details_Shipment_Value");
+            statusFormDetailsMap.set("ShipmentCount_Element_Id", "Shipment_Details_Shipment_Count_Value");
+            statusFormDetailsMap.set("Amount_Element_Id", "Shipment_Details_Amount_Value");
+            statusFormDetailsMap.set("TradeStatus_Element_Id", "Shipment_Details_Status_Value");
 
-                queryMap.set("Trade_Id", taId_value);
-                queryEmpty = false;
-            }
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetailsWrapper(taId_value, false, statusFormDetailsMap);
 
-            if (queryEmpty == true) {
+            // Fill the details of Seller Location & Address
 
-                alert("Trade Agreement Id values are missing while Clearing Customs : ");
+            document.getElementById("Shipment_Details_Import_Duty_Value").innerHTML = "To Be Calculated";
 
-            } else {
+            // Reset Input Text Fields
 
-                document.getElementById("Trade-Id-Input").value = null;
-                retrieveTradeDetailsWrapper(taId_value);
-            }
+            document.getElementById("Trade-Id-Input").value = null;
 
         });
 
         /***********************************************************************************************************
-    
+
         Calculate ImportTax : Calculates the import Tax and updates the Trade Record along with current status
-    
+
         ************************************************************************************************************/
 
         $("#Calculate-ImportTax-Button").click(function () {
 
+            var cost_of_goods = document.getElementById("Shipment_Details_Amount_Value").value;
+            var import_tax_of_goods = (cost_of_goods * importTaxPercentage) / 100;
+
+            document.getElementById("Shipment_Details_Import_Duty_Value").innerHTML = import_tax_of_goods;
+
         });
 
         /***********************************************************************************************************
-         
+
             Approve Customs : Clear the customs at Port of Entry
 
         *************************************************************************************************************/
@@ -339,7 +336,7 @@
         });
 
         /***********************************************************************************************************
-         
+
             Reject Customs : Reject the customs at Port of Entry
 
         *************************************************************************************************************/
@@ -360,17 +357,18 @@
 
             // Prepare Http Request from Form-data and send the request
 
-            var taId_value = document.getElementById("Trade-Id-Input").value;
+            var taId_value = document.getElementById("Shipment_Details_TA_Id_Value").value;
 
             // Mongo DB call for Status Change
 
             var queryMap = new Map();
             var queryEmpty = true;
 
-            if (taId_value != null && taId_value != undefined) {
+            if (HelperUtilsModule.valueDefined(taId_value)) {
 
                 queryMap.set("Trade_Id", taId_value);
                 queryEmpty = false;
+
             }
 
             if (queryEmpty == true) {
@@ -391,37 +389,6 @@
                 */
 
                 document.getElementById("Trade-Id-Input").value = null;
-            }
-
-        }
-
-        /******************************************************************************************************
-            retrieveTradeDetailsWrapper : Retrieve the details of trade from mongo db
-                                        : Any Stake-Holder specific business logic can be written here
-        ******************************************************************************************************/
-
-        function retrieveTradeDetailsWrapper(taid_value) {
-
-            if (taid_value == null || taid_value == undefined) {
-
-                alert("retrieveTradeDetailsWrapper: taId value must be entered to retrieve the Trade Details");
-                return;
-            }
-
-            // Retrieve the Trade Details from mongoDb
-
-            var Client_Request = "RetrieveTradeDetails";
-
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
-            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
-
-            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
-
-            } else {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
             }
 
         }

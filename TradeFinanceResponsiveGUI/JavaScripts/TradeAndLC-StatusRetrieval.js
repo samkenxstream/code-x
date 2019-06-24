@@ -122,6 +122,11 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
     function retrieveTradeDetails_FromMongoDB(Trade_Id, Client_Request, currentUser, currentUserType, statusFormDetailsMap) {
 
+        if (bDebug == true) {
+
+            alert("retrieveTradeDetails_FromMongoDB : currentUser => " + currentUser + " currentUserType: " + currentUserType);
+        }
+
         var xmlhttp;
         var httpRequestString = webServerPrefix;
 
@@ -140,12 +145,18 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
             if (bDebug == true) {
 
-                alert("Intermediate Success Response While Placing RetrieveTradeDetails call :=> Status : " + this.status + " readyState : " + this.readyState);
+                alert("Intermediate Success Response While Placing RetrieveTradeDetails call :=> Status : " + this.status +
+                    " readyState : " + this.readyState);
             }
 
             if (this.status == 200) {
 
                 if (this.readyState == 4) {
+
+                    if (bDebug == true) {
+
+                        alert("All the Trade Details for Trade Id => " + Trade_Id + " : " + this.responseText);
+                    }
 
                     //Parse the JSON Response Object
 
@@ -158,7 +169,8 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
                     // Check the inclusiveness of Ta-Id ( to see if it belongs to Current User )
 
-                    if (currentUser != null && currentUser != undefined && currentUserType != null && currentUserType != undefined) {
+                    if ( doesUserTypeNeedInclusiveCheck(currentUserType) && HelperUtilsModule.valueDefined(currentUser) &&
+                         HelperUtilsModule.valueDefined(currentUserType)) {
 
                         if (currentUser == responseObject[currentUserType]) {
 
@@ -171,7 +183,7 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
                     } else {
 
-                        alert("Either of currentUser or currentUserType values are null/undefined");
+                        alert("Either of currentUser or currentUserType values are null/undefined/dont need inclusive check");
                         fillTheShipmentStatusDetailsPage(responseObject, statusFormDetailsMap);
 
                     }
@@ -306,6 +318,24 @@ var TradeAndLC_StatusRetrievalModule = (function () {
 
     }
 
+
+    /***************************************************************************************************************
+     *
+     * @param {String} currentUserType  : User Type value of current User
+     * 
+     * @returns {Boolean} true/false : Returns false for user types that need to be excluded. true otherwise
+     *
+    ****************************************************************************************************************/
+
+    function doesUserTypeNeedInclusiveCheck(currentUserType) {
+
+        if (currentUserType == "Carrier" || currentUserType == "CustomsAuthority") {
+
+            return false;
+        }
+
+        return true;
+    }
 
     /****************************************************************************************
         Reveal private methods 

@@ -62,11 +62,11 @@
 
                         <div class="dropdown btn-default" style="border: 1px solid thick brown; border-radius: 20px;">
 
-                            <button type="button" class="btn btn-info" id="Carrier-dropdown-button" data-toggle="dropdown" href="./TFCarrier.html">Load Shipment&nbsp;&nbsp;<span class="caret" /></button>
+                            <button type="button" class="btn btn-info" id="Carrier-dropdown-button" data-toggle="dropdown" href="./TFCarrier.html">Carrier&nbsp;&nbsp;<span class="caret" /></button>
 
                             <ul class="dropdown-menu">
 
-                                <li> <a href="./TFCarrier.html">Carrier</a> </li>
+                                <li> <a href="./TFCarrier.html">Load Shipment</a> </li>
 
                             </ul>
 
@@ -304,7 +304,7 @@
             var queryMap = new Map();
             var queryEmpty = true;
 
-            if (taId_value != null && taId_value != undefined) {
+            if (HelperUtilsModule.valueDefined(taId_value)) {
 
                 queryMap.set("Trade_Id", taId_value);
                 queryEmpty = false;
@@ -467,7 +467,7 @@
             // Authenticate On Page Load : Through Current User Context
 
             FlowControlGlobalsModule.bFirstTimeAuthentication = false;
-            //UserAuthenticationModule.authenticateUserOnPageLoad();
+            UserAuthenticationModule.authenticateUserOnPageLoad();
 
             // Build Query
 
@@ -488,7 +488,7 @@
 
             // Auto refresh page based on Periodic Authentication
 
-            //setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
+            setAuthRefreshInterval = setInterval(authenticateUserPeriodically, FlowControlGlobalsModule.periodicAuthenticationRefreshEventInterval);
         }
 
         /***************************************************************************************************************************
@@ -500,7 +500,7 @@
             // Authenticate Periodically : Through Current User Context
 
             FlowControlGlobalsModule.bFirstTimeAuthentication = false;
-            //UserAuthenticationModule.authenticateUserOnPageLoad();
+            UserAuthenticationModule.authenticateUserOnPageLoad();
 
         }
 

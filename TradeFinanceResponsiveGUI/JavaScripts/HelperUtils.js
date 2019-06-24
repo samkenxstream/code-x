@@ -55,7 +55,7 @@ var HelperUtilsModule = (function () {
 
     function valueDefined(inputValue) {
 
-        if (inputValue == null || inputValue == undefined) {
+        if (inputValue == null || inputValue == undefined || inputValue == "") {
 
             return false;
         }

@@ -371,91 +371,6 @@ var RetrieveUserDetails_Module = (function () {
 
     }
 
-    /********************************************************************************************************
-       
-       hidePagesBasedOnLoggedInUser : Sets the current User Context Details ( Usually during Page Load )
-                                      Show only one of "Buyer, Seller, Bank" Pages during login
-
-    *********************************************************************************************************/
-
-    /*
-    function hidePagesBasedOnLoggedInUser(singleUserObject) {
-
-        // Hide content Pages based on User Type
-
-        var currentUserType = singleUserObject.UserType;
-
-        if (bDebug == true) {
-
-            alert("hidePagesBasedOnLoggedInUser : After setting User Context Details : currentUserType : " + currentUserType);
-        }
-
-        // Build UserPage Ids Map & Hide Pages based on User Type
-
-        var userPageIdsMap = new Map();
-
-        userPageIdsMap.set("Buyer-Page-Id", "Buyer-Link");
-        userPageIdsMap.set("Seller-Page-Id", "Seller-Link");
-        userPageIdsMap.set("Bank-Page-Id", "Buyer-Bank-Link");
-
-        //hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap);
-    }
-
-    /*********************************************************************************************************
-
-       hidePagesBasedOnLoggedInUser : Generic function to hide User Pages based on logged info ( Generic )
-
-    **********************************************************************************************************/
-
-    /*
-    function hideUserPagesBasedOnCurrentUserContext(userPageIdsMap) {
-
-        // Hide content Pages based on User Type
-
-        var currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
-
-        if (bDebug == true) {
-
-            alert("hideUserPagesBasedOnLoggedInInfo : Current User Context : currentUserType : " + currentUserType);
-        }
-
-        hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap);
-    }
-
-
-    /*********************************************************************************************************
-
-       hidePagesBasedOnLoggedInUser : Generic function to hide User Pages based on logged info ( Generic )
-
-    **********************************************************************************************************/
-
-    /*
-    function hideUserPagesBasedOnUserType(currentUserType, userPageIdsMap) {
-
-        if (currentUserType == "Buyer") {
-
-            document.getElementById(userPageIdsMap.get("Seller-Page-Id")).style.display = "none";
-            document.getElementById(userPageIdsMap.get("Bank-Page-Id")).style.display = "none";
-
-        } else if (currentUserType == "Seller") {
-
-            document.getElementById(userPageIdsMap.get("Buyer-Page-Id")).style.display = "none";
-            document.getElementById(userPageIdsMap.get("Bank-Page-Id")).style.display = "none";
-
-        } else if (currentUserType == "Bank") {
-
-            document.getElementById(userPageIdsMap.get("Buyer-Page-Id")).style.display = "none";
-            document.getElementById(userPageIdsMap.get("Seller-Page-Id")).style.display = "none";
-
-        } else {
-
-            alert("hideUserPagesBasedOnUserType : Incorrect User Type : currentUserType : " + currentUserType);
-
-        }
-    }
-
-    */
-
     /*********************************************************************************************************
 
        redirectFirstTimeUserPageBasedOnUserType : First Time LogIn => Redirect Page Based On User Type
@@ -477,6 +392,14 @@ var RetrieveUserDetails_Module = (function () {
         } else if (currentUserType == "Bank") {
 
             document.location.replace("./TFBuyerBank.html");
+
+        } else if (currentUserType == "Carrier") {
+
+            document.location.replace("./TFCarrier.html");
+
+        } else if (currentUserType == "CustomsAuthority") {
+
+            document.location.replace("./TFCustomsAuthority.html");
 
         } else {
 

@@ -344,13 +344,13 @@
             var queryMap = new Map();
             var queryEmpty = true;
 
-            if (taId_value != null && taId_value != undefined) {
+            if (HelperUtilsModule.valueDefined(taId_value)) {
 
                 queryMap.set("Trade_Id", taId_value);
                 queryEmpty = false;
             }
 
-            if (lcId_value != null && lcId_value != undefined) {
+            if (HelperUtilsModule.valueDefined(lcId_value)) {
 
                 queryMap.set("Lc_Id", lcId_value);
                 queryEmpty = false;
