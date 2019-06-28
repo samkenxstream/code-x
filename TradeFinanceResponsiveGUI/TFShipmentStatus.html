@@ -246,6 +246,7 @@
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
 
     <script>
 
@@ -266,34 +267,15 @@
                 RetrieveTradeDetails : Retrieve the details from mongo db
             *****************************************************************************************/
 
-            var taid_value = document.getElementById("TA-Id-Input").value;
+            var taId_value = document.getElementById("TA-Id-Input").value;
 
-            if (taid_value == null) {
+            if (!HelperUtilsModule.valueDefined(taId_value)) {
 
                 alert("taId value must be entered to retrieve the Trade Details");
+                return;
             }
 
-            // Retrieve the Trade Details from mongoDb
-
-            var Client_Request = "RetrieveTradeDetails";
-
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
-            currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
-
-            if (bDebug == true) {
-
-                alert("current Name of the logged in Buyer : " + currentUserName);
-                alert("current UserType set during Page Load User Context : " + currentUserType);
-            }
-
-            if (currentUserName != null && currentUserName != undefined && currentUserType != null && currentUserType != undefined) {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, currentUserName, currentUserType);
-
-            } else {
-
-                TradeAndLC_StatusRetrievalModule.retrieveTradeDetails_MongoDB(taid_value, Client_Request, null, null);
-            }
+            retrieveTradeDetails(taId_value);
 
             /****************************************************************************************
                 getTA : Place HyperLedger API Call
@@ -301,7 +283,7 @@
 
             /*
             var API_Name = "getTA";
-            var tradeDetailsRequestObject = { taId: taid_value };
+            var tradeDetailsRequestObject = { taId: taId_value };
 
             tradeStatusDetailsObject = HyperLedgerAPIWrapperModule.httpAPIRequestToHyperLedgerServer(tradeDetailsRequestObject, API_Name);
             */
@@ -309,6 +291,30 @@
             document.getElementById("TA-Id-Input").value = null;
 
         });
+
+        /**
+         * 
+         * @param {any} taId_value  : Trade Id value for which status details need to be exracted
+         * 
+        */
+
+        function retrieveTradeDetails(taId_value) {
+
+            // Retrieve Trade Details
+
+            var statusFormDetailsMap = new Map();
+
+            statusFormDetailsMap.set("TA_Element_Id", "Shipment_Details_TA_Id_Value");
+            statusFormDetailsMap.set("Buyer_Element_Id", "Shipment_Details_Buyer_Name_Value");
+            statusFormDetailsMap.set("Seller_Element_Id", "Shipment_Details_Seller_Name_Value");
+            statusFormDetailsMap.set("Shipment_Element_Id", "Shipment_Details_Shipment_Value");
+            statusFormDetailsMap.set("ShipmentCount_Element_Id", "Shipment_Details_Shipment_Count_Value");
+            statusFormDetailsMap.set("Amount_Element_Id", "Shipment_Details_Amount_Value");
+            statusFormDetailsMap.set("TradeStatus_Element_Id", "Shipment_Details_Status_Value");
+
+            TradeAndLC_StatusRetrievalModule.retrieveTradeDetailsWrapper(taId_value, false, statusFormDetailsMap);
+
+        }
 
         /****************************************************************************************
             Login & Logout functionality : Hide and display the Internal content references

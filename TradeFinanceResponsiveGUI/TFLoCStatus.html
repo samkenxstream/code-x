@@ -282,6 +282,7 @@
     <script src="./JavaScripts/RetrieveUserDetails.js"></script>
     <script src="./JavaScripts/GlobalsForFlowControl.js"></script>
     <script src="./JavaScripts/UserAuthentication.js"></script>
+    <script src="./JavaScripts/HelperUtils.js"></script>
 
     <script>
 
@@ -310,7 +311,7 @@
 
             var Client_Request = "RetrieveLCDetails";
 
-            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserName_Key);
+            currentUserName = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
             currentUserType = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_UserType_Key);
 
             if (bDebug == true) {

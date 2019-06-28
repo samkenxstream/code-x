@@ -204,7 +204,7 @@
             var setAuthRefreshInterval = null;
             var webServerPrefix = "http://127.0.0.1:3500/?";
 
-            var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUserName_Key);
+            var currentUserNameValue = window.localStorage.getItem(FlowControlGlobalsModule.currentUser_Name_Key);
 
             if (bDebug == true) {
 
@@ -230,6 +230,12 @@
                 var shipment_value = document.getElementById("Shipment-Input").value;
                 var shipmentCount_value = document.getElementById("ShipmentCount").value;
                 var amount_value = document.getElementById("CreditAmountInput").value;
+
+                if (bDebug == true) {
+
+                    alert("buyer value : " + buyer_value);
+                    alert("seller value : " + seller_value);
+                }
 
                 if (taid_value == null || buyer_value == null || seller_value == null || shipment_value == null
                     || shipmentCount_value == null || amount_value == null) {
